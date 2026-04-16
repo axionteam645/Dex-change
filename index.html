@@ -270,10 +270,10 @@
                 </div>
                 <div class="swap-meta">
                   <span>Connected Pool</span>
-                  <strong>AX / BNB Swap</strong>
+                  <strong>Any Token / BNB / Token Swap</strong>
                 </div>
               </div>
-              <p>Live pair reads through Factory → Pair and swap execution through Router. The default setup is Pancake/Uniswap V2-compatible.</p>
+              <p>Import any BEP-20 contract, sync its pair through Factory, and trade BNB ⇄ Token or Token ⇄ Token through a Pancake/Uniswap V2-compatible Router.</p>
               <a class="btn btn-gold" href="#swap">OPEN CONNECTED SWAP</a>
             </div>
           </div>
@@ -281,19 +281,28 @@
 
         <article class="card" id="contracts">
           <div class="card-inner">
-            <div class="tag">Contract Configuration</div>
+            <div class="tag">Token Import + Configuration</div>
             <div class="title-row">
               <div class="icon-badge"><img src="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" alt="AXION Logo"></div>
-              <h3>Addresses In Use</h3>
+              <h3>Trade Any Token</h3>
+            </div>
+            <div class="input-shell" style="margin-bottom:14px;">
+              <label>Token Contract Address</label>
+              <input id="customTokenAddress" type="text" placeholder="0x..." />
+            </div>
+            <div class="action-row" style="margin-bottom:16px;">
+              <button class="btn" id="addTokenBtn" type="button">Add Token</button>
+              <button class="btn btn-secondary" id="syncSelectedPairBtn" type="button">Sync Selected Pair</button>
             </div>
             <div class="info-list">
-              <div class="info-row"><span>AX Token</span><strong class="mono" id="tokenAddressText"></strong></div>
+              <div class="info-row"><span>Selected Token</span><strong class="mono" id="tokenAddressText"></strong></div>
               <div class="info-row"><span>Router</span><strong class="mono" id="routerAddressText"></strong></div>
               <div class="info-row"><span>Factory</span><strong class="mono" id="factoryAddressText"></strong></div>
               <div class="info-row"><span>WBNB</span><strong class="mono" id="wbnbAddressText"></strong></div>
-              <div class="info-row"><span>Current Pair</span><strong class="mono" id="pairAddressText">-</strong></div>
+              <div class="info-row"><span>Current BNB Pair</span><strong class="mono" id="pairAddressText">-</strong></div>
             </div>
-            <div class="status" id="contractStatus">Waiting for wallet connection and pair sync.</div>
+            <div class="status" id="contractStatus">Import a token contract, then sync its BNB pair through the Factory.</div>
+            <div class="status" id="tokenLibraryStatus" style="margin-top:10px;">Default token list loaded.</div>
           </div>
         </article>
       </div>
@@ -305,7 +314,7 @@
       <div class="section-head">
         <div>
           <div class="eyebrow">Swap</div>
-          <h2 class="gradient-title">Live Router Quote</h2>
+          <h2 class="gradient-title">Universal Router Quote</h2>
         </div>
       </div>
 
@@ -315,25 +324,19 @@
             <div class="tag">Swap Panel</div>
             <div class="title-row">
               <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M7 7h11"/><path d="M14 4l4 3-4 3"/><path d="M17 17H6"/><path d="M10 14l-4 3 4 3"/></svg></div>
-              <h3>AX / BNB</h3>
+              <h3>Universal Swap</h3>
             </div>
 
             <div class="swap-grid">
               <div class="input-shell">
                 <label>You Pay</label>
-                <select id="tokenInSelect">
-                  <option value="BNB">BNB</option>
-                  <option value="AX">AX</option>
-                </select>
+                <select id="tokenInSelect"></select>
                 <input id="amountIn" type="number" min="0" step="any" placeholder="0.0" />
               </div>
               <div class="swap-arrow">⇄</div>
               <div class="input-shell">
                 <label>You Receive</label>
-                <select id="tokenOutSelect">
-                  <option value="AX">AX</option>
-                  <option value="BNB">BNB</option>
-                </select>
+                <select id="tokenOutSelect"></select>
                 <input id="amountOut" type="text" readonly placeholder="Quoted output" />
               </div>
             </div>
@@ -342,14 +345,14 @@
               <div class="info-row"><span>Rate</span><strong id="quoteRate">-</strong></div>
               <div class="info-row"><span>Minimum Received</span><strong id="quoteMin">-</strong></div>
               <div class="info-row"><span>Slippage</span><strong id="slippageText">0.50%</strong></div>
-              <div class="info-row"><span>Route</span><strong id="routeText">BNB → AX</strong></div>
+              <div class="info-row"><span>Route</span><strong id="routeText">-</strong></div>
             </div>
 
             <div class="action-row">
               <button class="btn" id="quoteBtn" type="button">Get Quote</button>
               <button class="btn btn-gold" id="swapBtn" type="button">Swap</button>
             </div>
-            <div class="status" id="swapStatus">Enter an amount and fetch a live quote from the Router.</div>
+            <div class="status" id="swapStatus">Choose any imported token pair and fetch a live quote from the Router.</div>
           </div>
         </article>
 
@@ -360,7 +363,7 @@
               <div class="icon-badge"><img src="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" alt="AXION Logo"></div>
               <h3>Connected Wallet</h3>
             </div>
-            <p>Reads current wallet state for BNB and AX. Native BNB and token balances refresh after connection.</p>
+            <p>Reads current wallet state for BNB and the selected imported token. Native BNB and token balances refresh after connection.</p>
 
             <div class="wallet-grid">
               <div class="wallet-tile"><small>Address</small><strong class="mono" id="walletAddress">Not connected</strong></div>
@@ -370,13 +373,13 @@
 
             <div class="wallet-grid">
               <div class="wallet-tile"><small>BNB Balance</small><strong id="bnbBalance">-</strong></div>
-              <div class="wallet-tile"><small>AX Balance</small><strong id="axBalance">-</strong></div>
+              <div class="wallet-tile"><small>Selected Token Balance</small><strong id="axBalance">-</strong></div>
               <div class="wallet-tile"><small>Allowance</small><strong id="axAllowance">-</strong></div>
             </div>
 
             <div class="action-row">
               <button class="btn btn-secondary" id="refreshBtn" type="button">Refresh Data</button>
-              <button class="btn btn-secondary" id="approveBtn" type="button">Approve AX</button>
+              <button class="btn btn-secondary" id="approveBtn" type="button">Approve Token</button>
             </div>
             <div class="status" id="walletStatus">Connect MetaMask to read wallet data.</div>
           </div>
@@ -400,11 +403,11 @@
             <div class="tag">Add Liquidity</div>
             <div class="title-row">
               <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
-              <h3>AX + BNB</h3>
+              <h3>Selected Token + BNB</h3>
             </div>
             <div class="grid-2">
               <div class="input-shell">
-                <label>AX Amount</label>
+                <label><span id="liqTokenLabel">Selected Token</span> Amount</label>
                 <input id="liqAX" type="number" min="0" step="any" placeholder="0.0" />
               </div>
               <div class="input-shell">
@@ -413,10 +416,10 @@
               </div>
             </div>
             <div class="action-row">
-              <button class="btn btn-secondary" id="approveLiqBtn" type="button">Approve AX</button>
+              <button class="btn btn-secondary" id="approveLiqBtn" type="button">Approve Token</button>
               <button class="btn" id="addLiquidityBtn" type="button">Add Liquidity</button>
             </div>
-            <div class="status" id="liqStatus">Router.addLiquidityETH will be used for this action.</div>
+            <div class="status" id="liqStatus">Router.addLiquidityETH will use the currently selected token against BNB.</div>
           </div>
         </article>
 
@@ -441,14 +444,14 @@
               <button class="btn btn-secondary" id="approveLPBtn" type="button">Approve LP</button>
               <button class="btn btn-gold" id="removeLiquidityBtn" type="button">Remove Liquidity</button>
             </div>
-            <div class="status" id="removeStatus">Router.removeLiquidityETHSupportingFeeOnTransferTokens will be used if available.</div>
+            <div class="status" id="removeStatus">Router.removeLiquidityETHSupportingFeeOnTransferTokens will be used for the selected token if available.</div>
           </div>
         </article>
       </div>
 
       <div class="metric-grid" style="margin-top:18px;">
         <div class="metric"><small>Pair Address</small><strong class="mono" id="metricPair">-</strong></div>
-        <div class="metric"><small>Reserve AX</small><strong id="metricReserveAX">-</strong></div>
+        <div class="metric"><small>Reserve Token</small><strong id="metricReserveAX">-</strong></div>
         <div class="metric"><small>Reserve BNB</small><strong id="metricReserveBNB">-</strong></div>
         <div class="metric"><small>Total LP Supply</small><strong id="metricLPSupply">-</strong></div>
       </div>
@@ -470,328 +473,338 @@
 
   <script>
     const CONFIG = {
-      chainId: 56,
-      chainHex: '0x38',
-      chainName: 'BNB Smart Chain',
-      tokenAddress: '0x9e266c2C148df3456e170B759d77c91AbC67eEAB',
+      defaultTokenAddress: '0x9e266c2C148df3456e170B759d77c91AbC67eEAB',
       routerAddress: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
       factoryAddress: '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73',
       wbnbAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+      chainId: 56,
       slippageBps: 50,
       deadlineMinutes: 20,
-      explorer: 'https://bscscan.com'
+      storageKey: 'axionDexImportedTokensV2'
     };
 
     const ERC20_ABI = [
-      'function decimals() view returns (uint8)',
+      'function name() view returns (string)',
       'function symbol() view returns (string)',
+      'function decimals() view returns (uint8)',
+      'function balanceOf(address) view returns (uint256)',
+      'function allowance(address,address) view returns (uint256)',
+      'function approve(address,uint256) returns (bool)',
+      'function totalSupply() view returns (uint256)'
+    ];
+    const ROUTER_ABI = [
+      'function getAmountsOut(uint amountIn,address[] memory path) view returns (uint[] memory amounts)',
+      'function swapExactETHForTokensSupportingFeeOnTransferTokens(uint amountOutMin,address[] calldata path,address to,uint deadline) payable',
+      'function swapExactTokensForETHSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline)',
+      'function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline)',
+      'function addLiquidityETH(address token,uint amountTokenDesired,uint amountTokenMin,uint amountETHMin,address to,uint deadline) payable returns (uint amountToken,uint amountETH,uint liquidity)',
+      'function removeLiquidityETHSupportingFeeOnTransferTokens(address token,uint liquidity,uint amountTokenMin,uint amountETHMin,address to,uint deadline) returns (uint amountETH)',
+      'function removeLiquidityETH(address token,uint liquidity,uint amountTokenMin,uint amountETHMin,address to,uint deadline) returns (uint amountToken,uint amountETH)'
+    ];
+    const FACTORY_ABI = [
+      'function getPair(address,address) view returns (address)'
+    ];
+    const PAIR_ABI = [
+      'function token0() view returns (address)',
+      'function token1() view returns (address)',
+      'function getReserves() view returns (uint112 reserve0,uint112 reserve1,uint32 blockTimestampLast)',
+      'function totalSupply() view returns (uint256)',
       'function balanceOf(address) view returns (uint256)',
       'function allowance(address,address) view returns (uint256)',
       'function approve(address,uint256) returns (bool)',
       'function totalSupply() view returns (uint256)'
     ];
 
-    const ROUTER_ABI = [
-      'function getAmountsOut(uint amountIn, address[] memory path) view returns (uint[] memory amounts)',
-      'function addLiquidityETH(address token,uint amountTokenDesired,uint amountTokenMin,uint amountETHMin,address to,uint deadline) payable returns (uint amountToken,uint amountETH,uint liquidity)',
-      'function swapExactETHForTokensSupportingFeeOnTransferTokens(uint amountOutMin,address[] calldata path,address to,uint deadline) payable',
-      'function swapExactTokensForETHSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline)',
-      'function removeLiquidityETHSupportingFeeOnTransferTokens(address token,uint liquidity,uint amountTokenMin,uint amountETHMin,address to,uint deadline) returns (uint amountETH)',
-      'function removeLiquidityETH(address token,uint liquidity,uint amountTokenMin,uint amountETHMin,address to,uint deadline) returns (uint amountToken,uint amountETH)'
-    ];
-
-    const FACTORY_ABI = [
-      'function getPair(address tokenA,address tokenB) view returns (address pair)'
-    ];
-
-    const PAIR_ABI = [
-      'function getReserves() view returns (uint112 reserve0,uint112 reserve1,uint32 blockTimestampLast)',
-      'function token0() view returns (address)',
-      'function token1() view returns (address)',
-      'function balanceOf(address) view returns (uint256)',
-      'function totalSupply() view returns (uint256)',
-      'function allowance(address,address) view returns (uint256)',
-      'function approve(address,uint256) returns (bool)'
-    ];
-
     const state = {
       provider: null,
       signer: null,
       account: null,
-      token: null,
       router: null,
       factory: null,
+      selectedToken: null,
+      selectedTokenAddress: null,
+      tokenDecimals: 18,
+      tokenSymbol: 'TOKEN',
       pair: null,
       pairAddress: null,
       pairToken0: null,
-      pairToken1: null,
-      tokenDecimals: 18,
-      lpDecimals: 18
+      importedTokens: []
     };
 
     const $ = (id) => document.getElementById(id);
 
-    function shortAddr(addr){ return addr ? `${addr.slice(0,6)}...${addr.slice(-4)}` : '-'; }
-    function setStatus(id, msg, mode=''){ const el = $(id); el.className = `status ${mode}`.trim(); el.textContent = msg; }
-    function fmt(v, d=4){
-      if (v === null || v === undefined || Number.isNaN(Number(v))) return '-';
-      return Number(v).toLocaleString('en-US',{maximumFractionDigits:d});
+    function shortAddr(addr){ return addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '-'; }
+    function formatUnitsSafe(v, d=18, p=6){ try { return Number(ethers.utils.formatUnits(v || 0, d)).toLocaleString('en-US',{maximumFractionDigits:p}); } catch { return '0'; } }
+    function parseUnitsSafe(v, d=18){
+      const clean = String(v || '').trim();
+      if (!clean) throw new Error('Enter a valid amount.');
+      return ethers.utils.parseUnits(clean, d);
     }
-    function parseUnitsSafe(value, decimals){
-      const v = String(value || '').trim();
-      if (!v || Number(v) <= 0) throw new Error('Enter a valid amount.');
-      return ethers.utils.parseUnits(v, decimals);
+    function setStatus(id, message, type=''){
+      const el = $(id); if (!el) return;
+      el.className = `status ${type === 'success' ? 'success' : type === 'error' ? 'error' : ''}`.trim();
+      el.textContent = message;
     }
-
-    async function ensureChain(){
-      if (!window.ethereum) throw new Error('MetaMask not found.');
-      const current = await window.ethereum.request({ method:'eth_chainId' });
-      if (current !== CONFIG.chainHex) {
-        try {
-          await window.ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId: CONFIG.chainHex }] });
-        } catch (err) {
-          throw new Error('Switch MetaMask to BNB Smart Chain first.');
-        }
-      }
+    function getImportedTokens(){
+      try {
+        const raw = JSON.parse(localStorage.getItem(CONFIG.storageKey) || '[]');
+        return Array.isArray(raw) ? raw : [];
+      } catch { return []; }
     }
-
-    async function initContracts(){
+    function saveImportedTokens(){
+      localStorage.setItem(CONFIG.storageKey, JSON.stringify(state.importedTokens));
+    }
+    function getTokenLabel(token){
+      if (token.native) return 'BNB';
+      return `${token.symbol || 'TOKEN'} • ${shortAddr(token.address)}`;
+    }
+    function updateTokenSelects(){
+      const tokens = [{address:'BNB', symbol:'BNB', decimals:18, native:true}, ...state.importedTokens];
+      const currentIn = $('tokenInSelect').value;
+      const currentOut = $('tokenOutSelect').value;
+      $('tokenInSelect').innerHTML = tokens.map(t => `<option value="${t.address}">${getTokenLabel(t)}</option>`).join('');
+      $('tokenOutSelect').innerHTML = tokens.map(t => `<option value="${t.address}">${getTokenLabel(t)}</option>`).join('');
+      $('liqTokenLabel').textContent = state.tokenSymbol || 'Selected Token';
+      $('tokenInSelect').value = tokens.some(t => t.address === currentIn) ? currentIn : 'BNB';
+      const desiredOut = tokens.some(t => t.address === currentOut) ? currentOut : (state.selectedTokenAddress || CONFIG.defaultTokenAddress);
+      $('tokenOutSelect').value = desiredOut === $('tokenInSelect').value ? (tokens.find(t => t.address !== $('tokenInSelect').value)?.address || 'BNB') : desiredOut;
+      updateRouteText();
+    }
+    function updateRouteText(){
+      const inLabel = $('tokenInSelect').selectedOptions[0]?.textContent || '-';
+      const outLabel = $('tokenOutSelect').selectedOptions[0]?.textContent || '-';
+      $('routeText').textContent = `${inLabel} → ${outLabel}`;
+    }
+    function tokenMetaByAddress(address){
+      if (address === 'BNB') return {address:'BNB', symbol:'BNB', decimals:18, native:true};
+      return state.importedTokens.find(t => t.address.toLowerCase() === address.toLowerCase()) || null;
+    }
+    async function buildContracts(){
+      if (!window.ethereum) throw new Error('MetaMask not detected.');
       state.provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
       state.signer = state.provider.getSigner();
       state.account = await state.signer.getAddress();
-      state.token = new ethers.Contract(CONFIG.tokenAddress, ERC20_ABI, state.signer);
+      const net = await state.provider.getNetwork();
+      if (Number(net.chainId) !== CONFIG.chainId) throw new Error('Switch wallet network to BNB Smart Chain (56).');
       state.router = new ethers.Contract(CONFIG.routerAddress, ROUTER_ABI, state.signer);
       state.factory = new ethers.Contract(CONFIG.factoryAddress, FACTORY_ABI, state.signer);
-      state.tokenDecimals = await state.token.decimals();
-      state.pairAddress = await state.factory.getPair(CONFIG.tokenAddress, CONFIG.wbnbAddress);
-      if (state.pairAddress && state.pairAddress !== ethers.constants.AddressZero) {
+    }
+    async function importToken(address, makeSelected=true){
+      if (!ethers.utils.isAddress(address)) throw new Error('Invalid contract address.');
+      if (!state.provider) state.provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+      const token = new ethers.Contract(address, ERC20_ABI, state.provider);
+      const [name, symbol, decimals] = await Promise.all([token.name(), token.symbol(), token.decimals()]);
+      const item = { address: ethers.utils.getAddress(address), name, symbol, decimals: Number(decimals) };
+      const exists = state.importedTokens.find(t => t.address.toLowerCase() === item.address.toLowerCase());
+      if (!exists) {
+        state.importedTokens.push(item);
+        saveImportedTokens();
+      }
+      if (makeSelected) await selectToken(item.address);
+      updateTokenSelects();
+      setStatus('tokenLibraryStatus', `${item.symbol} imported successfully.`, 'success');
+      return item;
+    }
+    async function selectToken(address){
+      const meta = tokenMetaByAddress(address);
+      if (!meta || meta.native) throw new Error('Select a BEP-20 token.');
+      if (!state.signer) await buildContracts();
+      state.selectedTokenAddress = meta.address;
+      state.tokenSymbol = meta.symbol;
+      state.tokenDecimals = meta.decimals;
+      state.selectedToken = new ethers.Contract(meta.address, ERC20_ABI, state.signer);
+      $('tokenAddressText').textContent = meta.address;
+      await syncSelectedPair();
+    }
+    async function syncSelectedPair(){
+      try {
+        if (!state.factory || !state.selectedTokenAddress) throw new Error('Select a token first.');
+        state.pairAddress = await state.factory.getPair(state.selectedTokenAddress, CONFIG.wbnbAddress);
+        $('pairAddressText').textContent = state.pairAddress && state.pairAddress !== ethers.constants.AddressZero ? state.pairAddress : 'No BNB pair found';
+        if (!state.pairAddress || state.pairAddress === ethers.constants.AddressZero) {
+          state.pair = null;
+          state.pairToken0 = null;
+          setStatus('contractStatus', 'Selected token imported, but no BNB pair was found in the Factory.', 'error');
+          return;
+        }
         state.pair = new ethers.Contract(state.pairAddress, PAIR_ABI, state.signer);
         state.pairToken0 = await state.pair.token0();
-        state.pairToken1 = await state.pair.token1();
-      } else {
-        state.pair = null;
+        setStatus('contractStatus', `${state.tokenSymbol} / BNB pair synced successfully.`, 'success');
+        await refreshAll();
+      } catch (err) {
+        setStatus('contractStatus', err.message || 'Pair sync failed.', 'error');
       }
     }
-
     async function connectWallet(){
       try {
         if (!window.ethereum) throw new Error('MetaMask not detected.');
-        await ensureChain();
-        await window.ethereum.request({ method:'eth_requestAccounts' });
-        await initContracts();
-
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        await buildContracts();
         $('walletBtn').textContent = shortAddr(state.account);
         $('walletAddress').textContent = state.account;
-        $('walletNetwork').textContent = CONFIG.chainName;
-        $('tokenAddressText').textContent = CONFIG.tokenAddress;
+        $('walletNetwork').textContent = 'BNB Smart Chain';
         $('routerAddressText').textContent = CONFIG.routerAddress;
         $('factoryAddressText').textContent = CONFIG.factoryAddress;
         $('wbnbAddressText').textContent = CONFIG.wbnbAddress;
-        $('pairAddressText').textContent = state.pairAddress && state.pairAddress !== ethers.constants.AddressZero ? state.pairAddress : 'Pair not found';
-        $('metricPair').textContent = state.pairAddress && state.pairAddress !== ethers.constants.AddressZero ? shortAddr(state.pairAddress) : '-';
-        $('pairState').textContent = state.pair ? 'Live' : 'Not Found';
-        setStatus('walletStatus', 'Wallet connected. Refreshing balances and pair data.', 'success');
-        setStatus('contractStatus', 'Contracts loaded successfully.', 'success');
-        await refreshAll();
+        setStatus('walletStatus', 'Wallet connected. Reading balances and allowances…', 'success');
+        if (!state.selectedTokenAddress && state.importedTokens.length) {
+          await selectToken(state.importedTokens[0].address);
+        } else {
+          await refreshAll();
+        }
       } catch (err) {
         setStatus('walletStatus', err.message || 'Wallet connection failed.', 'error');
-        setStatus('contractStatus', err.message || 'Contract initialization failed.', 'error');
       }
     }
-
-    async function refreshWalletData(){
-      if (!state.provider || !state.account) return;
-      const [bnbBal, axBal, allowance] = await Promise.all([
-        state.provider.getBalance(state.account),
-        state.token.balanceOf(state.account),
-        state.token.allowance(state.account, CONFIG.routerAddress)
-      ]);
-      $('bnbBalance').textContent = `${fmt(ethers.utils.formatEther(bnbBal), 6)} BNB`;
-      $('axBalance').textContent = `${fmt(ethers.utils.formatUnits(axBal, state.tokenDecimals), 4)} AX`;
-      $('axAllowance').textContent = allowance.gt(0) ? `${fmt(ethers.utils.formatUnits(allowance, state.tokenDecimals), 4)} AX` : '0';
-    }
-
-    async function refreshPairData(){
-      if (!state.pair) {
-        $('heroPrice').textContent = 'No pair';
-        $('heroReserveAX').textContent = '-';
-        $('heroReserveBNB').textContent = '-';
+    async function refreshWallet(){
+      if (!state.account || !state.provider) return;
+      const bnbBal = await state.provider.getBalance(state.account);
+      $('bnbBalance').textContent = `${formatUnitsSafe(bnbBal,18,5)} BNB`;
+      if (state.selectedToken) {
+        const [tokenBal, allowance] = await Promise.all([
+          state.selectedToken.balanceOf(state.account),
+          state.selectedToken.allowance(state.account, CONFIG.routerAddress)
+        ]);
+        $('axBalance').textContent = `${formatUnitsSafe(tokenBal, state.tokenDecimals, 4)} ${state.tokenSymbol}`;
+        $('axAllowance').textContent = formatUnitsSafe(allowance, state.tokenDecimals, 4);
+      } else {
+        $('axBalance').textContent = '-';
+        $('axAllowance').textContent = '-';
+      }
+      if (state.pair) {
+        const [reserves, lpBalance] = await Promise.all([
+          state.pair.getReserves(),
+          state.pair.balanceOf(state.account)
+        ]);
+        let tokenReserve, bnbReserve;
+        if (state.pairToken0.toLowerCase() === state.selectedTokenAddress.toLowerCase()) {
+          tokenReserve = reserves.reserve0;
+          bnbReserve = reserves.reserve1;
+        } else {
+          tokenReserve = reserves.reserve1;
+          bnbReserve = reserves.reserve0;
+        }
+        $('pairState').textContent = 'Synced';
+        $('lpBalanceRead').value = formatUnitsSafe(lpBalance, 18, 4);
+        $('metricPair').textContent = state.pairAddress;
+        $('metricReserveAX').textContent = `${formatUnitsSafe(tokenReserve, state.tokenDecimals, 2)} ${state.tokenSymbol}`;
+        $('metricReserveBNB').textContent = `${formatUnitsSafe(bnbReserve, 18, 4)} BNB`;
+        $('metricLPSupply').textContent = formatUnitsSafe(await state.pair.totalSupply?.() || 0, 18, 4);
+        $('heroPair').textContent = `${state.tokenSymbol} / BNB`;
+        $('heroReserveAX').textContent = `${formatUnitsSafe(tokenReserve, state.tokenDecimals, 2)} ${state.tokenSymbol}`;
+        $('heroReserveBNB').textContent = `${formatUnitsSafe(bnbReserve, 18, 4)} BNB`;
+      } else {
+        $('pairState').textContent = 'No pair';
+        $('lpBalanceRead').value = '-';
+        $('metricPair').textContent = '-';
         $('metricReserveAX').textContent = '-';
         $('metricReserveBNB').textContent = '-';
         $('metricLPSupply').textContent = '-';
-        $('lpBalanceRead').value = '-';
-        return;
       }
-
-      const [reserves, totalSupply, lpBal] = await Promise.all([
-        state.pair.getReserves(),
-        state.pair.totalSupply(),
-        state.pair.balanceOf(state.account)
-      ]);
-
-      let reserveAX, reserveBNB;
-      if (state.pairToken0.toLowerCase() === CONFIG.tokenAddress.toLowerCase()) {
-        reserveAX = ethers.utils.formatUnits(reserves.reserve0, state.tokenDecimals);
-        reserveBNB = ethers.utils.formatEther(reserves.reserve1);
-      } else {
-        reserveAX = ethers.utils.formatUnits(reserves.reserve1, state.tokenDecimals);
-        reserveBNB = ethers.utils.formatEther(reserves.reserve0);
-      }
-      const price = Number(reserveBNB) > 0 ? Number(reserveAX) / Number(reserveBNB) : 0;
-      $('heroPrice').textContent = price ? `${fmt(price, 6)} AX / BNB` : '-';
-      $('heroReserveAX').textContent = fmt(reserveAX, 2);
-      $('heroReserveBNB').textContent = fmt(reserveBNB, 4);
-      $('metricReserveAX').textContent = `${fmt(reserveAX, 2)} AX`;
-      $('metricReserveBNB').textContent = `${fmt(reserveBNB, 4)} BNB`;
-      $('metricLPSupply').textContent = fmt(ethers.utils.formatEther(totalSupply), 4);
-      $('lpBalanceRead').value = fmt(ethers.utils.formatEther(lpBal), 6);
     }
-
     async function refreshAll(){
       try {
-        await refreshWalletData();
-        await refreshPairData();
+        updateRouteText();
+        await refreshWallet();
       } catch (err) {
         setStatus('walletStatus', err.message || 'Refresh failed.', 'error');
       }
     }
-
-    function syncRouteSelects(){
-      const inVal = $('tokenInSelect').value;
-      $('tokenOutSelect').value = inVal === 'BNB' ? 'AX' : 'BNB';
-      $('routeText').textContent = `${$('tokenInSelect').value} → ${$('tokenOutSelect').value}`;
+    async function approveSelectedToken(statusId='walletStatus'){
+      try {
+        if (!state.selectedToken) throw new Error('Select a token first.');
+        const tx = await state.selectedToken.approve(CONFIG.routerAddress, ethers.constants.MaxUint256);
+        setStatus(statusId, `Approval submitted: ${tx.hash}`, '');
+        await tx.wait();
+        setStatus(statusId, `${state.tokenSymbol} approval confirmed.`, 'success');
+        await refreshWallet();
+      } catch (err) {
+        setStatus(statusId, err.message || 'Approval failed.', 'error');
+      }
     }
-
+    function getSwapPath(tokenIn, tokenOut){
+      if (tokenIn === tokenOut) throw new Error('Choose two different assets.');
+      if (tokenIn === 'BNB') return [CONFIG.wbnbAddress, tokenOut];
+      if (tokenOut === 'BNB') return [tokenIn, CONFIG.wbnbAddress];
+      return [tokenIn, CONFIG.wbnbAddress, tokenOut];
+    }
     async function getQuote(){
       try {
         if (!state.router) throw new Error('Connect wallet first.');
-        syncRouteSelects();
         const tokenIn = $('tokenInSelect').value;
         const tokenOut = $('tokenOutSelect').value;
-        const amountInput = $('amountIn').value;
-
-        let amountInBn;
-        let path;
-        if (tokenIn === 'BNB' && tokenOut === 'AX') {
-          amountInBn = parseUnitsSafe(amountInput, 18);
-          path = [CONFIG.wbnbAddress, CONFIG.tokenAddress];
-        } else if (tokenIn === 'AX' && tokenOut === 'BNB') {
-          amountInBn = parseUnitsSafe(amountInput, state.tokenDecimals);
-          path = [CONFIG.tokenAddress, CONFIG.wbnbAddress];
-        } else {
-          throw new Error('Unsupported route.');
-        }
-
-        const amounts = await state.router.getAmountsOut(amountInBn, path);
-        const outBn = amounts[amounts.length - 1];
-        const outFmt = tokenOut === 'BNB' ? ethers.utils.formatEther(outBn) : ethers.utils.formatUnits(outBn, state.tokenDecimals);
-        const minOut = outBn.mul(10000 - CONFIG.slippageBps).div(10000);
-        const minFmt = tokenOut === 'BNB' ? ethers.utils.formatEther(minOut) : ethers.utils.formatUnits(minOut, state.tokenDecimals);
-
-        $('amountOut').value = fmt(outFmt, 8);
-        $('quoteRate').textContent = `1 ${tokenIn} ≈ ${fmt(Number(outFmt) / Number(amountInput || 1), 8)} ${tokenOut}`;
-        $('quoteMin').textContent = `${fmt(minFmt, 8)} ${tokenOut}`;
-        setStatus('swapStatus', 'Live Router quote loaded successfully.', 'success');
+        updateRouteText();
+        const metaIn = tokenMetaByAddress(tokenIn);
+        const metaOut = tokenMetaByAddress(tokenOut);
+        const amountIn = parseUnitsSafe($('amountIn').value, metaIn.decimals);
+        const path = getSwapPath(tokenIn, tokenOut);
+        const amounts = await state.router.getAmountsOut(amountIn, path);
+        const out = amounts[amounts.length - 1];
+        $('amountOut').value = formatUnitsSafe(out, metaOut.decimals, 8);
+        $('quoteRate').textContent = `1 ${metaIn.symbol} = ${formatUnitsSafe(out.mul(ethers.BigNumber.from(10).pow(metaIn.decimals)).div(amountIn), metaOut.decimals, 8)} ${metaOut.symbol}`;
+        $('quoteMin').textContent = `${formatUnitsSafe(out.mul(10000 - CONFIG.slippageBps).div(10000), metaOut.decimals, 8)} ${metaOut.symbol}`;
+        setStatus('swapStatus', 'Live quote loaded from Router.', 'success');
       } catch (err) {
         $('amountOut').value = '';
         setStatus('swapStatus', err.message || 'Quote failed.', 'error');
       }
     }
-
-    async function approveAX(target, statusId){
-      try {
-        if (!state.token) throw new Error('Connect wallet first.');
-        const tx = await state.token.approve(target, ethers.constants.MaxUint256);
-        setStatus(statusId, `Approval submitted: ${tx.hash}`, '');
-        await tx.wait();
-        await refreshWalletData();
-        setStatus(statusId, 'Approval confirmed.', 'success');
-      } catch (err) {
-        setStatus(statusId, err.message || 'Approval failed.', 'error');
-      }
-    }
-
     async function swap(){
       try {
         if (!state.router || !state.account) throw new Error('Connect wallet first.');
-        await getQuote();
         const tokenIn = $('tokenInSelect').value;
         const tokenOut = $('tokenOutSelect').value;
-        const amountInput = $('amountIn').value;
-        const deadline = Math.floor(Date.now() / 1000) + (CONFIG.deadlineMinutes * 60);
-
-        if (tokenIn === 'BNB' && tokenOut === 'AX') {
-          const amountIn = parseUnitsSafe(amountInput, 18);
-          const amounts = await state.router.getAmountsOut(amountIn, [CONFIG.wbnbAddress, CONFIG.tokenAddress]);
-          const minOut = amounts[1].mul(10000 - CONFIG.slippageBps).div(10000);
-          const tx = await state.router.swapExactETHForTokensSupportingFeeOnTransferTokens(
-            minOut,
-            [CONFIG.wbnbAddress, CONFIG.tokenAddress],
-            state.account,
-            deadline,
-            { value: amountIn }
-          );
-          setStatus('swapStatus', `Swap submitted: ${tx.hash}`, '');
-          await tx.wait();
-        } else if (tokenIn === 'AX' && tokenOut === 'BNB') {
-          const amountIn = parseUnitsSafe(amountInput, state.tokenDecimals);
-          const allowance = await state.token.allowance(state.account, CONFIG.routerAddress);
-          if (allowance.lt(amountIn)) throw new Error('Approve AX before swapping.');
-          const amounts = await state.router.getAmountsOut(amountIn, [CONFIG.tokenAddress, CONFIG.wbnbAddress]);
-          const minOut = amounts[1].mul(10000 - CONFIG.slippageBps).div(10000);
-          const tx = await state.router.swapExactTokensForETHSupportingFeeOnTransferTokens(
-            amountIn,
-            minOut,
-            [CONFIG.tokenAddress, CONFIG.wbnbAddress],
-            state.account,
-            deadline
-          );
-          setStatus('swapStatus', `Swap submitted: ${tx.hash}`, '');
-          await tx.wait();
+        const metaIn = tokenMetaByAddress(tokenIn);
+        const metaOut = tokenMetaByAddress(tokenOut);
+        const amountIn = parseUnitsSafe($('amountIn').value, metaIn.decimals);
+        const path = getSwapPath(tokenIn, tokenOut);
+        const amounts = await state.router.getAmountsOut(amountIn, path);
+        const amountOutMin = amounts[amounts.length - 1].mul(10000 - CONFIG.slippageBps).div(10000);
+        const deadline = Math.floor(Date.now()/1000) + CONFIG.deadlineMinutes * 60;
+        let tx;
+        if (tokenIn === 'BNB') {
+          tx = await state.router.swapExactETHForTokensSupportingFeeOnTransferTokens(amountOutMin, path, state.account, deadline, { value: amountIn });
+        } else if (tokenOut === 'BNB') {
+          const tokenContract = new ethers.Contract(tokenIn, ERC20_ABI, state.signer);
+          const allowance = await tokenContract.allowance(state.account, CONFIG.routerAddress);
+          if (allowance.lt(amountIn)) throw new Error(`Approve ${metaIn.symbol} before swapping.`);
+          tx = await state.router.swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, state.account, deadline);
         } else {
-          throw new Error('Unsupported route.');
+          const tokenContract = new ethers.Contract(tokenIn, ERC20_ABI, state.signer);
+          const allowance = await tokenContract.allowance(state.account, CONFIG.routerAddress);
+          if (allowance.lt(amountIn)) throw new Error(`Approve ${metaIn.symbol} before swapping.`);
+          tx = await state.router.swapExactTokensForTokensSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, state.account, deadline);
         }
-
+        setStatus('swapStatus', `Swap submitted: ${tx.hash}`, '');
+        await tx.wait();
         setStatus('swapStatus', 'Swap confirmed successfully.', 'success');
         await refreshAll();
       } catch (err) {
         setStatus('swapStatus', err.message || 'Swap failed.', 'error');
       }
     }
-
     async function addLiquidity(){
       try {
-        if (!state.router || !state.account) throw new Error('Connect wallet first.');
-        const axAmount = parseUnitsSafe($('liqAX').value, state.tokenDecimals);
+        if (!state.router || !state.account || !state.selectedToken) throw new Error('Connect wallet and select a token first.');
+        const tokenAmount = parseUnitsSafe($('liqAX').value, state.tokenDecimals);
         const bnbAmount = parseUnitsSafe($('liqBNB').value, 18);
-        const allowance = await state.token.allowance(state.account, CONFIG.routerAddress);
-        if (allowance.lt(axAmount)) throw new Error('Approve AX before adding liquidity.');
-
-        const tokenMin = axAmount.mul(10000 - CONFIG.slippageBps).div(10000);
+        const allowance = await state.selectedToken.allowance(state.account, CONFIG.routerAddress);
+        if (allowance.lt(tokenAmount)) throw new Error(`Approve ${state.tokenSymbol} before adding liquidity.`);
+        const tokenMin = tokenAmount.mul(10000 - CONFIG.slippageBps).div(10000);
         const ethMin = bnbAmount.mul(10000 - CONFIG.slippageBps).div(10000);
-        const deadline = Math.floor(Date.now() / 1000) + (CONFIG.deadlineMinutes * 60);
-
-        const tx = await state.router.addLiquidityETH(
-          CONFIG.tokenAddress,
-          axAmount,
-          tokenMin,
-          ethMin,
-          state.account,
-          deadline,
-          { value: bnbAmount }
-        );
+        const deadline = Math.floor(Date.now()/1000) + CONFIG.deadlineMinutes * 60;
+        const tx = await state.router.addLiquidityETH(state.selectedTokenAddress, tokenAmount, tokenMin, ethMin, state.account, deadline, { value: bnbAmount });
         setStatus('liqStatus', `Add liquidity submitted: ${tx.hash}`, '');
         await tx.wait();
         setStatus('liqStatus', 'Liquidity added successfully.', 'success');
-        await refreshAll();
+        await syncSelectedPair();
       } catch (err) {
         setStatus('liqStatus', err.message || 'Add liquidity failed.', 'error');
       }
     }
-
     async function approveLP(){
       try {
-        if (!state.pair) throw new Error('Pair contract not found.');
+        if (!state.pair) throw new Error('No selected token pair found.');
         const tx = await state.pair.approve(CONFIG.routerAddress, ethers.constants.MaxUint256);
         setStatus('removeStatus', `LP approval submitted: ${tx.hash}`, '');
         await tx.wait();
@@ -800,72 +813,85 @@
         setStatus('removeStatus', err.message || 'LP approval failed.', 'error');
       }
     }
-
     async function removeLiquidity(){
       try {
-        if (!state.router || !state.account || !state.pair) throw new Error('Connect wallet first.');
+        if (!state.router || !state.account || !state.pair || !state.selectedTokenAddress) throw new Error('Connect wallet and sync a selected token pair first.');
         const lpAmount = parseUnitsSafe($('lpAmount').value, 18);
         const allowance = await state.pair.allowance(state.account, CONFIG.routerAddress);
         if (allowance.lt(lpAmount)) throw new Error('Approve LP before removing liquidity.');
-        const deadline = Math.floor(Date.now() / 1000) + (CONFIG.deadlineMinutes * 60);
-
+        const deadline = Math.floor(Date.now()/1000) + CONFIG.deadlineMinutes * 60;
         let tx;
         try {
-          tx = await state.router.removeLiquidityETHSupportingFeeOnTransferTokens(
-            CONFIG.tokenAddress,
-            lpAmount,
-            0,
-            0,
-            state.account,
-            deadline
-          );
+          tx = await state.router.removeLiquidityETHSupportingFeeOnTransferTokens(state.selectedTokenAddress, lpAmount, 0, 0, state.account, deadline);
         } catch (_) {
-          tx = await state.router.removeLiquidityETH(
-            CONFIG.tokenAddress,
-            lpAmount,
-            0,
-            0,
-            state.account,
-            deadline
-          );
+          tx = await state.router.removeLiquidityETH(state.selectedTokenAddress, lpAmount, 0, 0, state.account, deadline);
         }
         setStatus('removeStatus', `Remove liquidity submitted: ${tx.hash}`, '');
         await tx.wait();
         setStatus('removeStatus', 'Liquidity removed successfully.', 'success');
-        await refreshAll();
+        await syncSelectedPair();
       } catch (err) {
         setStatus('removeStatus', err.message || 'Remove liquidity failed.', 'error');
       }
     }
-
+    function syncRouteSelects(){
+      if ($('tokenInSelect').value === $('tokenOutSelect').value) {
+        const fallback = [...$('tokenOutSelect').options].find(o => o.value !== $('tokenInSelect').value);
+        if (fallback) $('tokenOutSelect').value = fallback.value;
+      }
+      const outMeta = tokenMetaByAddress($('tokenOutSelect').value);
+      const inputMeta = tokenMetaByAddress($('tokenInSelect').value);
+      if (outMeta && !outMeta.native) selectToken(outMeta.address).catch(()=>{});
+      else if (inputMeta && !inputMeta.native) selectToken(inputMeta.address).catch(()=>{});
+      updateRouteText();
+    }
+    async function handleAddToken(){
+      try {
+        if (!window.ethereum) throw new Error('MetaMask not detected.');
+        state.provider = state.provider || new ethers.providers.Web3Provider(window.ethereum, 'any');
+        const address = $('customTokenAddress').value.trim();
+        const item = await importToken(address, true);
+        $('customTokenAddress').value = '';
+        $('tokenInSelect').value = 'BNB';
+        $('tokenOutSelect').value = item.address;
+        updateRouteText();
+      } catch (err) {
+        setStatus('tokenLibraryStatus', err.message || 'Token import failed.', 'error');
+      }
+    }
     function init(){
-      $('tokenAddressText').textContent = CONFIG.tokenAddress;
+      state.importedTokens = getImportedTokens();
       $('routerAddressText').textContent = CONFIG.routerAddress;
       $('factoryAddressText').textContent = CONFIG.factoryAddress;
       $('wbnbAddressText').textContent = CONFIG.wbnbAddress;
-
+      $('tokenAddressText').textContent = 'Select or import a token';
+      $('liqTokenLabel').textContent = 'Selected Token';
+      updateTokenSelects();
       $('walletBtn').addEventListener('click', connectWallet);
       $('refreshBtn').addEventListener('click', refreshAll);
       $('quoteBtn').addEventListener('click', getQuote);
       $('swapBtn').addEventListener('click', swap);
-      $('approveBtn').addEventListener('click', () => approveAX(CONFIG.routerAddress, 'walletStatus'));
-      $('approveLiqBtn').addEventListener('click', () => approveAX(CONFIG.routerAddress, 'liqStatus'));
+      $('approveBtn').addEventListener('click', () => approveSelectedToken('walletStatus'));
+      $('approveLiqBtn').addEventListener('click', () => approveSelectedToken('liqStatus'));
       $('addLiquidityBtn').addEventListener('click', addLiquidity);
       $('approveLPBtn').addEventListener('click', approveLP);
       $('removeLiquidityBtn').addEventListener('click', removeLiquidity);
       $('tokenInSelect').addEventListener('change', syncRouteSelects);
-      $('tokenOutSelect').addEventListener('change', () => {
-        if ($('tokenOutSelect').value === $('tokenInSelect').value) syncRouteSelects();
-      });
-      syncRouteSelects();
-
+      $('tokenOutSelect').addEventListener('change', syncRouteSelects);
+      $('addTokenBtn').addEventListener('click', handleAddToken);
+      $('syncSelectedPairBtn').addEventListener('click', syncSelectedPair);
+      if (!state.importedTokens.length) {
+        state.importedTokens.push({ address: ethers.utils.getAddress(CONFIG.defaultTokenAddress), symbol: 'AX', name: 'AXION Token', decimals: 18 });
+        saveImportedTokens();
+      }
+      updateTokenSelects();
       if (window.ethereum) {
         window.ethereum.on?.('accountsChanged', () => connectWallet());
         window.ethereum.on?.('chainChanged', () => window.location.reload());
       }
     }
-
     init();
+  </script>
   </script>
 </body>
 </html>

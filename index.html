@@ -2,2181 +2,870 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  />
-  <title>AXION DEX | AMM MVP</title>
-  <meta
-    name="description"
-    content="AXION DEX AMM MVP — premium single-file decentralized exchange interface with swap, liquidity, analytics, and wallet connection."
-  />
-  <meta name="theme-color" content="#070b14" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-    rel="stylesheet"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AXION DEX | Connected AMM Interface</title>
+  <meta name="description" content="AXION DEX connected AMM frontend with wallet connection, live swap quote, liquidity tools, and Pancake/Uniswap V2-compatible Router/Factory/Pair integration." />
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
-    :root {
-      --bg: #070b14;
-      --bg-2: #0d1220;
-      --panel: rgba(18, 24, 41, 0.8);
-      --panel-2: rgba(16, 20, 34, 0.94);
-      --card: rgba(255, 255, 255, 0.04);
-      --card-2: rgba(255, 255, 255, 0.06);
-      --line: rgba(255, 255, 255, 0.09);
-      --soft: rgba(255, 255, 255, 0.65);
-      --text: #f5f7ff;
-      --muted: #9da7c2;
-      --green: #15d38a;
-      --red: #ff5c7c;
-      --gold: #f9d66b;
-      --blue: #79a7ff;
-      --cyan: #54f4ff;
-      --purple: #ab7bff;
-      --accent: linear-gradient(135deg, #79a7ff 0%, #54f4ff 45%, #ab7bff 100%);
-      --accent-2: linear-gradient(135deg, rgba(121,167,255,.18), rgba(84,244,255,.13), rgba(171,123,255,.16));
-      --shadow: 0 20px 60px rgba(0, 0, 0, 0.38);
-      --radius: 22px;
-      --radius-lg: 28px;
-      --max: 1380px;
+    :root{
+      --bg:#040814;
+      --text:#ecf3ff;
+      --muted:#99a8c7;
+      --cyan:#4ed8ff;
+      --blue:#5f8cff;
+      --purple:#a85cff;
+      --pink:#ff5cb8;
+      --gold:#ffc95c;
+      --green:#43f3b1;
+      --red:#ff6679;
+      --shadow:0 18px 60px rgba(0,0,0,.42);
+      --max:1280px;
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      font-family: "Inter", sans-serif;
-      color: var(--text);
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:'Inter',sans-serif;
       background:
-        radial-gradient(circle at 15% 15%, rgba(84, 244, 255, 0.12), transparent 28%),
-        radial-gradient(circle at 85% 10%, rgba(171, 123, 255, 0.14), transparent 24%),
-        radial-gradient(circle at 70% 80%, rgba(121, 167, 255, 0.12), transparent 28%),
-        linear-gradient(180deg, #060912 0%, #090d18 35%, #070b14 100%);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 34px 34px;
-      mask-image: radial-gradient(circle at center, black 45%, transparent 95%);
-      opacity: 0.25;
-      z-index: 0;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    button,
-    input,
-    select {
-      font: inherit;
-    }
-
-    .container {
-      width: min(var(--max), calc(100% - 28px));
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      backdrop-filter: blur(18px);
-      background: rgba(8, 12, 22, 0.7);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      min-height: 84px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      min-width: 0;
-    }
-
-    .brand-mark {
-      width: 46px;
-      height: 46px;
-      border-radius: 16px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, rgba(121,167,255,.22), rgba(84,244,255,.16), rgba(171,123,255,.22));
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: inset 0 0 22px rgba(255,255,255,.05), 0 12px 30px rgba(84,244,255,.08);
-      flex: 0 0 auto;
-    }
-
-    .brand-mark svg {
-      width: 26px;
-      height: 26px;
-    }
-
-    .brand-text {
-      min-width: 0;
-    }
-
-    .brand-text strong {
-      display: block;
-      font-size: 15px;
-      letter-spacing: 0.12em;
-    }
-
-    .brand-text span {
-      display: block;
-      font-size: 12px;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .nav-links a {
-      padding: 11px 15px;
-      border-radius: 14px;
-      color: var(--soft);
-      font-size: 14px;
-      transition: 0.2s ease;
-      border: 1px solid transparent;
-    }
-
-    .nav-links a:hover {
-      color: var(--text);
-      border-color: rgba(255,255,255,.08);
-      background: rgba(255,255,255,.03);
-    }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      color: var(--soft);
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .pulse {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 0 0 rgba(21,211,138,.7);
-      animation: pulse 1.8s infinite;
-    }
-
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(21,211,138,.65); }
-      70% { box-shadow: 0 0 0 12px rgba(21,211,138,0); }
-      100% { box-shadow: 0 0 0 0 rgba(21,211,138,0); }
-    }
-
-    .btn {
-      border: 0;
-      cursor: pointer;
-      border-radius: 16px;
-      padding: 14px 18px;
-      font-weight: 700;
-      color: #08101a;
-      background: linear-gradient(135deg, #f7d774 0%, #79a7ff 45%, #54f4ff 100%);
-      box-shadow: 0 12px 30px rgba(84, 244, 255, 0.18);
-      transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 35px rgba(84, 244, 255, 0.24);
-    }
-
-    .btn:active {
-      transform: translateY(0);
-    }
-
-    .btn.secondary {
-      background: rgba(255,255,255,.05);
-      color: var(--text);
-      border: 1px solid rgba(255,255,255,.1);
-      box-shadow: none;
-    }
-
-    .btn.ghost {
-      background: transparent;
-      color: var(--soft);
-      border: 1px solid rgba(255,255,255,.1);
-      box-shadow: none;
-    }
-
-    .hero {
-      padding: 38px 0 18px;
-    }
-
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 18px;
-    }
-
-    .hero-panel,
-    .glass-card {
-      background: linear-gradient(180deg, rgba(18, 24, 41, 0.9), rgba(10, 14, 25, 0.92));
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: var(--shadow);
-      border-radius: var(--radius-lg);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-panel::before,
-    .glass-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: radial-gradient(circle at top right, rgba(84,244,255,.12), transparent 30%);
-    }
-
-    .hero-left {
-      padding: 34px;
-    }
-
-    .hero-right {
-      padding: 24px;
-      display: grid;
-      gap: 14px;
-      align-content: start;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      padding: 9px 13px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      color: var(--soft);
-      font-size: 12px;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      margin-bottom: 18px;
-    }
-
-    .hero h1 {
-      font-size: clamp(36px, 6vw, 70px);
-      line-height: 1.02;
-      margin: 0 0 16px;
-      letter-spacing: -0.04em;
-      max-width: 760px;
-    }
-
-    .gradient-text {
-      background: var(--accent);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .hero p {
-      margin: 0;
-      max-width: 740px;
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.75;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 26px;
-    }
-
-    .hero-stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-top: 26px;
-    }
-
-    .stat {
-      background: rgba(255,255,255,.035);
-      border: 1px solid rgba(255,255,255,.07);
-      border-radius: 20px;
-      padding: 16px;
-    }
-
-    .stat-label {
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    .stat strong {
-      font-size: 20px;
-      display: block;
-      letter-spacing: -0.03em;
-    }
-
-    .feature-tile {
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 22px;
-      padding: 18px;
-      min-height: 104px;
-    }
-
-    .feature-tile h3 {
-      margin: 10px 0 8px;
-      font-size: 16px;
-    }
-
-    .feature-tile p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .feature-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.08);
-    }
-
-    .section {
-      padding: 16px 0 42px;
-    }
-
-    .section-head {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-    }
-
-    .section-head h2 {
-      margin: 0;
-      font-size: clamp(26px, 4vw, 38px);
-      letter-spacing: -0.04em;
-    }
-
-    .section-head p {
-      margin: 8px 0 0;
-      color: var(--muted);
-      max-width: 720px;
-      line-height: 1.75;
-      font-size: 14px;
-    }
-
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      gap: 18px;
-    }
-
-    .stack {
-      display: grid;
-      gap: 18px;
-    }
-
-    .card {
-      background: linear-gradient(180deg, rgba(18,24,41,.92), rgba(10,14,25,.95));
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: var(--radius);
-      padding: 22px;
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::after {
-      content: "";
-      position: absolute;
-      inset: auto -20% -60% auto;
-      width: 220px;
-      height: 220px;
-      background: radial-gradient(circle, rgba(84,244,255,.08), transparent 66%);
-      pointer-events: none;
-    }
-
-    .card-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-
-    .card-head h3 {
-      margin: 0;
-      font-size: 20px;
-      letter-spacing: -0.03em;
-    }
-
-    .subtle {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .tabs {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px;
-      border-radius: 15px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      gap: 4px;
-    }
-
-    .tab {
-      border: 0;
-      background: transparent;
-      color: var(--soft);
-      padding: 10px 14px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .tab.active {
-      background: rgba(255,255,255,.09);
-      color: var(--text);
-    }
-
-    .field-group {
-      display: grid;
-      gap: 12px;
-    }
-
-    .swap-box,
-    .input-shell {
-      border-radius: 20px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      padding: 16px;
-    }
-
-    .row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .label {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 10px;
-      display: block;
-    }
-
-    .amount-input {
-      width: 100%;
-      background: transparent;
-      border: 0;
-      outline: none;
-      color: var(--text);
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      padding: 0;
-    }
-
-    .amount-input::placeholder {
-      color: rgba(255,255,255,.18);
-    }
-
-    .token-select {
-      min-width: 126px;
-      border: 1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 12px 14px;
-      outline: none;
-      font-weight: 700;
-    }
-
-    .mini {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 8px;
-    }
-
-    .center-action {
-      display: grid;
-      place-items: center;
-      margin: -2px 0 -2px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .icon-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.1);
-      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
-      color: var(--text);
-      cursor: pointer;
-      box-shadow: 0 10px 22px rgba(0,0,0,.25);
-    }
-
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .meta-item {
-      border-radius: 18px;
-      background: rgba(255,255,255,.035);
-      border: 1px solid rgba(255,255,255,.07);
-      padding: 14px;
-    }
-
-    .meta-item span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
-
-    .meta-item strong {
-      font-size: 15px;
-      display: block;
-    }
-
-    .quote-line {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      color: var(--soft);
-      font-size: 14px;
-    }
-
-    .quote-line:last-child {
-      border-bottom: 0;
-      padding-bottom: 0;
-    }
-
-    .value-green {
-      color: var(--green);
-      font-weight: 700;
-    }
-
-    .value-red {
-      color: var(--red);
-      font-weight: 700;
-    }
-
-    .wallet-panel {
-      display: grid;
-      gap: 12px;
-    }
-
-    .wallet-box {
-      border-radius: 20px;
-      padding: 18px;
-      background: linear-gradient(135deg, rgba(121,167,255,.14), rgba(84,244,255,.08), rgba(171,123,255,.12));
-      border: 1px solid rgba(255,255,255,.1);
-    }
-
-    .wallet-box .address {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13px;
-      color: #dfe8ff;
-      word-break: break-all;
-    }
-
-    .wallet-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .wallet-stat {
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 18px;
-      padding: 15px;
-    }
-
-    .wallet-stat span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
-
-    .wallet-stat strong {
-      font-size: 16px;
-    }
-
-    .liq-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-
-    .input-shell input,
-    .input-shell select {
-      width: 100%;
-      border: 0;
-      background: transparent;
-      outline: none;
-      color: var(--text);
-      font-size: 16px;
-      padding: 0;
-      margin-top: 8px;
-    }
-
-    .inline-fields {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .status-box {
-      border-radius: 18px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      padding: 15px;
-      color: var(--soft);
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    .table-wrap {
-      overflow: auto;
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.03);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 720px;
-    }
-
-    th,
-    td {
-      padding: 16px 14px;
-      text-align: left;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      font-size: 14px;
-    }
-
-    th {
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      background: rgba(255,255,255,.03);
-    }
-
-    td strong {
-      font-size: 15px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 8px 11px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.08);
-      font-size: 12px;
-      color: var(--soft);
-      white-space: nowrap;
-    }
-
-    .analytics-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .analytics-card {
-      border-radius: 20px;
-      padding: 18px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-    }
-
-    .analytics-card span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 9px;
-    }
-
-    .analytics-card strong {
-      display: block;
-      font-size: 21px;
-      letter-spacing: -0.03em;
-    }
-
-    .analytics-card small {
-      display: block;
-      margin-top: 8px;
-      color: var(--soft);
-      font-size: 12px;
-    }
-
-    .token-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .token-card {
-      border-radius: 20px;
-      padding: 18px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-    }
-
-    .token-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .token-name {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-    }
-
-    .coin {
-      width: 40px;
-      height: 40px;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      color: #07111c;
-      font-weight: 900;
-      font-size: 13px;
-      background: linear-gradient(135deg, #f9d66b, #54f4ff);
-    }
-
-    .token-card h4 {
-      margin: 0;
-      font-size: 16px;
-    }
-
-    .token-card p {
-      margin: 4px 0 0;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .token-metrics {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
-    .token-metrics div {
-      background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.06);
-      border-radius: 16px;
-      padding: 12px;
-    }
-
-    .token-metrics span {
-      display: block;
-      color: var(--muted);
-      font-size: 11px;
-      margin-bottom: 7px;
-    }
-
-    .token-metrics strong {
-      font-size: 14px;
-    }
-
-    .footer {
-      padding: 24px 0 50px;
-      color: var(--muted);
-    }
-
-    .footer-box {
-      border-radius: 24px;
-      background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.08);
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .notice {
-      font-size: 13px;
-      line-height: 1.7;
-      color: var(--muted);
-    }
-
-    .toast {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      z-index: 100;
-      background: rgba(11, 16, 28, 0.95);
-      border: 1px solid rgba(255,255,255,.1);
-      color: var(--text);
-      border-radius: 18px;
-      padding: 14px 16px;
-      box-shadow: 0 18px 45px rgba(0,0,0,.35);
-      min-width: 240px;
-      max-width: min(92vw, 360px);
-      opacity: 0;
-      transform: translateY(10px);
-      pointer-events: none;
-      transition: .22s ease;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    @media (max-width: 1180px) {
-      .hero-grid,
-      .main-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-stats,
-      .analytics-grid,
-      .token-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .wallet-stats {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    @media (max-width: 860px) {
-      .nav {
-        min-height: auto;
-        padding: 14px 0;
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .nav-links,
-      .nav-actions {
-        width: 100%;
-        justify-content: flex-start;
-      }
-
-      .hero-left,
-      .hero-right,
-      .card {
-        padding: 18px;
-      }
-
-      .hero-stats,
-      .analytics-grid,
-      .wallet-stats,
-      .liq-grid,
-      .inline-fields,
-      .meta-grid,
-      .token-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .amount-input {
-        font-size: 26px;
-      }
-
-      .row.stack-mobile {
-        flex-direction: column;
-        align-items: stretch;
-      }
-    }
-
-    @media (max-width: 560px) {
-      .container {
-        width: min(var(--max), calc(100% - 18px));
-      }
-
-      .brand-text span {
-        white-space: normal;
-      }
-
-      .hero {
-        padding-top: 18px;
-      }
-
-      .hero h1 {
-        font-size: 34px;
-      }
-
-      .btn,
-      .token-select {
-        width: 100%;
-      }
-
-      .hero-actions {
-        display: grid;
-        grid-template-columns: 1fr;
-      }
+        radial-gradient(circle at 20% 0%, rgba(78,216,255,.16), transparent 24%),
+        radial-gradient(circle at 80% 10%, rgba(168,92,255,.15), transparent 26%),
+        radial-gradient(circle at 50% 100%, rgba(255,92,184,.08), transparent 28%),
+        linear-gradient(180deg,#02050e 0%, #040814 36%, #060b1a 100%);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";position:fixed;inset:0;pointer-events:none;
+      background-image:radial-gradient(rgba(255,255,255,.65) .7px, transparent .7px);
+      background-size:38px 38px;opacity:.08;z-index:-1;
+    }
+    a{text-decoration:none;color:inherit}
+    img{display:block;max-width:100%}
+    .container{width:min(calc(100% - 28px), var(--max));margin-inline:auto}
+    .nav-wrap{position:sticky;top:0;z-index:50;backdrop-filter:blur(18px);background:rgba(4,9,20,.66);border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:14px;min-width:0;flex-shrink:0}
+    .brand-mark{width:46px;height:46px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg, var(--cyan), var(--blue), var(--purple), var(--pink), var(--gold));box-shadow:0 0 0 1px rgba(255,255,255,.08),0 0 30px rgba(112,118,255,.18)}
+    .brand-text strong{display:block;font-size:18px;letter-spacing:.08em}
+    .brand-text small{display:block;color:#d3def8;letter-spacing:.12em;font-size:10px;font-weight:700;text-transform:uppercase;white-space:nowrap}
+    .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;flex:1}
+    .nav-links a{font-size:12px;font-weight:700;color:#cbd8f7;white-space:nowrap}
+    .nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .btn{appearance:none;border:none;cursor:pointer;border-radius:999px;padding:14px 22px;font-size:14px;font-weight:800;font-family:inherit;transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;color:#09111f;background:linear-gradient(90deg, var(--cyan), var(--blue), var(--purple), var(--pink));box-shadow:0 10px 26px rgba(124,94,255,.26)}
+    .btn:hover{transform:translateY(-2px) scale(1.015)}
+    .btn-secondary{color:var(--text);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);box-shadow:none}
+    .btn-gold{color:#0b0b0b;background:linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.04)),linear-gradient(90deg, #fff2b8 0%, #ffd76a 18%, #ffbf3f 42%, #d99a1f 72%, #fff0a6 100%);border:1px solid rgba(255,224,140,.34);box-shadow:0 0 18px rgba(255,215,106,.18),0 14px 34px rgba(0,0,0,.34)}
+    .hero{padding:76px 0 24px}
+    .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:24px;align-items:start}
+    .hero-copy h1{font-size:clamp(46px,7vw,86px);line-height:.96;letter-spacing:-.06em;margin:0 0 18px}
+    .hero-copy .sub{font-size:clamp(18px,2vw,24px);font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#c8d6f8;margin-bottom:18px}
+    .hero-copy p{max-width:760px;color:var(--muted);line-height:1.8;font-size:16px}
+    .gradient-title{background:linear-gradient(90deg,#ffffff 0%, #9bddff 26%, #c4b1ff 58%, #ffcfe6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .hero-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:760px;margin-top:24px}
+    .hero-actions .btn{width:100%;min-height:54px;display:flex;align-items:center;justify-content:center;text-align:center}
+    .hero-feature-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:30px;max-width:760px}
+    .card,.hero-feature-card,.mini-stat,.panel{position:relative;background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}
+    .card::before,.hero-feature-card::before,.panel::before{content:"";position:absolute;inset:0;background:linear-gradient(140deg, rgba(78,216,255,.08), transparent 28%, transparent 68%, rgba(255,92,184,.08)),radial-gradient(circle at 100% 100%, rgba(255,201,92,.08), transparent 22%);pointer-events:none}
+    .card:hover,.hero-feature-card:hover,.mini-stat:hover,.panel:hover{transform:translateY(-4px);transition:.24s ease;box-shadow:0 20px 50px rgba(0,0,0,.42),0 0 28px rgba(78,216,255,.08),0 0 44px rgba(168,92,255,.08)}
+    .hero-feature-card{padding:18px 20px}
+    .hero-feature-card-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .hero-feature-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;flex-shrink:0;background:linear-gradient(135deg, rgba(78,216,255,.12), rgba(168,92,255,.10));border:1px solid rgba(255,255,255,.08)}
+    .hero-feature-icon svg{width:22px;height:22px;stroke:url(#axGradient);stroke-width:1.9;fill:none;filter:drop-shadow(0 0 4px rgba(78,216,255,.55)) drop-shadow(0 0 8px rgba(168,92,255,.28))}
+    .hero-feature-card strong{display:block;font-size:18px;color:#fff}
+    .hero-feature-card p{color:var(--muted);font-size:13px;line-height:1.7;margin-top:8px}
+    .hero-side-stack{display:grid;gap:18px}
+    .card-inner{position:relative;z-index:1;padding:24px}
+    .tag{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#e4edff;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+    .title-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .icon-badge{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg, rgba(78,216,255,.14), rgba(168,92,255,.10));border:1px solid rgba(255,255,255,.08);overflow:hidden;flex-shrink:0}
+    .icon-badge svg{width:24px;height:24px;stroke:url(#axGradient);stroke-width:1.9;fill:none}
+    .card h3{font-size:28px;letter-spacing:-.03em}
+    .card p,.muted{color:var(--muted);line-height:1.75;font-size:15px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .hero-market-bar{margin-top:18px;max-width:760px;padding:14px 18px;border-radius:20px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;align-items:center;background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow)}
+    .market-item{padding:10px 16px}
+    .market-label{display:block;font-size:11px;font-weight:800;letter-spacing:.14em;color:#bcd0f6;margin-bottom:8px}
+    .market-value{font-size:18px;font-weight:900;letter-spacing:-.03em}
+    .market-divider{width:1px;height:44px;background:rgba(255,255,255,.08);justify-self:center}
+    .hero-swap-panel{padding:22px 24px;border-radius:24px;background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow);position:relative;overflow:hidden}
+    .hero-swap-panel::before{content:"";position:absolute;inset:0;background:linear-gradient(140deg, rgba(78,216,255,.08), transparent 28%, transparent 68%, rgba(255,201,92,.08)),radial-gradient(circle at 100% 100%, rgba(255,201,92,.08), transparent 22%);pointer-events:none}
+    .hero-swap-panel>*{position:relative;z-index:1}
+    .swap-pair{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+    .swap-logos{display:flex;align-items:center}
+    .swap-logo{width:42px;height:42px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,.12);background:#0b1224;box-shadow:0 0 18px rgba(0,0,0,.25)}
+    .swap-logo + .swap-logo{margin-left:-10px}
+    .swap-meta strong{display:block;font-size:20px;letter-spacing:-.03em}
+    .swap-meta span{display:block;font-size:13px;color:#cbd8f7;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    .section{padding:84px 0 0}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:26px;flex-wrap:wrap}
+    .eyebrow{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid rgba(255,255,255,.08);border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:rgba(255,255,255,.03);color:#d8e3ff}
+    .section-head h2{margin-top:14px;font-size:clamp(32px,4vw,58px);line-height:1;letter-spacing:-.04em}
+    .input-shell,.info-row,.pill,.metric{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)}
+    .input-shell label{display:block;font-size:12px;font-weight:700;letter-spacing:.1em;color:#c8dafd;text-transform:uppercase;margin-bottom:10px}
+    .input-shell input,.input-shell select{width:100%;border:none;outline:none;background:transparent;color:#fff;font:inherit}
+    .input-shell input::placeholder{color:#7f90b5}
+    .swap-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:end;margin-top:16px}
+    .swap-arrow{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.08)}
+    .info-list{display:grid;gap:12px;margin-top:16px}
+    .info-row{display:flex;justify-content:space-between;gap:14px;color:#dce7ff;font-size:14px}
+    .info-row strong{word-break:break-all;text-align:right}
+    .action-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+    .status{margin-top:14px;padding:14px 16px;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);font-size:14px;color:#dfe8ff;line-height:1.7;min-height:56px}
+    .success{border-color:rgba(67,243,177,.28);background:rgba(67,243,177,.09);color:#dffff2}
+    .error{border-color:rgba(255,102,121,.25);background:rgba(255,102,121,.08);color:#ffe1e6}
+    .wallet-tile{padding:16px 18px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)}
+    .wallet-tile small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#b8c6e6;margin-bottom:8px}
+    .wallet-tile strong{font-size:16px}
+    .wallet-grid,.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+    .metric-grid{grid-template-columns:repeat(4,1fr)}
+    .metric small{display:block;color:#b8c6e6;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+    .metric strong{font-size:20px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+    .footer{padding:34px 0 54px;border-top:1px solid rgba(255,255,255,.06);margin-top:88px}
+    .footer-row{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+    .footer-links{display:flex;gap:18px;flex-wrap:wrap;color:#c7d5f2;font-size:14px;font-weight:700}
+    .good{color:var(--green)} .bad{color:var(--red)}
+    @media (max-width:1180px){
+      .hero-grid,.grid-2{grid-template-columns:1fr}
+      .hero-feature-cards,.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .wallet-grid{grid-template-columns:1fr 1fr 1fr}
+    }
+    @media (max-width:940px){
+      .hero-actions,.hero-feature-cards,.hero-market-bar,.swap-grid,.metric-grid,.wallet-grid{grid-template-columns:1fr}
+      .hero-market-bar{gap:10px}
+      .market-divider{display:none}
+      .nav{min-height:auto;padding:16px 0;flex-wrap:wrap}
+      .nav-links{justify-content:flex-start}
+    }
+    @media (max-width:640px){
+      .brand-mark{width:38px;height:38px}
+      .brand-text strong{font-size:14px}
+      .brand-text small{font-size:8px;white-space:normal}
+      .hero{padding-top:54px}
+      .hero-copy h1{font-size:44px}
+      .card-inner{padding:18px}
+      .nav-actions,.nav-links{width:100%}
+      .btn{width:100%}
     }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="container">
-      <div class="nav">
-        <a href="#home" class="brand">
-          <div class="brand-mark">
-            <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
-              <path d="M15 48L28 16H36L49 48H41.5L39.1 41H24.9L22.5 48H15ZM27.3 34.4H36.7L32 21.2L27.3 34.4Z" fill="url(#g1)"/>
-              <path d="M39.5 16H49L35.4 32L49 48H39.2L28 34.6L39.5 16Z" fill="url(#g2)"/>
-              <defs>
-                <linearGradient id="g1" x1="14" y1="12" x2="53" y2="53" gradientUnits="userSpaceOnUse">
-                  <stop stop-color="#F9D66B"/>
-                  <stop offset="0.5" stop-color="#54F4FF"/>
-                  <stop offset="1" stop-color="#AB7BFF"/>
-                </linearGradient>
-                <linearGradient id="g2" x1="18" y1="10" x2="49" y2="52" gradientUnits="userSpaceOnUse">
-                  <stop stop-color="#79A7FF"/>
-                  <stop offset="1" stop-color="#54F4FF"/>
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-          <div class="brand-text">
-            <strong>AXION DEX</strong>
-            <span>AMM MVP • Premium single-file exchange interface</span>
-          </div>
-        </a>
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+    <defs>
+      <linearGradient id="axGradient" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#4ed8ff"/>
+        <stop offset="0.35" stop-color="#5f8cff"/>
+        <stop offset="0.72" stop-color="#a85cff"/>
+        <stop offset="1" stop-color="#ff5cb8"/>
+      </linearGradient>
+    </defs>
+  </svg>
 
-        <div class="nav-links">
-          <a href="#swap">Swap</a>
-          <a href="#liquidity">Liquidity</a>
-          <a href="#analytics">Analytics</a>
-          <a href="#tokens">Tokens</a>
+  <div class="nav-wrap">
+    <nav class="nav container">
+      <a class="brand" href="#hero" aria-label="AXION DEX">
+        <div class="brand-mark">
+          <img src="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" alt="AXION Logo">
         </div>
+        <div class="brand-text">
+          <strong>AXION DEX</strong>
+          <small>Intelligent Layer for DeFi</small>
+        </div>
+      </a>
 
-        <div class="nav-actions">
-          <div class="badge">
-            <span class="pulse"></span>
-            AMM MVP LIVE
-          </div>
-          <button class="btn secondary" id="connectBtn">Connect Wallet</button>
-        </div>
+      <div class="nav-links">
+        <a href="#swap">Swap</a>
+        <a href="#liquidity">Liquidity</a>
+        <a href="#wallet">Wallet</a>
+        <a href="#contracts">Contracts</a>
       </div>
-    </div>
+
+      <div class="nav-actions">
+        <button class="btn btn-gold" id="walletBtn" type="button">Connect Wallet</button>
+      </div>
+    </nav>
   </div>
 
-  <main id="home">
-    <section class="hero">
-      <div class="container">
-        <div class="hero-grid">
-          <div class="hero-panel hero-left">
-            <div class="eyebrow">
-              <span class="pulse"></span>
-              Trust-first AMM exchange architecture
-            </div>
-            <h1>
-              Build a <span class="gradient-text">Binance-grade experience</span>
-              with a focused AMM DEX MVP.
-            </h1>
-            <p>
-              This single-file frontend gives you a premium decentralized exchange shell:
-              swap routing UI, liquidity actions, analytics surfaces, wallet connection,
-              and a scalable structure ready for real smart contract integration.
-            </p>
+  <section class="hero" id="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <div class="sub">Connected AMM Interface</div>
+        <h1><span class="gradient-title">AXION DEX</span><br>Swap. Route. Provide Liquidity.</h1>
+        <p>
+          This version keeps the AXION premium dashboard language, brand logo usage, hero swap emphasis,
+          and gradient card system while wiring the frontend to Uniswap V2 / Pancake-style Router, Factory,
+          and Pair contracts. Replace the contract addresses only when your own DEX contracts are deployed.
+        </p>
 
-            <div class="hero-actions">
-              <a href="#swap" class="btn">Open Swap</a>
-              <a href="#liquidity" class="btn secondary">Manage Liquidity</a>
-              <a href="#analytics" class="btn ghost">View Analytics</a>
-            </div>
+        <div class="hero-actions">
+          <a class="btn" href="#swap">Open Swap</a>
+          <a class="btn btn-secondary" href="#liquidity">Add Liquidity</a>
+          <a class="btn btn-secondary" href="#contracts">Contract Panel</a>
+        </div>
 
-            <div class="hero-stats">
-              <div class="stat">
-                <span class="stat-label">Estimated TVL</span>
-                <strong id="heroTVL">$3.27M</strong>
-              </div>
-              <div class="stat">
-                <span class="stat-label">24H Volume</span>
-                <strong id="heroVolume">$841.2K</strong>
-              </div>
-              <div class="stat">
-                <span class="stat-label">Pairs</span>
-                <strong id="heroPairs">12</strong>
-              </div>
-              <div class="stat">
-                <span class="stat-label">Fee</span>
-                <strong>0.30%</strong>
-              </div>
-            </div>
+        <div class="hero-market-bar">
+          <div class="market-item">
+            <span class="market-label">Pair</span>
+            <strong class="market-value" id="heroPair">AX / BNB</strong>
           </div>
+          <div class="market-divider"></div>
+          <div class="market-item">
+            <span class="market-label">Price</span>
+            <strong class="market-value" id="heroPrice">-</strong>
+          </div>
+          <div class="market-divider"></div>
+          <div class="market-item">
+            <span class="market-label">Reserve AX</span>
+            <strong class="market-value" id="heroReserveAX">-</strong>
+          </div>
+          <div class="market-divider"></div>
+          <div class="market-item">
+            <span class="market-label">Reserve BNB</span>
+            <strong class="market-value" id="heroReserveBNB">-</strong>
+          </div>
+        </div>
 
-          <div class="hero-panel hero-right">
-            <div class="feature-tile">
-              <div class="feature-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 12L12 4L20 12L12 20L4 12Z" stroke="#54F4FF" stroke-width="1.7"/>
-                  <path d="M12 8V16M8 12H16" stroke="#F9D66B" stroke-width="1.7" stroke-linecap="round"/>
-                </svg>
+        <div class="hero-feature-cards">
+          <div class="hero-feature-card">
+            <div class="hero-feature-card-head">
+              <div class="hero-feature-icon">
+                <svg viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M12 4l8 8-8 8"/></svg>
               </div>
-              <h3>Fast AMM Flow</h3>
-              <p>Swap UX, live output estimates, price impact, slippage, and fee previews.</p>
+              <strong>Router Connected</strong>
             </div>
-
-            <div class="feature-tile">
-              <div class="feature-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 18H20M7 14V7M12 14V4M17 14V10" stroke="#79A7FF" stroke-width="1.7" stroke-linecap="round"/>
-                </svg>
+            <p>Quotes, token approvals, swap execution, and add/remove liquidity flows are prepared for live calls.</p>
+          </div>
+          <div class="hero-feature-card">
+            <div class="hero-feature-card-head">
+              <div class="hero-feature-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>
               </div>
-              <h3>Liquidity Module</h3>
-              <p>Add and remove liquidity through a clean dual-asset interface designed for LP growth.</p>
+              <strong>Factory + Pair Read</strong>
             </div>
-
-            <div class="feature-tile">
-              <div class="feature-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12" stroke="#AB7BFF" stroke-width="1.7" stroke-linecap="round"/>
-                  <path d="M12 8V12L15 14" stroke="#54F4FF" stroke-width="1.7" stroke-linecap="round"/>
-                </svg>
+            <p>The interface reads the Pair from the Factory and pulls live reserve data directly from the Pair contract.</p>
+          </div>
+          <div class="hero-feature-card">
+            <div class="hero-feature-card-head">
+              <div class="hero-feature-icon">
+                <svg viewBox="0 0 24 24"><path d="M5 19V5"/><path d="M10 19v-8"/><path d="M15 19v-5"/><path d="M20 19v-12"/></svg>
               </div>
-              <h3>Real Integration Ready</h3>
-              <p>Hook this UI into your Router, Factory, and Pair contracts when the backend is ready.</p>
+              <strong>Own DEX Ready</strong>
             </div>
+            <p>When your own AMM contracts are deployed, changing the addresses below is enough to switch from the default setup.</p>
           </div>
         </div>
       </div>
-    </section>
 
-    <section class="section" id="swap">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <h2>Swap & Wallet</h2>
-            <p>
-              Premium AMM swap flow with wallet status, local demo balances, route quote preview,
-              and a clean conversion experience suitable for a real DEX MVP.
-            </p>
-          </div>
-        </div>
-
-        <div class="main-grid">
-          <div class="stack">
-            <div class="card">
-              <div class="card-head">
-                <h3>Swap</h3>
-                <div class="tabs" id="swapTabs">
-                  <button class="tab active" data-mode="swap">Swap</button>
-                  <button class="tab" data-mode="limit">Future</button>
+      <div class="hero-side-stack">
+        <article class="card">
+          <div class="card-inner">
+            <div class="hero-swap-panel">
+              <div class="swap-pair">
+                <div class="swap-logos">
+                  <img class="swap-logo" src="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" alt="AXION Logo">
+                  <img class="swap-logo" src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/info/logo.png" alt="BNB Logo">
+                </div>
+                <div class="swap-meta">
+                  <span>Connected Pool</span>
+                  <strong>AX / BNB Swap</strong>
                 </div>
               </div>
-
-              <div class="field-group">
-                <div class="swap-box">
-                  <span class="label">You Pay</span>
-                  <div class="row stack-mobile">
-                    <input type="number" min="0" step="any" class="amount-input" id="payAmount" placeholder="0.0" />
-                    <select class="token-select" id="payToken"></select>
-                  </div>
-                  <div class="mini" id="payBalanceText">Balance: 0</div>
-                </div>
-
-                <div class="center-action">
-                  <button class="icon-btn" id="flipTokens" aria-label="Flip tokens">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <path d="M7 7H18M18 7L14.5 3.5M18 7L14.5 10.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M17 17H6M6 17L9.5 13.5M6 17L9.5 20.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </button>
-                </div>
-
-                <div class="swap-box">
-                  <span class="label">You Receive</span>
-                  <div class="row stack-mobile">
-                    <input type="number" min="0" step="any" class="amount-input" id="receiveAmount" placeholder="0.0" readonly />
-                    <select class="token-select" id="receiveToken"></select>
-                  </div>
-                  <div class="mini" id="receiveBalanceText">Balance: 0</div>
-                </div>
-              </div>
-
-              <div class="meta-grid">
-                <div class="meta-item">
-                  <span>Exchange Rate</span>
-                  <strong id="exchangeRate">1 AX = 0.000000 BNB</strong>
-                </div>
-                <div class="meta-item">
-                  <span>Price Impact</span>
-                  <strong id="priceImpact">0.00%</strong>
-                </div>
-                <div class="meta-item">
-                  <span>LP Fee</span>
-                  <strong id="lpFee">0.0000</strong>
-                </div>
-                <div class="meta-item">
-                  <span>Minimum Received</span>
-                  <strong id="minReceived">0.0000</strong>
-                </div>
-              </div>
-
-              <div style="margin-top:16px;">
-                <button class="btn" id="swapBtn" style="width:100%;">Swap Now</button>
-              </div>
-
-              <div style="margin-top:16px;">
-                <div class="quote-line">
-                  <span>Routing</span>
-                  <strong id="routingText">AX → BNB</strong>
-                </div>
-                <div class="quote-line">
-                  <span>Slippage Tolerance</span>
-                  <strong>0.50%</strong>
-                </div>
-                <div class="quote-line">
-                  <span>Execution Type</span>
-                  <strong>Constant Product AMM</strong>
-                </div>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="card-head">
-                <h3>Recent Activity</h3>
-                <span class="subtle">Local demo transactions stored in browser</span>
-              </div>
-              <div id="activityList" class="status-box">
-                No activity yet. Execute a swap or add liquidity to generate entries.
-              </div>
+              <p>Live pair reads through Factory → Pair and swap execution through Router. The default setup is Pancake/Uniswap V2-compatible.</p>
+              <a class="btn btn-gold" href="#swap">OPEN CONNECTED SWAP</a>
             </div>
           </div>
+        </article>
 
-          <div class="stack">
-            <div class="card">
-              <div class="card-head">
-                <h3>Wallet</h3>
-                <span class="subtle" id="walletStateText">Disconnected</span>
-              </div>
-
-              <div class="wallet-panel">
-                <div class="wallet-box">
-                  <div class="subtle" style="margin-bottom:8px;">Connected Address</div>
-                  <div class="address" id="walletAddress">No wallet connected</div>
-                  <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <button class="btn secondary" id="walletActionBtn">Connect MetaMask</button>
-                    <button class="btn ghost" id="resetDemoBtn">Reset Demo State</button>
-                  </div>
-                </div>
-
-                <div class="wallet-stats">
-                  <div class="wallet-stat">
-                    <span>Network</span>
-                    <strong id="walletNetwork">Demo Mode</strong>
-                  </div>
-                  <div class="wallet-stat">
-                    <span>Native</span>
-                    <strong id="walletNative">BNB</strong>
-                  </div>
-                  <div class="wallet-stat">
-                    <span>Status</span>
-                    <strong id="walletStatus">Ready</strong>
-                  </div>
-                </div>
-
-                <div class="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Asset</th>
-                        <th>Balance</th>
-                        <th>Price</th>
-                        <th>Value</th>
-                      </tr>
-                    </thead>
-                    <tbody id="walletBalancesBody"></tbody>
-                  </table>
-                </div>
-              </div>
+        <article class="card" id="contracts">
+          <div class="card-inner">
+            <div class="tag">Contract Configuration</div>
+            <div class="title-row">
+              <div class="icon-badge"><img src="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" alt="AXION Logo"></div>
+              <h3>Addresses In Use</h3>
             </div>
-
-            <div class="card">
-              <div class="card-head">
-                <h3>Pool Insights</h3>
-                <span class="subtle">Current selected route</span>
-              </div>
-
-              <div class="quote-line">
-                <span>Pool</span>
-                <strong id="poolName">AX / BNB</strong>
-              </div>
-              <div class="quote-line">
-                <span>Reserve A</span>
-                <strong id="reserveA">0</strong>
-              </div>
-              <div class="quote-line">
-                <span>Reserve B</span>
-                <strong id="reserveB">0</strong>
-              </div>
-              <div class="quote-line">
-                <span>Pool Fee</span>
-                <strong>0.30%</strong>
-              </div>
-              <div class="quote-line">
-                <span>Model</span>
-                <strong>x · y = k</strong>
-              </div>
+            <div class="info-list">
+              <div class="info-row"><span>AX Token</span><strong class="mono" id="tokenAddressText"></strong></div>
+              <div class="info-row"><span>Router</span><strong class="mono" id="routerAddressText"></strong></div>
+              <div class="info-row"><span>Factory</span><strong class="mono" id="factoryAddressText"></strong></div>
+              <div class="info-row"><span>WBNB</span><strong class="mono" id="wbnbAddressText"></strong></div>
+              <div class="info-row"><span>Current Pair</span><strong class="mono" id="pairAddressText">-</strong></div>
             </div>
+            <div class="status" id="contractStatus">Waiting for wallet connection and pair sync.</div>
           </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="swap">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Swap</div>
+          <h2 class="gradient-title">Live Router Quote</h2>
         </div>
       </div>
-    </section>
 
-    <section class="section" id="liquidity">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <h2>Liquidity</h2>
-            <p>
-              Add or remove liquidity using a simple AMM-compatible interface.
-              This MVP updates internal pool state and simulates LP actions for the frontend experience.
-            </p>
-          </div>
-        </div>
-
-        <div class="main-grid">
-          <div class="card">
-            <div class="card-head">
-              <h3>Add Liquidity</h3>
-              <span class="subtle">Pool contribution simulator</span>
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-inner">
+            <div class="tag">Swap Panel</div>
+            <div class="title-row">
+              <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M7 7h11"/><path d="M14 4l4 3-4 3"/><path d="M17 17H6"/><path d="M10 14l-4 3 4 3"/></svg></div>
+              <h3>AX / BNB</h3>
             </div>
 
-            <div class="liq-grid">
+            <div class="swap-grid">
               <div class="input-shell">
-                <label class="label">Token A</label>
-                <select id="liqTokenA"></select>
+                <label>You Pay</label>
+                <select id="tokenInSelect">
+                  <option value="BNB">BNB</option>
+                  <option value="AX">AX</option>
+                </select>
+                <input id="amountIn" type="number" min="0" step="any" placeholder="0.0" />
+              </div>
+              <div class="swap-arrow">⇄</div>
+              <div class="input-shell">
+                <label>You Receive</label>
+                <select id="tokenOutSelect">
+                  <option value="AX">AX</option>
+                  <option value="BNB">BNB</option>
+                </select>
+                <input id="amountOut" type="text" readonly placeholder="Quoted output" />
+              </div>
+            </div>
+
+            <div class="info-list">
+              <div class="info-row"><span>Rate</span><strong id="quoteRate">-</strong></div>
+              <div class="info-row"><span>Minimum Received</span><strong id="quoteMin">-</strong></div>
+              <div class="info-row"><span>Slippage</span><strong id="slippageText">0.50%</strong></div>
+              <div class="info-row"><span>Route</span><strong id="routeText">BNB → AX</strong></div>
+            </div>
+
+            <div class="action-row">
+              <button class="btn" id="quoteBtn" type="button">Get Quote</button>
+              <button class="btn btn-gold" id="swapBtn" type="button">Swap</button>
+            </div>
+            <div class="status" id="swapStatus">Enter an amount and fetch a live quote from the Router.</div>
+          </div>
+        </article>
+
+        <article class="card" id="wallet">
+          <div class="card-inner">
+            <div class="tag">Wallet Lite</div>
+            <div class="title-row">
+              <div class="icon-badge"><img src="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" alt="AXION Logo"></div>
+              <h3>Connected Wallet</h3>
+            </div>
+            <p>Reads current wallet state for BNB and AX. Native BNB and token balances refresh after connection.</p>
+
+            <div class="wallet-grid">
+              <div class="wallet-tile"><small>Address</small><strong class="mono" id="walletAddress">Not connected</strong></div>
+              <div class="wallet-tile"><small>Network</small><strong id="walletNetwork">-</strong></div>
+              <div class="wallet-tile"><small>Pair Status</small><strong id="pairState">-</strong></div>
+            </div>
+
+            <div class="wallet-grid">
+              <div class="wallet-tile"><small>BNB Balance</small><strong id="bnbBalance">-</strong></div>
+              <div class="wallet-tile"><small>AX Balance</small><strong id="axBalance">-</strong></div>
+              <div class="wallet-tile"><small>Allowance</small><strong id="axAllowance">-</strong></div>
+            </div>
+
+            <div class="action-row">
+              <button class="btn btn-secondary" id="refreshBtn" type="button">Refresh Data</button>
+              <button class="btn btn-secondary" id="approveBtn" type="button">Approve AX</button>
+            </div>
+            <div class="status" id="walletStatus">Connect MetaMask to read wallet data.</div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="liquidity">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Liquidity</div>
+          <h2 class="gradient-title">Add / Remove</h2>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-inner">
+            <div class="tag">Add Liquidity</div>
+            <div class="title-row">
+              <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
+              <h3>AX + BNB</h3>
+            </div>
+            <div class="grid-2">
+              <div class="input-shell">
+                <label>AX Amount</label>
+                <input id="liqAX" type="number" min="0" step="any" placeholder="0.0" />
               </div>
               <div class="input-shell">
-                <label class="label">Token B</label>
-                <select id="liqTokenB"></select>
+                <label>BNB Amount</label>
+                <input id="liqBNB" type="number" min="0" step="any" placeholder="0.0" />
               </div>
             </div>
+            <div class="action-row">
+              <button class="btn btn-secondary" id="approveLiqBtn" type="button">Approve AX</button>
+              <button class="btn" id="addLiquidityBtn" type="button">Add Liquidity</button>
+            </div>
+            <div class="status" id="liqStatus">Router.addLiquidityETH will be used for this action.</div>
+          </div>
+        </article>
 
-            <div class="inline-fields" style="margin-top:12px;">
+        <article class="card">
+          <div class="card-inner">
+            <div class="tag">Remove Liquidity</div>
+            <div class="title-row">
+              <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></div>
+              <h3>LP Position</h3>
+            </div>
+            <div class="grid-2">
               <div class="input-shell">
-                <label class="label">Amount A</label>
-                <input type="number" id="liqAmountA" min="0" step="any" placeholder="0.0" />
+                <label>LP Token Amount</label>
+                <input id="lpAmount" type="number" min="0" step="any" placeholder="0.0" />
               </div>
               <div class="input-shell">
-                <label class="label">Amount B</label>
-                <input type="number" id="liqAmountB" min="0" step="any" placeholder="0.0" />
+                <label>LP Balance</label>
+                <input id="lpBalanceRead" type="text" readonly placeholder="-" />
               </div>
             </div>
-
-            <div class="status-box" style="margin-top:14px;" id="liqEstimate">
-              Select a valid token pair to estimate your pool contribution.
+            <div class="action-row">
+              <button class="btn btn-secondary" id="approveLPBtn" type="button">Approve LP</button>
+              <button class="btn btn-gold" id="removeLiquidityBtn" type="button">Remove Liquidity</button>
             </div>
-
-            <div style="margin-top:14px;">
-              <button class="btn" id="addLiquidityBtn" style="width:100%;">Add Liquidity</button>
-            </div>
+            <div class="status" id="removeStatus">Router.removeLiquidityETHSupportingFeeOnTransferTokens will be used if available.</div>
           </div>
-
-          <div class="stack">
-            <div class="card">
-              <div class="card-head">
-                <h3>Remove Liquidity</h3>
-                <span class="subtle">Demo LP withdrawal</span>
-              </div>
-
-              <div class="input-shell">
-                <label class="label">Pool Pair</label>
-                <select id="removePoolSelect"></select>
-              </div>
-
-              <div class="input-shell" style="margin-top:12px;">
-                <label class="label">LP Percentage</label>
-                <input type="number" id="removePercent" min="1" max="100" step="1" value="25" />
-              </div>
-
-              <div class="status-box" style="margin-top:14px;" id="removeEstimate">
-                Choose a pool and percentage to preview withdrawal amounts.
-              </div>
-
-              <div style="margin-top:14px;">
-                <button class="btn secondary" id="removeLiquidityBtn" style="width:100%;">Remove Liquidity</button>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="card-head">
-                <h3>Your LP Positions</h3>
-                <span class="subtle">Stored locally for MVP testing</span>
-              </div>
-              <div id="lpPositions" class="status-box">
-                No LP positions yet.
-              </div>
-            </div>
-          </div>
-        </div>
+        </article>
       </div>
-    </section>
 
-    <section class="section" id="analytics">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <h2>Analytics</h2>
-            <p>
-              Clean metrics layer for TVL, volume, fees, and trading activity.
-              These cards can later be fed by your own indexer, subgraph, or backend.
-            </p>
-          </div>
-        </div>
-
-        <div class="analytics-grid" id="analyticsCards"></div>
-
-        <div class="card">
-          <div class="card-head">
-            <h3>Top Pools</h3>
-            <span class="subtle">Derived from local MVP pool dataset</span>
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Pool</th>
-                  <th>TVL</th>
-                  <th>24H Volume</th>
-                  <th>Fee APR</th>
-                  <th>Fee Tier</th>
-                </tr>
-              </thead>
-              <tbody id="poolsTableBody"></tbody>
-            </table>
-          </div>
-        </div>
+      <div class="metric-grid" style="margin-top:18px;">
+        <div class="metric"><small>Pair Address</small><strong class="mono" id="metricPair">-</strong></div>
+        <div class="metric"><small>Reserve AX</small><strong id="metricReserveAX">-</strong></div>
+        <div class="metric"><small>Reserve BNB</small><strong id="metricReserveBNB">-</strong></div>
+        <div class="metric"><small>Total LP Supply</small><strong id="metricLPSupply">-</strong></div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="section" id="tokens">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <h2>Token Market</h2>
-            <p>
-              A premium token board for your DEX homepage. Useful for featured assets,
-              volume leaders, ecosystem pairs, and future listing visibility.
-            </p>
-          </div>
-        </div>
-
-        <div class="token-grid" id="tokenGrid"></div>
+  <footer class="footer">
+    <div class="container footer-row">
+      <div>
+        <strong style="display:block;margin-bottom:6px;">AXION DEX</strong>
+        <div class="muted">Connected frontend for Pancake / Uniswap V2 compatible Router, Factory, and Pair contracts.</div>
       </div>
-    </section>
-
-    <section class="footer">
-      <div class="container">
-        <div class="footer-box">
-          <div>
-            <strong style="display:block; margin-bottom:6px; color:#eef3ff;">AXION DEX AMM MVP</strong>
-            <div class="notice">
-              This code is a frontend MVP and local simulation layer. To make it live on-chain,
-              connect Router / Factory / Pair contracts, token approvals, transaction builders,
-              and indexed analytics data.
-            </div>
-          </div>
-          <a href="#home" class="pill">Back to top</a>
-        </div>
+      <div class="footer-links">
+        <a href="https://t.me/axiondefi" target="_blank" rel="noopener noreferrer">Telegram</a>
+        <a href="https://x.com/axiondefix" target="_blank" rel="noopener noreferrer">X</a>
       </div>
-    </section>
-  </main>
-
-  <div class="toast" id="toast"></div>
+    </div>
+  </footer>
 
   <script>
-    const APP_KEY = "axion_dex_mvp_state_v1";
-    const ACTIVITY_KEY = "axion_dex_mvp_activity_v1";
-
-    const DEFAULT_TOKENS = {
-      BNB: { symbol: "BNB", name: "BNB Chain", price: 615, decimals: 18, color: "gold" },
-      AX:  { symbol: "AX",  name: "AXION Token", price: 0.114, decimals: 18, color: "cyan" },
-      USDT:{ symbol: "USDT",name: "Tether USD", price: 1.00, decimals: 6, color: "green" },
-      ETH: { symbol: "ETH", name: "Ethereum", price: 3120, decimals: 18, color: "blue" },
-      BTC: { symbol: "BTC", name: "Bitcoin", price: 84200, decimals: 8, color: "gold" }
+    const CONFIG = {
+      chainId: 56,
+      chainHex: '0x38',
+      chainName: 'BNB Smart Chain',
+      tokenAddress: '0x9e266c2C148df3456e170B759d77c91AbC67eEAB',
+      routerAddress: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
+      factoryAddress: '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73',
+      wbnbAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+      slippageBps: 50,
+      deadlineMinutes: 20,
+      explorer: 'https://bscscan.com'
     };
 
-    const DEFAULT_STATE = {
-      wallet: {
-        connected: false,
-        address: "",
-        chainName: "Demo Mode",
-        balances: {
-          BNB: 12.4,
-          AX:  165000,
-          USDT: 18450,
-          ETH: 2.8,
-          BTC: 0.16
-        }
-      },
-      pools: {
-        "AX_BNB":   { a: "AX", b: "BNB", reserveA: 4200000, reserveB: 780, volume24h: 214000, feeTier: 0.3 },
-        "AX_USDT":  { a: "AX", b: "USDT", reserveA: 5100000, reserveB: 575000, volume24h: 268000, feeTier: 0.3 },
-        "BNB_USDT": { a: "BNB", b: "USDT", reserveA: 1450, reserveB: 890000, volume24h: 359000, feeTier: 0.3 },
-        "ETH_USDT": { a: "ETH", b: "USDT", reserveA: 172, reserveB: 536000, volume24h: 153000, feeTier: 0.3 },
-        "BTC_USDT": { a: "BTC", b: "USDT", reserveA: 21, reserveB: 1768200, volume24h: 118000, feeTier: 0.3 },
-        "ETH_BNB":  { a: "ETH", b: "BNB", reserveA: 95, reserveB: 480, volume24h: 62000, feeTier: 0.3 }
-      },
-      lpPositions: {
-        "AX_BNB": 2.8,
-        "AX_USDT": 1.4
-      }
+    const ERC20_ABI = [
+      'function decimals() view returns (uint8)',
+      'function symbol() view returns (string)',
+      'function balanceOf(address) view returns (uint256)',
+      'function allowance(address,address) view returns (uint256)',
+      'function approve(address,uint256) returns (bool)',
+      'function totalSupply() view returns (uint256)'
+    ];
+
+    const ROUTER_ABI = [
+      'function getAmountsOut(uint amountIn, address[] memory path) view returns (uint[] memory amounts)',
+      'function addLiquidityETH(address token,uint amountTokenDesired,uint amountTokenMin,uint amountETHMin,address to,uint deadline) payable returns (uint amountToken,uint amountETH,uint liquidity)',
+      'function swapExactETHForTokensSupportingFeeOnTransferTokens(uint amountOutMin,address[] calldata path,address to,uint deadline) payable',
+      'function swapExactTokensForETHSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline)',
+      'function removeLiquidityETHSupportingFeeOnTransferTokens(address token,uint liquidity,uint amountTokenMin,uint amountETHMin,address to,uint deadline) returns (uint amountETH)',
+      'function removeLiquidityETH(address token,uint liquidity,uint amountTokenMin,uint amountETHMin,address to,uint deadline) returns (uint amountToken,uint amountETH)'
+    ];
+
+    const FACTORY_ABI = [
+      'function getPair(address tokenA,address tokenB) view returns (address pair)'
+    ];
+
+    const PAIR_ABI = [
+      'function getReserves() view returns (uint112 reserve0,uint112 reserve1,uint32 blockTimestampLast)',
+      'function token0() view returns (address)',
+      'function token1() view returns (address)',
+      'function balanceOf(address) view returns (uint256)',
+      'function totalSupply() view returns (uint256)',
+      'function allowance(address,address) view returns (uint256)',
+      'function approve(address,uint256) returns (bool)'
+    ];
+
+    const state = {
+      provider: null,
+      signer: null,
+      account: null,
+      token: null,
+      router: null,
+      factory: null,
+      pair: null,
+      pairAddress: null,
+      pairToken0: null,
+      pairToken1: null,
+      tokenDecimals: 18,
+      lpDecimals: 18
     };
 
-    let state = loadState();
-    let activity = loadActivity();
-    let provider = null;
-    let signer = null;
+    const $ = (id) => document.getElementById(id);
 
-    const els = {};
-
-    document.addEventListener("DOMContentLoaded", () => {
-      cacheEls();
-      populateSelects();
-      bindEvents();
-      renderAll();
-      updateQuotes();
-      initMetaMaskListeners();
-    });
-
-    function cacheEls() {
-      [
-        "connectBtn","walletActionBtn","resetDemoBtn","walletAddress","walletNetwork","walletStatus",
-        "walletStateText","walletBalancesBody","payAmount","payToken","receiveToken","receiveAmount",
-        "payBalanceText","receiveBalanceText","exchangeRate","priceImpact","lpFee","minReceived",
-        "swapBtn","routingText","poolName","reserveA","reserveB","flipTokens","activityList",
-        "liqTokenA","liqTokenB","liqAmountA","liqAmountB","liqEstimate","addLiquidityBtn",
-        "removePoolSelect","removePercent","removeEstimate","removeLiquidityBtn","lpPositions",
-        "analyticsCards","poolsTableBody","tokenGrid","toast","heroTVL","heroVolume","heroPairs",
-        "walletNative"
-      ].forEach(id => els[id] = document.getElementById(id));
+    function shortAddr(addr){ return addr ? `${addr.slice(0,6)}...${addr.slice(-4)}` : '-'; }
+    function setStatus(id, msg, mode=''){ const el = $(id); el.className = `status ${mode}`.trim(); el.textContent = msg; }
+    function fmt(v, d=4){
+      if (v === null || v === undefined || Number.isNaN(Number(v))) return '-';
+      return Number(v).toLocaleString('en-US',{maximumFractionDigits:d});
+    }
+    function parseUnitsSafe(value, decimals){
+      const v = String(value || '').trim();
+      if (!v || Number(v) <= 0) throw new Error('Enter a valid amount.');
+      return ethers.utils.parseUnits(v, decimals);
     }
 
-    function bindEvents() {
-      els.connectBtn.addEventListener("click", connectWallet);
-      els.walletActionBtn.addEventListener("click", connectWallet);
-      els.resetDemoBtn.addEventListener("click", resetDemoState);
-
-      els.payAmount.addEventListener("input", updateQuotes);
-      els.payToken.addEventListener("change", onRouteChange);
-      els.receiveToken.addEventListener("change", onRouteChange);
-      els.flipTokens.addEventListener("click", flipTokens);
-      els.swapBtn.addEventListener("click", executeSwap);
-
-      els.liqTokenA.addEventListener("change", updateLiquidityEstimate);
-      els.liqTokenB.addEventListener("change", updateLiquidityEstimate);
-      els.liqAmountA.addEventListener("input", updateLiquidityEstimate);
-      els.liqAmountB.addEventListener("input", updateLiquidityEstimate);
-      els.addLiquidityBtn.addEventListener("click", addLiquidity);
-
-      els.removePoolSelect.addEventListener("change", updateRemoveEstimate);
-      els.removePercent.addEventListener("input", updateRemoveEstimate);
-      els.removeLiquidityBtn.addEventListener("click", removeLiquidity);
-
-      document.querySelectorAll(".tab").forEach(tab => {
-        tab.addEventListener("click", () => {
-          document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-          tab.classList.add("active");
-          if (tab.dataset.mode === "limit") {
-            toast("Limit orders are planned for a future version.");
-          }
-        });
-      });
-    }
-
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(APP_KEY);
-        if (!raw) return structuredClone(DEFAULT_STATE);
-        return { ...structuredClone(DEFAULT_STATE), ...JSON.parse(raw) };
-      } catch {
-        return structuredClone(DEFAULT_STATE);
-      }
-    }
-
-    function loadActivity() {
-      try {
-        return JSON.parse(localStorage.getItem(ACTIVITY_KEY) || "[]");
-      } catch {
-        return [];
-      }
-    }
-
-    function saveState() {
-      localStorage.setItem(APP_KEY, JSON.stringify(state));
-    }
-
-    function saveActivity() {
-      localStorage.setItem(ACTIVITY_KEY, JSON.stringify(activity.slice(0, 20)));
-    }
-
-    function resetDemoState() {
-      state = structuredClone(DEFAULT_STATE);
-      activity = [];
-      saveState();
-      saveActivity();
-      populateSelects();
-      renderAll();
-      updateQuotes();
-      updateLiquidityEstimate();
-      updateRemoveEstimate();
-      toast("Demo state has been reset.");
-    }
-
-    function populateSelects() {
-      const symbols = Object.keys(DEFAULT_TOKENS);
-
-      fillSelect(els.payToken, symbols);
-      fillSelect(els.receiveToken, symbols);
-      fillSelect(els.liqTokenA, symbols);
-      fillSelect(els.liqTokenB, symbols);
-      fillSelect(els.removePoolSelect, Object.keys(state.pools).map(k => ({
-        value: k,
-        label: `${state.pools[k].a} / ${state.pools[k].b}`
-      })));
-
-      if (!els.payToken.value) els.payToken.value = "AX";
-      if (!els.receiveToken.value) els.receiveToken.value = "BNB";
-      if (!els.liqTokenA.value) els.liqTokenA.value = "AX";
-      if (!els.liqTokenB.value) els.liqTokenB.value = "BNB";
-      if (!els.removePoolSelect.value) els.removePoolSelect.value = Object.keys(state.pools)[0] || "";
-    }
-
-    function fillSelect(select, items) {
-      const current = select.value;
-      select.innerHTML = "";
-      items.forEach(item => {
-        const opt = document.createElement("option");
-        if (typeof item === "string") {
-          opt.value = item;
-          opt.textContent = item;
-        } else {
-          opt.value = item.value;
-          opt.textContent = item.label;
-        }
-        select.appendChild(opt);
-      });
-      if ([...select.options].some(o => o.value === current)) {
-        select.value = current;
-      }
-    }
-
-    function onRouteChange() {
-      if (els.payToken.value === els.receiveToken.value) {
-        const all = Object.keys(DEFAULT_TOKENS);
-        const alternative = all.find(t => t !== els.payToken.value) || "BNB";
-        els.receiveToken.value = alternative;
-      }
-      updateQuotes();
-      renderPoolInsights();
-    }
-
-    function flipTokens() {
-      const a = els.payToken.value;
-      const b = els.receiveToken.value;
-      els.payToken.value = b;
-      els.receiveToken.value = a;
-      const oldAmount = els.payAmount.value;
-      els.payAmount.value = els.receiveAmount.value || oldAmount;
-      updateQuotes();
-    }
-
-    function getPoolForPair(tokenA, tokenB) {
-      const entries = Object.entries(state.pools);
-      for (const [key, pool] of entries) {
-        if ((pool.a === tokenA && pool.b === tokenB) || (pool.a === tokenB && pool.b === tokenA)) {
-          return { key, pool, reversed: pool.a !== tokenA };
+    async function ensureChain(){
+      if (!window.ethereum) throw new Error('MetaMask not found.');
+      const current = await window.ethereum.request({ method:'eth_chainId' });
+      if (current !== CONFIG.chainHex) {
+        try {
+          await window.ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId: CONFIG.chainHex }] });
+        } catch (err) {
+          throw new Error('Switch MetaMask to BNB Smart Chain first.');
         }
       }
-      return null;
     }
 
-    function constantProductQuote(amountIn, reserveIn, reserveOut, feePercent = 0.3) {
-      if (!amountIn || amountIn <= 0 || reserveIn <= 0 || reserveOut <= 0) {
-        return { amountOut: 0, feeAmount: 0, priceImpact: 0 };
-      }
-      const feeMultiplier = 1 - (feePercent / 100);
-      const amountInWithFee = amountIn * feeMultiplier;
-      const numerator = amountInWithFee * reserveOut;
-      const denominator = reserveIn + amountInWithFee;
-      const amountOut = numerator / denominator;
-      const spot = reserveOut / reserveIn;
-      const execution = amountOut / amountIn;
-      const priceImpact = Math.max(0, ((spot - execution) / spot) * 100);
-      const feeAmount = amountIn - amountInWithFee;
-      return { amountOut, feeAmount, priceImpact };
-    }
-
-    function updateQuotes() {
-      const payToken = els.payToken.value;
-      const receiveToken = els.receiveToken.value;
-      const amountIn = parseFloat(els.payAmount.value || "0");
-
-      els.payBalanceText.textContent = `Balance: ${formatNumber(state.wallet.balances[payToken] || 0, 6)} ${payToken}`;
-      els.receiveBalanceText.textContent = `Balance: ${formatNumber(state.wallet.balances[receiveToken] || 0, 6)} ${receiveToken}`;
-      els.routingText.textContent = `${payToken} → ${receiveToken}`;
-
-      const pair = getPoolForPair(payToken, receiveToken);
-      if (!pair) {
-        els.receiveAmount.value = "";
-        els.exchangeRate.textContent = `No pool available`;
-        els.priceImpact.textContent = `-`;
-        els.lpFee.textContent = `-`;
-        els.minReceived.textContent = `-`;
-        renderPoolInsights();
-        return;
-      }
-
-      let reserveIn = pair.reversed ? pair.pool.reserveB : pair.pool.reserveA;
-      let reserveOut = pair.reversed ? pair.pool.reserveA : pair.pool.reserveB;
-      const { amountOut, feeAmount, priceImpact } = constantProductQuote(amountIn, reserveIn, reserveOut, pair.pool.feeTier);
-      els.receiveAmount.value = amountIn > 0 ? trimZeros(amountOut.toFixed(6)) : "";
-      const rate = reserveOut / reserveIn;
-
-      els.exchangeRate.textContent = `1 ${payToken} = ${formatNumber(rate, 8)} ${receiveToken}`;
-      els.priceImpact.textContent = `${formatNumber(priceImpact, 4)}%`;
-      els.lpFee.textContent = `${formatNumber(feeAmount, 6)} ${payToken}`;
-      els.minReceived.textContent = `${formatNumber(amountOut * 0.995, 6)} ${receiveToken}`;
-
-      renderPoolInsights();
-    }
-
-    function renderPoolInsights() {
-      const payToken = els.payToken.value;
-      const receiveToken = els.receiveToken.value;
-      const pair = getPoolForPair(payToken, receiveToken);
-
-      if (!pair) {
-        els.poolName.textContent = `${payToken} / ${receiveToken}`;
-        els.reserveA.textContent = "No pool";
-        els.reserveB.textContent = "No pool";
-        return;
-      }
-
-      const reserveIn = pair.reversed ? pair.pool.reserveB : pair.pool.reserveA;
-      const reserveOut = pair.reversed ? pair.pool.reserveA : pair.pool.reserveB;
-
-      els.poolName.textContent = `${payToken} / ${receiveToken}`;
-      els.reserveA.textContent = `${formatNumber(reserveIn, 4)} ${payToken}`;
-      els.reserveB.textContent = `${formatNumber(reserveOut, 4)} ${receiveToken}`;
-    }
-
-    function executeSwap() {
-      const tokenIn = els.payToken.value;
-      const tokenOut = els.receiveToken.value;
-      const amountIn = parseFloat(els.payAmount.value || "0");
-      if (!amountIn || amountIn <= 0) return toast("Enter a valid input amount.");
-      if (tokenIn === tokenOut) return toast("Select two different assets.");
-      if ((state.wallet.balances[tokenIn] || 0) < amountIn) return toast(`Insufficient ${tokenIn} balance.`);
-
-      const pair = getPoolForPair(tokenIn, tokenOut);
-      if (!pair) return toast("No liquidity pool exists for this route.");
-
-      let reserveIn = pair.reversed ? pair.pool.reserveB : pair.pool.reserveA;
-      let reserveOut = pair.reversed ? pair.pool.reserveA : pair.pool.reserveB;
-      const { amountOut, feeAmount } = constantProductQuote(amountIn, reserveIn, reserveOut, pair.pool.feeTier);
-
-      if (amountOut <= 0 || reserveOut <= amountOut) return toast("Swap could not be quoted.");
-
-      state.wallet.balances[tokenIn] = (state.wallet.balances[tokenIn] || 0) - amountIn;
-      state.wallet.balances[tokenOut] = (state.wallet.balances[tokenOut] || 0) + amountOut;
-
-      if (!pair.reversed) {
-        pair.pool.reserveA += amountIn;
-        pair.pool.reserveB -= amountOut;
+    async function initContracts(){
+      state.provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+      state.signer = state.provider.getSigner();
+      state.account = await state.signer.getAddress();
+      state.token = new ethers.Contract(CONFIG.tokenAddress, ERC20_ABI, state.signer);
+      state.router = new ethers.Contract(CONFIG.routerAddress, ROUTER_ABI, state.signer);
+      state.factory = new ethers.Contract(CONFIG.factoryAddress, FACTORY_ABI, state.signer);
+      state.tokenDecimals = await state.token.decimals();
+      state.pairAddress = await state.factory.getPair(CONFIG.tokenAddress, CONFIG.wbnbAddress);
+      if (state.pairAddress && state.pairAddress !== ethers.constants.AddressZero) {
+        state.pair = new ethers.Contract(state.pairAddress, PAIR_ABI, state.signer);
+        state.pairToken0 = await state.pair.token0();
+        state.pairToken1 = await state.pair.token1();
       } else {
-        pair.pool.reserveB += amountIn;
-        pair.pool.reserveA -= amountOut;
+        state.pair = null;
       }
-
-      pair.pool.volume24h += amountIn * (DEFAULT_TOKENS[tokenIn].price || 0);
-
-      addActivity(`Swapped ${formatNumber(amountIn, 6)} ${tokenIn} for ${formatNumber(amountOut, 6)} ${tokenOut} • fee ${formatNumber(feeAmount, 6)} ${tokenIn}`);
-      saveState();
-      renderAll();
-      updateQuotes();
-      toast("Swap completed in demo mode.");
     }
 
-    function updateLiquidityEstimate() {
-      const a = els.liqTokenA.value;
-      const b = els.liqTokenB.value;
-      const amountA = parseFloat(els.liqAmountA.value || "0");
-      const amountB = parseFloat(els.liqAmountB.value || "0");
-
-      if (!a || !b || a === b) {
-        els.liqEstimate.textContent = "Choose two different assets.";
-        return;
-      }
-
-      const pair = getPoolForPair(a, b);
-      if (!pair) {
-        els.liqEstimate.innerHTML = `
-          New pool detected: <strong>${a} / ${b}</strong>.<br>
-          Initial ratio will be defined by your first deposit.
-        `;
-        return;
-      }
-
-      const reserveA = pair.pool.a === a ? pair.pool.reserveA : pair.pool.reserveB;
-      const reserveB = pair.pool.a === a ? pair.pool.reserveB : pair.pool.reserveA;
-      const requiredB = amountA > 0 ? amountA * (reserveB / reserveA) : 0;
-      const shareA = amountA > 0 ? (amountA / reserveA) * 100 : 0;
-      const shareB = amountB > 0 ? (amountB / reserveB) * 100 : 0;
-      const estimatedShare = Math.min(
-        shareA || Number.MAX_SAFE_INTEGER,
-        shareB || Number.MAX_SAFE_INTEGER
-      );
-
-      els.liqEstimate.innerHTML = `
-        Pool ratio for <strong>${a} / ${b}</strong> currently implies approx
-        <strong>${formatNumber(requiredB, 6)} ${b}</strong> for
-        <strong>${formatNumber(amountA || 0, 6)} ${a}</strong>.<br>
-        Estimated LP share: <strong>${isFinite(estimatedShare) ? formatNumber(Math.max(0, estimatedShare), 4) : "0"}%</strong>
-      `;
-    }
-
-    function addLiquidity() {
-      const a = els.liqTokenA.value;
-      const b = els.liqTokenB.value;
-      let amountA = parseFloat(els.liqAmountA.value || "0");
-      let amountB = parseFloat(els.liqAmountB.value || "0");
-
-      if (!a || !b || a === b) return toast("Choose two different assets.");
-      if (!amountA || !amountB || amountA <= 0 || amountB <= 0) return toast("Enter valid liquidity amounts.");
-      if ((state.wallet.balances[a] || 0) < amountA) return toast(`Insufficient ${a} balance.`);
-      if ((state.wallet.balances[b] || 0) < amountB) return toast(`Insufficient ${b} balance.`);
-
-      let pair = getPoolForPair(a, b);
-      let poolKey;
-      if (!pair) {
-        poolKey = `${a}_${b}`;
-        state.pools[poolKey] = { a, b, reserveA: 0, reserveB: 0, volume24h: 0, feeTier: 0.3 };
-        pair = getPoolForPair(a, b);
-      } else {
-        poolKey = pair.key;
-      }
-
-      const pool = state.pools[poolKey];
-      if (pool.a === a) {
-        pool.reserveA += amountA;
-        pool.reserveB += amountB;
-      } else {
-        pool.reserveA += amountB;
-        pool.reserveB += amountA;
-      }
-
-      state.wallet.balances[a] -= amountA;
-      state.wallet.balances[b] -= amountB;
-      state.lpPositions[poolKey] = (state.lpPositions[poolKey] || 0) + 1;
-
-      addActivity(`Added liquidity to ${pool.a}/${pool.b} • ${formatNumber(amountA, 6)} ${a} + ${formatNumber(amountB, 6)} ${b}`);
-      saveState();
-      populateSelects();
-      renderAll();
-      updateQuotes();
-      updateLiquidityEstimate();
-      updateRemoveEstimate();
-      els.liqAmountA.value = "";
-      els.liqAmountB.value = "";
-      toast("Liquidity added in demo mode.");
-    }
-
-    function updateRemoveEstimate() {
-      const key = els.removePoolSelect.value;
-      const percent = parseFloat(els.removePercent.value || "0");
-      const pool = state.pools[key];
-      const positionUnits = state.lpPositions[key] || 0;
-
-      if (!pool || positionUnits <= 0) {
-        els.removeEstimate.textContent = "No LP position found for the selected pool.";
-        return;
-      }
-
-      const ownership = Math.min(100, Math.max(1, percent)) / 100;
-      const userShare = positionUnits * 0.005;
-      const removalShare = userShare * ownership;
-
-      const outA = pool.reserveA * removalShare;
-      const outB = pool.reserveB * removalShare;
-
-      els.removeEstimate.innerHTML = `
-        Estimated withdrawal from <strong>${pool.a}/${pool.b}</strong>:<br>
-        <strong>${formatNumber(outA, 6)} ${pool.a}</strong> and
-        <strong>${formatNumber(outB, 6)} ${pool.b}</strong><br>
-        Based on your demo LP share.
-      `;
-    }
-
-    function removeLiquidity() {
-      const key = els.removePoolSelect.value;
-      const percent = parseFloat(els.removePercent.value || "0");
-      const pool = state.pools[key];
-      const positionUnits = state.lpPositions[key] || 0;
-
-      if (!pool || positionUnits <= 0) return toast("No LP position found.");
-      if (!percent || percent <= 0 || percent > 100) return toast("Enter a valid LP percentage.");
-
-      const shareToRemove = (percent / 100) * (positionUnits * 0.005);
-      const outA = pool.reserveA * shareToRemove;
-      const outB = pool.reserveB * shareToRemove;
-
-      pool.reserveA -= outA;
-      pool.reserveB -= outB;
-      state.wallet.balances[pool.a] = (state.wallet.balances[pool.a] || 0) + outA;
-      state.wallet.balances[pool.b] = (state.wallet.balances[pool.b] || 0) + outB;
-      state.lpPositions[key] = Math.max(0, positionUnits * (1 - percent / 100));
-
-      addActivity(`Removed ${percent}% of LP position from ${pool.a}/${pool.b} • received ${formatNumber(outA, 6)} ${pool.a} + ${formatNumber(outB, 6)} ${pool.b}`);
-      saveState();
-      renderAll();
-      updateQuotes();
-      updateRemoveEstimate();
-      toast("Liquidity removed in demo mode.");
-    }
-
-    async function connectWallet() {
-      if (!window.ethereum) {
-        toast("MetaMask not detected. You can still test the MVP in demo mode.");
-        return;
-      }
-
+    async function connectWallet(){
       try {
-        provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-        await provider.send("eth_requestAccounts", []);
-        signer = provider.getSigner();
-        const address = await signer.getAddress();
-        const network = await provider.getNetwork();
+        if (!window.ethereum) throw new Error('MetaMask not detected.');
+        await ensureChain();
+        await window.ethereum.request({ method:'eth_requestAccounts' });
+        await initContracts();
 
-        state.wallet.connected = true;
-        state.wallet.address = address;
-        state.wallet.chainName = network.name === "unknown" ? `Chain ID ${network.chainId}` : network.name;
-        saveState();
-        renderWallet();
-        toast("Wallet connected.");
+        $('walletBtn').textContent = shortAddr(state.account);
+        $('walletAddress').textContent = state.account;
+        $('walletNetwork').textContent = CONFIG.chainName;
+        $('tokenAddressText').textContent = CONFIG.tokenAddress;
+        $('routerAddressText').textContent = CONFIG.routerAddress;
+        $('factoryAddressText').textContent = CONFIG.factoryAddress;
+        $('wbnbAddressText').textContent = CONFIG.wbnbAddress;
+        $('pairAddressText').textContent = state.pairAddress && state.pairAddress !== ethers.constants.AddressZero ? state.pairAddress : 'Pair not found';
+        $('metricPair').textContent = state.pairAddress && state.pairAddress !== ethers.constants.AddressZero ? shortAddr(state.pairAddress) : '-';
+        $('pairState').textContent = state.pair ? 'Live' : 'Not Found';
+        setStatus('walletStatus', 'Wallet connected. Refreshing balances and pair data.', 'success');
+        setStatus('contractStatus', 'Contracts loaded successfully.', 'success');
+        await refreshAll();
       } catch (err) {
-        toast("Wallet connection was rejected or failed.");
+        setStatus('walletStatus', err.message || 'Wallet connection failed.', 'error');
+        setStatus('contractStatus', err.message || 'Contract initialization failed.', 'error');
       }
     }
 
-    function initMetaMaskListeners() {
-      if (!window.ethereum) return;
+    async function refreshWalletData(){
+      if (!state.provider || !state.account) return;
+      const [bnbBal, axBal, allowance] = await Promise.all([
+        state.provider.getBalance(state.account),
+        state.token.balanceOf(state.account),
+        state.token.allowance(state.account, CONFIG.routerAddress)
+      ]);
+      $('bnbBalance').textContent = `${fmt(ethers.utils.formatEther(bnbBal), 6)} BNB`;
+      $('axBalance').textContent = `${fmt(ethers.utils.formatUnits(axBal, state.tokenDecimals), 4)} AX`;
+      $('axAllowance').textContent = allowance.gt(0) ? `${fmt(ethers.utils.formatUnits(allowance, state.tokenDecimals), 4)} AX` : '0';
+    }
 
-      window.ethereum.on?.("accountsChanged", accounts => {
-        if (!accounts || !accounts.length) {
-          state.wallet.connected = false;
-          state.wallet.address = "";
-          state.wallet.chainName = "Disconnected";
+    async function refreshPairData(){
+      if (!state.pair) {
+        $('heroPrice').textContent = 'No pair';
+        $('heroReserveAX').textContent = '-';
+        $('heroReserveBNB').textContent = '-';
+        $('metricReserveAX').textContent = '-';
+        $('metricReserveBNB').textContent = '-';
+        $('metricLPSupply').textContent = '-';
+        $('lpBalanceRead').value = '-';
+        return;
+      }
+
+      const [reserves, totalSupply, lpBal] = await Promise.all([
+        state.pair.getReserves(),
+        state.pair.totalSupply(),
+        state.pair.balanceOf(state.account)
+      ]);
+
+      let reserveAX, reserveBNB;
+      if (state.pairToken0.toLowerCase() === CONFIG.tokenAddress.toLowerCase()) {
+        reserveAX = ethers.utils.formatUnits(reserves.reserve0, state.tokenDecimals);
+        reserveBNB = ethers.utils.formatEther(reserves.reserve1);
+      } else {
+        reserveAX = ethers.utils.formatUnits(reserves.reserve1, state.tokenDecimals);
+        reserveBNB = ethers.utils.formatEther(reserves.reserve0);
+      }
+      const price = Number(reserveBNB) > 0 ? Number(reserveAX) / Number(reserveBNB) : 0;
+      $('heroPrice').textContent = price ? `${fmt(price, 6)} AX / BNB` : '-';
+      $('heroReserveAX').textContent = fmt(reserveAX, 2);
+      $('heroReserveBNB').textContent = fmt(reserveBNB, 4);
+      $('metricReserveAX').textContent = `${fmt(reserveAX, 2)} AX`;
+      $('metricReserveBNB').textContent = `${fmt(reserveBNB, 4)} BNB`;
+      $('metricLPSupply').textContent = fmt(ethers.utils.formatEther(totalSupply), 4);
+      $('lpBalanceRead').value = fmt(ethers.utils.formatEther(lpBal), 6);
+    }
+
+    async function refreshAll(){
+      try {
+        await refreshWalletData();
+        await refreshPairData();
+      } catch (err) {
+        setStatus('walletStatus', err.message || 'Refresh failed.', 'error');
+      }
+    }
+
+    function syncRouteSelects(){
+      const inVal = $('tokenInSelect').value;
+      $('tokenOutSelect').value = inVal === 'BNB' ? 'AX' : 'BNB';
+      $('routeText').textContent = `${$('tokenInSelect').value} → ${$('tokenOutSelect').value}`;
+    }
+
+    async function getQuote(){
+      try {
+        if (!state.router) throw new Error('Connect wallet first.');
+        syncRouteSelects();
+        const tokenIn = $('tokenInSelect').value;
+        const tokenOut = $('tokenOutSelect').value;
+        const amountInput = $('amountIn').value;
+
+        let amountInBn;
+        let path;
+        if (tokenIn === 'BNB' && tokenOut === 'AX') {
+          amountInBn = parseUnitsSafe(amountInput, 18);
+          path = [CONFIG.wbnbAddress, CONFIG.tokenAddress];
+        } else if (tokenIn === 'AX' && tokenOut === 'BNB') {
+          amountInBn = parseUnitsSafe(amountInput, state.tokenDecimals);
+          path = [CONFIG.tokenAddress, CONFIG.wbnbAddress];
         } else {
-          state.wallet.connected = true;
-          state.wallet.address = accounts[0];
+          throw new Error('Unsupported route.');
         }
-        saveState();
-        renderWallet();
-      });
 
-      window.ethereum.on?.("chainChanged", () => {
-        setTimeout(connectWallet, 250);
-      });
-    }
+        const amounts = await state.router.getAmountsOut(amountInBn, path);
+        const outBn = amounts[amounts.length - 1];
+        const outFmt = tokenOut === 'BNB' ? ethers.utils.formatEther(outBn) : ethers.utils.formatUnits(outBn, state.tokenDecimals);
+        const minOut = outBn.mul(10000 - CONFIG.slippageBps).div(10000);
+        const minFmt = tokenOut === 'BNB' ? ethers.utils.formatEther(minOut) : ethers.utils.formatUnits(minOut, state.tokenDecimals);
 
-    function renderAll() {
-      renderWallet();
-      renderAnalytics();
-      renderTokens();
-      renderPoolInsights();
-      renderActivity();
-      renderLPPositions();
-      updateLiquidityEstimate();
-      updateRemoveEstimate();
-    }
-
-    function renderWallet() {
-      els.walletAddress.textContent = state.wallet.connected
-        ? state.wallet.address
-        : "No wallet connected";
-      els.walletNetwork.textContent = state.wallet.connected
-        ? state.wallet.chainName
-        : "Demo Mode";
-      els.walletStatus.textContent = state.wallet.connected ? "Connected" : "Ready";
-      els.walletStateText.textContent = state.wallet.connected ? "Connected" : "Disconnected";
-      els.walletNative.textContent = "BNB";
-
-      const shortAddress = state.wallet.connected
-        ? `${state.wallet.address.slice(0, 6)}...${state.wallet.address.slice(-4)}`
-        : "Connect Wallet";
-
-      els.connectBtn.textContent = shortAddress;
-      els.walletActionBtn.textContent = state.wallet.connected ? "Wallet Connected" : "Connect MetaMask";
-
-      els.walletBalancesBody.innerHTML = "";
-      Object.keys(DEFAULT_TOKENS).forEach(symbol => {
-        const tr = document.createElement("tr");
-        const balance = state.wallet.balances[symbol] || 0;
-        const price = DEFAULT_TOKENS[symbol].price;
-        const value = balance * price;
-        tr.innerHTML = `
-          <td><strong>${symbol}</strong><br><span class="subtle">${DEFAULT_TOKENS[symbol].name}</span></td>
-          <td>${formatNumber(balance, 6)}</td>
-          <td>$${formatNumber(price, 4)}</td>
-          <td>$${formatNumber(value, 2)}</td>
-        `;
-        els.walletBalancesBody.appendChild(tr);
-      });
-    }
-
-    function renderActivity() {
-      if (!activity.length) {
-        els.activityList.textContent = "No activity yet. Execute a swap or add liquidity to generate entries.";
-        return;
+        $('amountOut').value = fmt(outFmt, 8);
+        $('quoteRate').textContent = `1 ${tokenIn} ≈ ${fmt(Number(outFmt) / Number(amountInput || 1), 8)} ${tokenOut}`;
+        $('quoteMin').textContent = `${fmt(minFmt, 8)} ${tokenOut}`;
+        setStatus('swapStatus', 'Live Router quote loaded successfully.', 'success');
+      } catch (err) {
+        $('amountOut').value = '';
+        setStatus('swapStatus', err.message || 'Quote failed.', 'error');
       }
-
-      els.activityList.innerHTML = activity
-        .slice(0, 8)
-        .map(item => `
-          <div style="padding:10px 0; border-bottom:1px solid rgba(255,255,255,.06);">
-            <div style="font-weight:600; color:#eef3ff;">${item.text}</div>
-            <div class="subtle" style="margin-top:6px;">${item.time}</div>
-          </div>
-        `)
-        .join("");
     }
 
-    function renderLPPositions() {
-      const entries = Object.entries(state.lpPositions).filter(([, v]) => v > 0);
-      if (!entries.length) {
-        els.lpPositions.textContent = "No LP positions yet.";
-        return;
+    async function approveAX(target, statusId){
+      try {
+        if (!state.token) throw new Error('Connect wallet first.');
+        const tx = await state.token.approve(target, ethers.constants.MaxUint256);
+        setStatus(statusId, `Approval submitted: ${tx.hash}`, '');
+        await tx.wait();
+        await refreshWalletData();
+        setStatus(statusId, 'Approval confirmed.', 'success');
+      } catch (err) {
+        setStatus(statusId, err.message || 'Approval failed.', 'error');
       }
-
-      els.lpPositions.innerHTML = entries.map(([key, units]) => {
-        const pool = state.pools[key];
-        return `
-          <div style="padding:10px 0; border-bottom:1px solid rgba(255,255,255,.06);">
-            <div style="font-weight:700; color:#eef3ff;">${pool.a} / ${pool.b}</div>
-            <div class="subtle" style="margin-top:6px;">Demo LP units: ${formatNumber(units, 4)}</div>
-          </div>
-        `;
-      }).join("");
     }
 
-    function renderAnalytics() {
-      const pools = Object.values(state.pools);
-      const totalTVL = pools.reduce((sum, p) => {
-        const valueA = p.reserveA * DEFAULT_TOKENS[p.a].price;
-        const valueB = p.reserveB * DEFAULT_TOKENS[p.b].price;
-        return sum + valueA + valueB;
-      }, 0);
-      const totalVolume = pools.reduce((sum, p) => sum + p.volume24h, 0);
-      const totalFees = totalVolume * 0.003;
-      const pairs = pools.length;
+    async function swap(){
+      try {
+        if (!state.router || !state.account) throw new Error('Connect wallet first.');
+        await getQuote();
+        const tokenIn = $('tokenInSelect').value;
+        const tokenOut = $('tokenOutSelect').value;
+        const amountInput = $('amountIn').value;
+        const deadline = Math.floor(Date.now() / 1000) + (CONFIG.deadlineMinutes * 60);
 
-      els.heroTVL.textContent = `$${formatCompact(totalTVL)}`;
-      els.heroVolume.textContent = `$${formatCompact(totalVolume)}`;
-      els.heroPairs.textContent = String(pairs);
+        if (tokenIn === 'BNB' && tokenOut === 'AX') {
+          const amountIn = parseUnitsSafe(amountInput, 18);
+          const amounts = await state.router.getAmountsOut(amountIn, [CONFIG.wbnbAddress, CONFIG.tokenAddress]);
+          const minOut = amounts[1].mul(10000 - CONFIG.slippageBps).div(10000);
+          const tx = await state.router.swapExactETHForTokensSupportingFeeOnTransferTokens(
+            minOut,
+            [CONFIG.wbnbAddress, CONFIG.tokenAddress],
+            state.account,
+            deadline,
+            { value: amountIn }
+          );
+          setStatus('swapStatus', `Swap submitted: ${tx.hash}`, '');
+          await tx.wait();
+        } else if (tokenIn === 'AX' && tokenOut === 'BNB') {
+          const amountIn = parseUnitsSafe(amountInput, state.tokenDecimals);
+          const allowance = await state.token.allowance(state.account, CONFIG.routerAddress);
+          if (allowance.lt(amountIn)) throw new Error('Approve AX before swapping.');
+          const amounts = await state.router.getAmountsOut(amountIn, [CONFIG.tokenAddress, CONFIG.wbnbAddress]);
+          const minOut = amounts[1].mul(10000 - CONFIG.slippageBps).div(10000);
+          const tx = await state.router.swapExactTokensForETHSupportingFeeOnTransferTokens(
+            amountIn,
+            minOut,
+            [CONFIG.tokenAddress, CONFIG.wbnbAddress],
+            state.account,
+            deadline
+          );
+          setStatus('swapStatus', `Swap submitted: ${tx.hash}`, '');
+          await tx.wait();
+        } else {
+          throw new Error('Unsupported route.');
+        }
 
-      const analytics = [
-        { label: "Total Value Locked", value: `$${formatCompact(totalTVL)}`, note: "Across all tracked pools" },
-        { label: "24H Volume", value: `$${formatCompact(totalVolume)}`, note: "Local MVP dataset" },
-        { label: "24H Fees", value: `$${formatCompact(totalFees)}`, note: "0.30% fee estimate" },
-        { label: "Active Pools", value: String(pairs), note: "Ready for routing expansion" }
-      ];
-
-      els.analyticsCards.innerHTML = analytics.map(card => `
-        <div class="analytics-card">
-          <span>${card.label}</span>
-          <strong>${card.value}</strong>
-          <small>${card.note}</small>
-        </div>
-      `).join("");
-
-      const rankedPools = Object.entries(state.pools)
-        .map(([key, p]) => {
-          const tvl = p.reserveA * DEFAULT_TOKENS[p.a].price + p.reserveB * DEFAULT_TOKENS[p.b].price;
-          const feeApr = tvl > 0 ? ((p.volume24h * 0.003 * 365) / tvl) * 100 : 0;
-          return { key, ...p, tvl, feeApr };
-        })
-        .sort((a, b) => b.tvl - a.tvl);
-
-      els.poolsTableBody.innerHTML = rankedPools.map(pool => `
-        <tr>
-          <td><strong>${pool.a} / ${pool.b}</strong></td>
-          <td>$${formatCompact(pool.tvl)}</td>
-          <td>$${formatCompact(pool.volume24h)}</td>
-          <td class="${pool.feeApr >= 15 ? "value-green" : ""}">${formatNumber(pool.feeApr, 2)}%</td>
-          <td>${formatNumber(pool.feeTier, 2)}%</td>
-        </tr>
-      `).join("");
+        setStatus('swapStatus', 'Swap confirmed successfully.', 'success');
+        await refreshAll();
+      } catch (err) {
+        setStatus('swapStatus', err.message || 'Swap failed.', 'error');
+      }
     }
 
-    function renderTokens() {
-      const symbols = Object.keys(DEFAULT_TOKENS);
-      const grid = symbols.map(symbol => {
-        const token = DEFAULT_TOKENS[symbol];
-        const relatedPools = Object.values(state.pools).filter(p => p.a === symbol || p.b === symbol);
-        const tvl = relatedPools.reduce((sum, p) => {
-          const valueA = p.reserveA * DEFAULT_TOKENS[p.a].price;
-          const valueB = p.reserveB * DEFAULT_TOKENS[p.b].price;
-          return sum + valueA + valueB;
-        }, 0);
-        const volume = relatedPools.reduce((sum, p) => sum + p.volume24h, 0);
-        const change = symbol === "AX" ? 8.42 : symbol === "BNB" ? 2.31 : symbol === "USDT" ? 0.01 : symbol === "ETH" ? -1.24 : 3.08;
+    async function addLiquidity(){
+      try {
+        if (!state.router || !state.account) throw new Error('Connect wallet first.');
+        const axAmount = parseUnitsSafe($('liqAX').value, state.tokenDecimals);
+        const bnbAmount = parseUnitsSafe($('liqBNB').value, 18);
+        const allowance = await state.token.allowance(state.account, CONFIG.routerAddress);
+        if (allowance.lt(axAmount)) throw new Error('Approve AX before adding liquidity.');
 
-        return `
-          <div class="token-card">
-            <div class="token-top">
-              <div class="token-name">
-                <div class="coin">${symbol}</div>
-                <div>
-                  <h4>${token.name}</h4>
-                  <p>${symbol}</p>
-                </div>
-              </div>
-              <div class="pill ${change >= 0 ? "value-green" : "value-red"}">${change >= 0 ? "+" : ""}${formatNumber(change, 2)}%</div>
-            </div>
-            <div class="token-metrics">
-              <div>
-                <span>Price</span>
-                <strong>$${formatNumber(token.price, 4)}</strong>
-              </div>
-              <div>
-                <span>TVL Exposure</span>
-                <strong>$${formatCompact(tvl)}</strong>
-              </div>
-              <div>
-                <span>24H Volume</span>
-                <strong>$${formatCompact(volume)}</strong>
-              </div>
-              <div>
-                <span>Wallet Balance</span>
-                <strong>${formatNumber(state.wallet.balances[symbol] || 0, 4)}</strong>
-              </div>
-            </div>
-          </div>
-        `;
+        const tokenMin = axAmount.mul(10000 - CONFIG.slippageBps).div(10000);
+        const ethMin = bnbAmount.mul(10000 - CONFIG.slippageBps).div(10000);
+        const deadline = Math.floor(Date.now() / 1000) + (CONFIG.deadlineMinutes * 60);
+
+        const tx = await state.router.addLiquidityETH(
+          CONFIG.tokenAddress,
+          axAmount,
+          tokenMin,
+          ethMin,
+          state.account,
+          deadline,
+          { value: bnbAmount }
+        );
+        setStatus('liqStatus', `Add liquidity submitted: ${tx.hash}`, '');
+        await tx.wait();
+        setStatus('liqStatus', 'Liquidity added successfully.', 'success');
+        await refreshAll();
+      } catch (err) {
+        setStatus('liqStatus', err.message || 'Add liquidity failed.', 'error');
+      }
+    }
+
+    async function approveLP(){
+      try {
+        if (!state.pair) throw new Error('Pair contract not found.');
+        const tx = await state.pair.approve(CONFIG.routerAddress, ethers.constants.MaxUint256);
+        setStatus('removeStatus', `LP approval submitted: ${tx.hash}`, '');
+        await tx.wait();
+        setStatus('removeStatus', 'LP approval confirmed.', 'success');
+      } catch (err) {
+        setStatus('removeStatus', err.message || 'LP approval failed.', 'error');
+      }
+    }
+
+    async function removeLiquidity(){
+      try {
+        if (!state.router || !state.account || !state.pair) throw new Error('Connect wallet first.');
+        const lpAmount = parseUnitsSafe($('lpAmount').value, 18);
+        const allowance = await state.pair.allowance(state.account, CONFIG.routerAddress);
+        if (allowance.lt(lpAmount)) throw new Error('Approve LP before removing liquidity.');
+        const deadline = Math.floor(Date.now() / 1000) + (CONFIG.deadlineMinutes * 60);
+
+        let tx;
+        try {
+          tx = await state.router.removeLiquidityETHSupportingFeeOnTransferTokens(
+            CONFIG.tokenAddress,
+            lpAmount,
+            0,
+            0,
+            state.account,
+            deadline
+          );
+        } catch (_) {
+          tx = await state.router.removeLiquidityETH(
+            CONFIG.tokenAddress,
+            lpAmount,
+            0,
+            0,
+            state.account,
+            deadline
+          );
+        }
+        setStatus('removeStatus', `Remove liquidity submitted: ${tx.hash}`, '');
+        await tx.wait();
+        setStatus('removeStatus', 'Liquidity removed successfully.', 'success');
+        await refreshAll();
+      } catch (err) {
+        setStatus('removeStatus', err.message || 'Remove liquidity failed.', 'error');
+      }
+    }
+
+    function init(){
+      $('tokenAddressText').textContent = CONFIG.tokenAddress;
+      $('routerAddressText').textContent = CONFIG.routerAddress;
+      $('factoryAddressText').textContent = CONFIG.factoryAddress;
+      $('wbnbAddressText').textContent = CONFIG.wbnbAddress;
+
+      $('walletBtn').addEventListener('click', connectWallet);
+      $('refreshBtn').addEventListener('click', refreshAll);
+      $('quoteBtn').addEventListener('click', getQuote);
+      $('swapBtn').addEventListener('click', swap);
+      $('approveBtn').addEventListener('click', () => approveAX(CONFIG.routerAddress, 'walletStatus'));
+      $('approveLiqBtn').addEventListener('click', () => approveAX(CONFIG.routerAddress, 'liqStatus'));
+      $('addLiquidityBtn').addEventListener('click', addLiquidity);
+      $('approveLPBtn').addEventListener('click', approveLP);
+      $('removeLiquidityBtn').addEventListener('click', removeLiquidity);
+      $('tokenInSelect').addEventListener('change', syncRouteSelects);
+      $('tokenOutSelect').addEventListener('change', () => {
+        if ($('tokenOutSelect').value === $('tokenInSelect').value) syncRouteSelects();
       });
+      syncRouteSelects();
 
-      els.tokenGrid.innerHTML = grid.join("");
+      if (window.ethereum) {
+        window.ethereum.on?.('accountsChanged', () => connectWallet());
+        window.ethereum.on?.('chainChanged', () => window.location.reload());
+      }
     }
 
-    function addActivity(text) {
-      activity.unshift({
-        text,
-        time: new Date().toLocaleString("en-GB", {
-          year: "numeric",
-          month: "short",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit"
-        })
-      });
-      saveActivity();
-    }
-
-    function toast(message) {
-      els.toast.textContent = message;
-      els.toast.classList.add("show");
-      clearTimeout(els.toast._timer);
-      els.toast._timer = setTimeout(() => {
-        els.toast.classList.remove("show");
-      }, 2600);
-    }
-
-    function formatNumber(value, max = 2) {
-      return Number(value || 0).toLocaleString("en-US", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: max
-      });
-    }
-
-    function formatCompact(value) {
-      return Number(value || 0).toLocaleString("en-US", {
-        notation: "compact",
-        maximumFractionDigits: 2
-      });
-    }
-
-    function trimZeros(value) {
-      return String(value).replace(/(\.\d*?[1-9])0+$/,"$1").replace(/\.0+$/,"");
-    }
+    init();
   </script>
 </body>
 </html>

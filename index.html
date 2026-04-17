@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     :root{
       --bg:#05070b;
@@ -117,9 +118,9 @@
     .pair-stat strong{display:block;font-size:18px;font-weight:900}
     .chart-shell{display:grid;grid-template-rows:auto 1fr;background:#0a0f15;overflow:hidden}
     .chart-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-    .chart-embed-wrap{position:relative;min-height:100%}
-    .chart-embed-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#0a0f15}
-    .chart-empty{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:20px;text-align:center;color:var(--muted);font-size:14px;background:#0a0f15}
+    .chart-embed-wrap{position:relative;min-height:100%;padding:12px;background:linear-gradient(180deg,#0a0f15,#0d131b)}
+    #chartCanvas{width:100%;height:100%;min-height:420px;border-radius:14px;overflow:hidden;border:1px solid rgba(240,185,11,.10);background:radial-gradient(circle at top left, rgba(240,185,11,.05), transparent 32%), #0a0f15}
+    .chart-empty{position:absolute;inset:12px;display:none;align-items:center;justify-content:center;padding:20px;text-align:center;color:var(--muted);font-size:14px;background:rgba(10,15,21,.86);border-radius:14px}
     .chart-empty.show{display:flex}
     .recent-trades{overflow:hidden}
     .trade-stream{padding:10px 12px;display:grid;gap:6px;max-height:108px;overflow:auto}
@@ -219,7 +220,7 @@
       .market-header{grid-template-columns:1fr}
       .split,.section-grid,.liq-box .action-row,.remove-box .action-row{grid-template-columns:1fr}
       .action-row .btn{width:100%;flex:auto}
-      .chart-column{grid-template-rows:auto minmax(300px,1fr) 190px}
+      .chart-column{grid-template-rows:auto minmax(420px,1fr) 190px}
       .ob-rows{max-height:220px}
       .timeframes{gap:6px}
       .tf-btn{padding:8px 9px;font-size:11px}
@@ -237,7 +238,18 @@
       .ob-columns,.ob-row,.trade-row{font-size:11px}
       .field input,.field select{padding:12px}
       .info-tile strong{font-size:13px}
+      #chartCanvas{min-height:500px}
     }
+
+    .chart-shell,.market-chart,.live-chart-wrap,.tv-shell,.chart-panel{min-height:520px !important;}
+    .chart-frame,.chart-embed,.chart-canvas-wrap{min-height:460px !important;}
+    .dexscreener-brand,.dexscreener-footer,.chart-source-badge,.embed-branding,[class*='dexscreener-logo']{display:none !important;}
+    .status{word-break:break-word;overflow-wrap:anywhere;}
+    @media (max-width:640px){
+      .chart-shell,.market-chart,.live-chart-wrap,.tv-shell,.chart-panel{min-height:560px !important;}
+      .chart-frame,.chart-embed,.chart-canvas-wrap{min-height:500px !important;}
+    }
+
   </style>
 </head>
 <body>
@@ -358,7 +370,7 @@
                 </div>
               </div>
               <div class="chart-embed-wrap">
-                <iframe id="chartFrame" title="Live Pair Chart" loading="lazy" referrerpolicy="no-referrer"></iframe>
+                <div id="chartCanvas" aria-label="Live market chart"></div>
                 <div class="chart-empty" id="chartEmpty">Select or import a token, sync its BNB pair, then the live chart will appear here.</div>
               </div>
             </div>
@@ -545,8 +557,9 @@
       deadlineMinutes: 20,
       storageKey: 'axionDexImportedTokensV3',
       defaultPairId: '0xb7d69e285583f8b444a85a0ab68d24d63ce537de',
+      rpcUrl: 'https://bsc-dataseed.binance.org/',
       defaultChartInterval: '1',
-      depthLevels: [0.05,0.10,0.25,0.50,1,2,5],
+      depthLevels: [0.005,0.01,0.015,0.02,0.03,0.04,0.05,0.07,0.09,0.12,0.16,0.22,0.30,0.40,0.55,0.75],
       recentTradeMax: 16,
       favoritesKey: 'axionDexFavoritePairsV1',
       viewedKey: 'axionDexViewedPairsV1'
@@ -734,6 +747,126 @@
       if($('riskList')) renderRiskPanel({liquidityUsd: liquidity, volume24h: Number(meta.volume?.h24 || 0), priceImpact: Number(($('priceImpact')?.textContent || '0').replace('%','')) || 0});
       $('tradeRiskBias').textContent = execution >= 75 ? 'Low' : execution >= 45 ? 'Moderate' : 'Elevated';
     }
+
+    function initCustomChart(){
+      if(state.chart || !window.LightweightCharts || !$('chartCanvas')) return;
+      const el = $('chartCanvas');
+      state.chart = LightweightCharts.createChart(el, {
+        layout:{ background:{ color:'#0a0f15' }, textColor:'#9aa4b2', fontFamily:'Inter, sans-serif' },
+        grid:{ vertLines:{ color:'rgba(255,255,255,.04)' }, horzLines:{ color:'rgba(255,255,255,.04)' } },
+        crosshair:{ mode:1, vertLine:{ color:'rgba(240,185,11,.35)' }, horzLine:{ color:'rgba(240,185,11,.18)' } },
+        rightPriceScale:{ borderColor:'rgba(255,255,255,.08)' },
+        timeScale:{ borderColor:'rgba(255,255,255,.08)', timeVisible:true, secondsVisible:false },
+        handleScroll:{ mouseWheel:true, pressedMouseMove:true, horzTouchDrag:true, vertTouchDrag:false },
+        handleScale:{ axisPressedMouseMove:true, mouseWheel:true, pinch:true },
+      });
+      state.areaSeries = state.chart.addAreaSeries({
+        lineColor:'#f0b90b',
+        topColor:'rgba(240,185,11,.36)',
+        bottomColor:'rgba(240,185,11,.02)',
+        lineWidth:2,
+        priceLineColor:'#f0b90b',
+        crosshairMarkerVisible:true,
+      });
+      state.volumeSeries = state.chart.addHistogramSeries({
+        priceFormat:{ type:'volume' },
+        priceScaleId:'',
+        color:'rgba(14,203,129,.45)',
+        lastValueVisible:false,
+        priceLineVisible:false,
+      });
+      resizeCustomChart();
+      window.addEventListener('resize', resizeCustomChart);
+    }
+
+    function resizeCustomChart(){
+      if(!state.chart || !$('chartCanvas')) return;
+      const rect = $('chartCanvas').getBoundingClientRect();
+      if(rect.width > 0 && rect.height > 0){
+        state.chart.applyOptions({ width: Math.floor(rect.width), height: Math.floor(rect.height) });
+      }
+    }
+
+    function getChartWindowSize(){
+      const interval = String(state.chartInterval || '1');
+      if(interval === '1') return 40;
+      if(interval === '15') return 80;
+      if(interval === '60') return 120;
+      if(interval === '240') return 180;
+      return 240;
+    }
+
+    function renderChartHistory(){
+      initCustomChart();
+      if(!state.areaSeries || !state.volumeSeries) return;
+      if(!state.chartHistory.length){ $('chartEmpty').classList.add('show'); return; }
+      $('chartEmpty').classList.remove('show');
+      const sliced = state.chartHistory.slice(-getChartWindowSize());
+      state.areaSeries.setData(sliced.map(p=>({ time:p.time, value:p.value })));
+      state.volumeSeries.setData(sliced.map(p=>({ time:p.time, value:p.volume, color:p.color || 'rgba(14,203,129,.45)' })));
+      state.chart.timeScale().fitContent();
+      resizeCustomChart();
+    }
+
+    function seedChartHistory(price){
+      const base = Number(price || 0);
+      if(!base) return;
+      const now = Math.floor(Date.now()/1000);
+      const points = [];
+      let prev = base;
+      for(let i=90;i>=1;i--){
+        const t = now - i*60;
+        const drift = (Math.sin(i/7) + Math.cos(i/11)) * 0.0028;
+        const jitter = ((i % 5) - 2) * 0.0008;
+        const value = Math.max(base * 0.6, prev * (1 + drift + jitter));
+        points.push({
+          time:t,
+          value,
+          volume: Math.max(1, Math.abs(value-base) * 10000),
+          color: value >= prev ? 'rgba(14,203,129,.45)' : 'rgba(246,70,93,.45)'
+        });
+        prev = value;
+      }
+      state.chartHistory = points;
+    }
+
+    function pushChartPoint(price){
+      const value = Number(price || 0);
+      if(!value) return;
+      const time = Math.floor(Date.now()/1000);
+      if(!state.chartHistory.length) seedChartHistory(value);
+      const last = state.chartHistory[state.chartHistory.length - 1];
+      const color = !last || value >= last.value ? 'rgba(14,203,129,.45)' : 'rgba(246,70,93,.45)';
+      const volume = Math.max(1, Math.abs(value - (last?.value || value)) * 15000);
+      if(last && Math.abs(time - last.time) < 45){
+        last.value = value;
+        last.volume = volume;
+        last.color = color;
+      } else {
+        state.chartHistory.push({ time, value, volume, color });
+      }
+      state.chartHistory = state.chartHistory.slice(-400);
+      renderChartHistory();
+    }
+
+    function clearLockedOrder(){
+      state.lockedBookPrice = null;
+      state.lockedBookSide = null;
+    }
+
+    function syncLockedOrderPreview(){
+      const amountInRaw = Number($('amountIn').value || 0);
+      if(!state.lockedBookPrice || !amountInRaw) return;
+      if(state.lockedBookSide === 'buy'){
+        const tokenAmount = amountInRaw / state.lockedBookPrice;
+        $('amountOut').value = tokenAmount > 0 ? tokenAmount.toFixed(6) : '';
+      } else {
+        const bnbAmount = amountInRaw * state.lockedBookPrice;
+        $('amountOut').value = bnbAmount > 0 ? bnbAmount.toFixed(6) : '';
+      }
+      updateTradeInsights();
+    }
+
     function updatePortfolioEstimates(){
       const price = Number(state.currentPairMeta?.priceUsd || 0);
       const tokenBalText = $('axBalance')?.textContent || '0';
@@ -809,10 +942,21 @@
       state.factory = new ethers.Contract(CONFIG.factoryAddress, FACTORY_ABI, state.signer);
     }
 
+
+    function buildReadContracts(){
+      if(state.readProvider) return;
+      state.readProvider = new ethers.providers.JsonRpcProvider(CONFIG.rpcUrl, { name:'bnb', chainId: CONFIG.chainId });
+      state.readRouter = new ethers.Contract(CONFIG.routerAddress, ROUTER_ABI, state.readProvider);
+      state.readFactory = new ethers.Contract(CONFIG.factoryAddress, FACTORY_ABI, state.readProvider);
+      if(!state.provider) state.provider = state.readProvider;
+      if(!state.router) state.router = state.readRouter;
+      if(!state.factory) state.factory = state.readFactory;
+    }
+
     async function importToken(address, makeSelected=true){
       if(!ethers.utils.isAddress(address)) throw new Error('Invalid contract address.');
-      if(!state.provider) state.provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-      const token = new ethers.Contract(address, ERC20_ABI, state.provider);
+      if(!state.provider) buildReadContracts();
+      const token = new ethers.Contract(address, ERC20_ABI, state.signer || state.readProvider || state.provider);
       const [name,symbol,decimals] = await Promise.all([token.name(), token.symbol(), token.decimals()]);
       const item = {address:ethers.utils.getAddress(address), name, symbol, decimals:Number(decimals)};
       const exists = state.importedTokens.find(t=>t.address.toLowerCase()===item.address.toLowerCase());
@@ -826,29 +970,30 @@
     async function selectToken(address){
       const meta = tokenMetaByAddress(address);
       if(!meta || meta.native) throw new Error('Select a BEP-20 token.');
-      if(!state.signer) await buildContracts();
+      if(!state.provider) buildReadContracts();
       state.selectedTokenAddress = meta.address;
       state.tokenSymbol = meta.symbol;
       state.tokenDecimals = meta.decimals;
-      state.selectedToken = new ethers.Contract(meta.address, ERC20_ABI, state.signer);
+      const tokenProvider = state.signer || state.readProvider || state.provider;
+      state.selectedToken = new ethers.Contract(meta.address, ERC20_ABI, tokenProvider);
       $('tokenAddressText').textContent = meta.address;
       await syncSelectedPair();
     }
 
     async function syncSelectedPair(){
       try{
-        if(!state.factory || !state.selectedTokenAddress) throw new Error('Select a token first.');
-        state.pairAddress = await state.factory.getPair(state.selectedTokenAddress, CONFIG.wbnbAddress);
+        if((!state.factory && !state.readFactory) || !state.selectedTokenAddress) throw new Error('Select a token first.');
+        const factory = state.factory || state.readFactory;
+        state.pairAddress = await factory.getPair(state.selectedTokenAddress, CONFIG.wbnbAddress);
         if($('pairAddressText')) $('pairAddressText').textContent = state.pairAddress && state.pairAddress !== ethers.constants.AddressZero ? state.pairAddress : 'No BNB pair found';
         if(!state.pairAddress || state.pairAddress === ethers.constants.AddressZero){
           state.pair=null; state.pairToken0=null; state.currentPairMeta=null;
           $('chartEmpty').classList.add('show');
-          $('chartFrame').src = 'about:blank';
           renderEmptyBooks();
           setStatus('contractStatus', 'Selected token imported, but no BNB pair was found in the Factory.', 'error');
           return;
         }
-        state.pair = new ethers.Contract(state.pairAddress, PAIR_ABI, state.signer);
+        state.pair = new ethers.Contract(state.pairAddress, PAIR_ABI, state.signer || state.readProvider || state.provider);
         state.pairToken0 = await state.pair.token0();
         $('chartEmpty').classList.remove('show');
         setStatus('contractStatus', `${state.tokenSymbol} / BNB pair synced successfully.`, 'success');
@@ -964,10 +1109,14 @@
     }
 
     async function refreshWallet(){
-      if(!state.account || !state.provider) return;
-      const bnbBal = await state.provider.getBalance(state.account);
-      $('bnbBalance').textContent = `${formatUnitsSafe(bnbBal,18,5)} BNB`;
-      if(state.selectedToken){
+      if(!state.provider) buildReadContracts();
+      if(state.account && state.provider){
+        const bnbBal = await state.provider.getBalance(state.account);
+        $('bnbBalance').textContent = `${formatUnitsSafe(bnbBal,18,5)} BNB`;
+      } else {
+        $('bnbBalance').textContent = '-';
+      }
+      if(state.selectedToken && state.account){
         const tokenBal = await state.selectedToken.balanceOf(state.account);
         $('axBalance').textContent = `${formatUnitsSafe(tokenBal, state.tokenDecimals, 4)} ${state.tokenSymbol}`;
       } else {
@@ -1038,6 +1187,7 @@
         const fdv = pair.fdv ? formatUsd(pair.fdv, 0) : '-';
         const mcap = pair.marketCap ? formatUsd(pair.marketCap, 0) : '-';
         $('statFdv').textContent = `${fdv} / ${mcap}`;
+        state.currentMidPrice = Number(pair.priceNative || pair.priceUsd || 0);
         $('midPrice').textContent = formatUsd(pair.priceUsd, 8);
         const spread = Math.abs(Number(pair.priceChange?.m5 || 0)) / 100;
         $('midSpread').textContent = `${(spread * 100).toFixed(2)}%`;
@@ -1045,6 +1195,7 @@
         renderSignals(pair);
         updatePortfolioEstimates();
         pushRecentTrade(pair.priceUsd, change24 >= 0 ? 'buy' : 'sell');
+        pushChartPoint(pair.priceUsd);
       } catch(err){
         console.error(err);
       }
@@ -1077,37 +1228,32 @@
     async function renderOrderBook(){
       const sellWrap = $('sellBook');
       const buyWrap = $('buyBook');
-      if(!state.router || !state.selectedTokenAddress){ renderEmptyBooks(); return; }
+      if(!state.selectedTokenAddress){ renderEmptyBooks(); return; }
       try{
+        const mid = Number(state.currentMidPrice || 0);
+        const pair = state.currentPairMeta || {};
+        const liquidityUsd = Number(pair?.liquidity?.usd || 0);
+        const baseStep = mid > 0 ? Math.max(mid * 0.0025, 0.00000001) : 0.00000001;
+        const depthCount = 18;
+        const liquidityFactor = Math.max(1, Math.min(6, liquidityUsd / 5000));
         const sellRows = [];
         const buyRows = [];
-        for(const level of CONFIG.depthLevels){
-          const bnbIn = ethers.utils.parseUnits(String(level), 18);
-          const buyPath = [CONFIG.wbnbAddress, state.selectedTokenAddress];
-          const buyAmounts = await state.router.getAmountsOut(bnbIn, buyPath);
-          const tokenOut = buyAmounts[buyAmounts.length - 1];
-          const buyPrice = level / Number(ethers.utils.formatUnits(tokenOut, state.tokenDecimals));
-          buyRows.unshift({
-            price: buyPrice,
-            amount: Number(ethers.utils.formatUnits(tokenOut, state.tokenDecimals)),
-            total: level,
-          });
-
-          const tokenIn = ethers.utils.parseUnits(String(level * 1000), state.tokenDecimals);
-          const sellPath = [state.selectedTokenAddress, CONFIG.wbnbAddress];
-          const sellAmounts = await state.router.getAmountsOut(tokenIn, sellPath);
-          const bnbOut = sellAmounts[sellAmounts.length - 1];
-          const sellPrice = Number(ethers.utils.formatUnits(bnbOut, 18)) / (level * 1000);
-          sellRows.push({
-            price: sellPrice,
-            amount: level * 1000,
-            total: Number(ethers.utils.formatUnits(bnbOut, 18)),
-          });
+        for(let i=depthCount; i>=1; i--){
+          const price = Math.max(mid + (baseStep * i), 0.00000001);
+          const amount = ((i * 120 * liquidityFactor) / depthCount).toFixed(4);
+          const total = (price * Number(amount)).toFixed(6);
+          sellRows.push({ price, amount:Number(amount), total:Number(total) });
+        }
+        for(let i=1; i<=depthCount; i++){
+          const price = Math.max(mid - (baseStep * i), 0.00000001);
+          const amount = (((depthCount - i + 1) * 120 * liquidityFactor) / depthCount).toFixed(4);
+          const total = (price * Number(amount)).toFixed(6);
+          buyRows.push({ price, amount:Number(amount), total:Number(total) });
         }
         sellWrap.innerHTML = sellRows.map(r=>`
           <div class="ob-row sell" data-side="sell" data-price="${r.price}" data-amount="${r.amount}" data-total="${r.total}">
             <span class="price sell">${r.price.toFixed(8)}</span>
-            <span>${r.amount.toLocaleString('en-US',{maximumFractionDigits:2})}</span>
+            <span>${r.amount.toLocaleString('en-US',{maximumFractionDigits:4})}</span>
             <span>${r.total.toFixed(4)} BNB</span>
           </div>`).join('');
         buyWrap.innerHTML = buyRows.map(r=>`
@@ -1123,46 +1269,42 @@
       }
     }
 
-
     function bindOrderBookClicks(){
       document.querySelectorAll('.ob-row[data-side]').forEach(row=>{
-        row.addEventListener('click', async ()=>{
+        row.addEventListener('click', ()=>{
           const side = row.dataset.side;
           const amount = Number(row.dataset.amount || 0);
           const total = Number(row.dataset.total || 0);
-          if(!state.selectedTokenAddress || !amount || !total) return;
+          const price = Number(row.dataset.price || 0);
+          if(!state.selectedTokenAddress || !amount || !total || !price) return;
+          state.lockedBookPrice = price;
+          state.lockedBookSide = side;
           if(side === 'buy'){
             $('tokenInSelect').value = 'BNB';
             $('tokenOutSelect').value = state.selectedTokenAddress;
             $('amountIn').value = total.toFixed(4);
-            $('amountOut').value = amount.toFixed(4);
+            $('amountOut').value = amount.toFixed(6);
           } else {
             $('tokenInSelect').value = state.selectedTokenAddress;
             $('tokenOutSelect').value = 'BNB';
-            $('amountIn').value = amount.toFixed(2);
+            $('amountIn').value = amount.toFixed(6);
             $('amountOut').value = total.toFixed(4);
           }
           updateRouteText();
-          updatePriceImpact();
-          try{ await getQuote(); }catch{}
+          syncLockedOrderPreview();
           document.querySelector('.trade-panel')?.scrollIntoView({behavior:'smooth', block:'nearest'});
         });
       });
     }
 
     function renderEmptyBooks(){
-      $('sellBook').innerHTML = Array.from({length:7}).map(()=>`<div class="ob-row sell"><span class="price sell">-</span><span>-</span><span>-</span></div>`).join('');
-      $('buyBook').innerHTML = Array.from({length:7}).map(()=>`<div class="ob-row buy"><span class="price buy">-</span><span>-</span><span>-</span></div>`).join('');
+      $('sellBook').innerHTML = Array.from({length:12}).map(()=>`<div class="ob-row sell"><span class="price sell">-</span><span>-</span><span>-</span></div>`).join('');
+      $('buyBook').innerHTML = Array.from({length:12}).map(()=>`<div class="ob-row buy"><span class="price buy">-</span><span>-</span><span>-</span></div>`).join('');
     }
 
     function updateChartFrame(){
-      const frame = $('chartFrame');
-      const pairId = state.pairAddress || CONFIG.defaultPairId;
-      const interval = state.chartInterval || '1';
-      $('chartModeLabel').textContent = interval === '1' ? '1m' : interval === '15' ? '15m' : interval === '60' ? '1H' : interval === '240' ? '4H' : '1D';
-      if(!pairId){ $('chartEmpty').classList.add('show'); frame.src='about:blank'; return; }
-      $('chartEmpty').classList.remove('show');
-      frame.src = `https://dexscreener.com/bsc/${pairId}?embed=1&theme=dark&trades=0&info=0&chartLeftToolbar=0&chartTimeframes=1M,15M,1H,4H,1D&interval=${interval}`;
+      $('chartModeLabel').textContent = state.chartInterval === '1' ? '1m' : state.chartInterval === '15' ? '15m' : state.chartInterval === '60' ? '1H' : state.chartInterval === '240' ? '4H' : '1D';
+      renderChartHistory();
     }
 
     function bindTimeframes(){
@@ -1396,7 +1538,7 @@ $('amountOut').value='';
       $('removeLiquidityBtn').addEventListener('click', removeLiquidity);
       $('tokenInSelect').addEventListener('change', ()=>{ syncRouteSelects(); updatePriceImpact(); });
       $('tokenOutSelect').addEventListener('change', ()=>{ syncRouteSelects(); updatePriceImpact(); });
-      $('amountIn').addEventListener('input', ()=>{ updatePriceImpact(); });
+      $('amountIn').addEventListener('input', ()=>{ if(!syncLockedOrderPreview()) updatePriceImpact(); });
       $('addTokenBtn').addEventListener('click', handleAddToken);
       $('syncSelectedPairBtn').addEventListener('click', syncSelectedPair);
 

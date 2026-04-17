@@ -143,14 +143,49 @@
     .status{margin-top:12px;padding:12px 13px;border-radius:12px;border:1px solid var(--line);background:#0f151f;color:#d7e0ed;font-size:13px;line-height:1.6;min-height:46px}
     .status.success{border-color:rgba(14,203,129,.32);background:rgba(14,203,129,.08);color:#dcfff2}
     .status.error{border-color:rgba(246,70,93,.32);background:rgba(246,70,93,.08);color:#ffe5ea}
-    .section-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px}
+    .section-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:16px}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
 
     .footer{padding:18px 0 34px;color:#707887;font-size:13px}
 
+    .watchlist-box,.movers-box,.risk-box,.signal-box,.portfolio-box{background:var(--panel);border:1px solid var(--line);border-radius:16px}
+    .watchlist-list,.movers-list,.risk-list,.signal-grid,.portfolio-grid{padding:12px;display:grid;gap:10px}
+    .watch-item,.mover-item,.risk-item,.signal-card,.portfolio-card{
+      display:grid;gap:6px;padding:12px;border-radius:12px;background:#101722;border:1px solid var(--line);min-width:0;
+    }
+    .watch-item{grid-template-columns:minmax(0,1fr) auto;align-items:center;cursor:pointer;transition:.18s ease}
+    .watch-item:hover,.mover-item:hover,.signal-card:hover,.portfolio-card:hover{border-color:rgba(240,185,11,.22);transform:translateY(-1px)}
+    .watch-meta strong,.mover-meta strong{display:block;font-size:14px}
+    .watch-meta span,.mover-meta span{display:block;font-size:12px;color:var(--muted)}
+    .watch-actions{display:flex;gap:8px;align-items:center}
+    .mini-btn{appearance:none;border:none;background:#18202c;border:1px solid var(--line);color:#cfd7e2;padding:6px 8px;border-radius:10px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+    .mini-btn.fav.active{background:rgba(240,185,11,.12);color:var(--yellow);border-color:rgba(240,185,11,.25)}
+    .tiny{font-size:11px;color:var(--muted)}
+    .strong-good{color:var(--green);font-weight:900}
+    .strong-bad{color:var(--red);font-weight:900}
+    .signal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .signal-card small,.portfolio-card small{display:block;color:#778093;font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+    .signal-card strong,.portfolio-card strong{display:block;font-size:16px}
+    .risk-item{grid-template-columns:auto 1fr;align-items:start;gap:10px}
+    .risk-dot{width:10px;height:10px;border-radius:50%;margin-top:4px}
+    .risk-low{background:var(--green);box-shadow:0 0 0 4px rgba(14,203,129,.12)}
+    .risk-mid{background:var(--yellow);box-shadow:0 0 0 4px rgba(240,185,11,.12)}
+    .risk-high{background:var(--red);box-shadow:0 0 0 4px rgba(246,70,93,.12)}
+    .trade-preview{padding:12px;border:1px solid var(--line);border-radius:12px;background:#101722;display:grid;gap:10px}
+    .preview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .preview-grid .info-tile{margin:0}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.56);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px;z-index:80}
+    .modal-backdrop.show{display:flex}
+    .modal{width:min(100%,520px);background:#0d1117;border:1px solid var(--line);border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.5)}
+    .modal-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .modal-body{padding:16px 18px;display:grid;gap:12px}
+    .modal-close{appearance:none;border:none;background:#18202c;color:#dbe3ef;border:1px solid var(--line);width:36px;height:36px;border-radius:10px;cursor:pointer}
+
+
     @media (max-width:1280px){
       .main-grid{grid-template-columns:1fr}
       .right-stack{position:static}
+      .section-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
     @media (max-width:1100px){
       .market-workspace{grid-template-columns:1fr}
@@ -159,6 +194,8 @@
       .market-header{grid-template-columns:1fr 1fr;}
     }
     @media (max-width:760px){
+      .signal-grid{grid-template-columns:1fr}
+
       .nav{min-height:auto;padding:14px 0;flex-wrap:wrap}
       .nav-links,.nav-actions{width:100%;justify-content:flex-start}
       .ticker-row{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -304,6 +341,17 @@
       </section>
 
       <aside class="right-stack">
+
+        <section class="watchlist-box panel" id="watchlistPanel">
+          <div class="mini-head"><div class="mini-title">Watchlist</div><span class="pill">Favorites</span></div>
+          <div class="watchlist-list" id="watchlistList"></div>
+        </section>
+
+        <section class="movers-box panel" id="moversPanel">
+          <div class="mini-head"><div class="mini-title">Top Movers</div><span class="pill">Live Scan</span></div>
+          <div class="movers-list" id="moversList"></div>
+        </section>
+
         <section class="trade-panel panel">
           <div class="mini-head"><div class="mini-title">Trade Terminal</div><span class="pill">AMM</span></div>
           <div class="inner">
@@ -330,9 +378,19 @@
                   <div class="info-tile"><small>Slippage</small><strong id="slippageText">0.50%</strong></div>
                 </div>
               </div>
+              <div class="trade-preview">
+                <div class="preview-grid">
+                  <div class="info-tile"><small>Price Impact</small><strong id="priceImpact">-</strong></div>
+                  <div class="info-tile"><small>Route Fee</small><strong id="routeFee">0.25%</strong></div>
+                </div>
+                <div class="preview-grid">
+                  <div class="info-tile"><small>Auto Approve</small><strong id="autoApproveState">Ready</strong></div>
+                  <div class="info-tile"><small>Risk Bias</small><strong id="tradeRiskBias">-</strong></div>
+                </div>
+              </div>
               <div class="action-row">
                 <button class="btn btn-dark" id="quoteBtn" type="button">Get Quote</button>
-                <button class="btn btn-green" id="swapBtn" type="button">Buy / Swap</button>
+                <button class="btn btn-green" id="swapBtn" type="button">Auto Approve + Swap</button>
               </div>
               <div class="status" id="swapStatus">Choose any imported token pair and fetch a live quote from the Router.</div>
             </div>
@@ -361,6 +419,31 @@
             </div>
           </div>
         </section>
+
+        <section class="portfolio-box panel" id="portfolioPanel">
+          <div class="mini-head"><div class="mini-title">Portfolio</div><span class="pill">Wallet Intelligence</span></div>
+          <div class="portfolio-grid">
+            <div class="portfolio-card"><small>Estimated Wallet Value</small><strong id="portfolioValue">-</strong><span class="tiny">Selected token + BNB + LP snapshot</span></div>
+            <div class="portfolio-card"><small>Selected Token Value</small><strong id="tokenValueUsd">-</strong><span class="tiny">Based on live pair price</span></div>
+            <div class="portfolio-card"><small>LP Position Value</small><strong id="lpValueUsd">-</strong><span class="tiny">Approximate share estimate</span></div>
+          </div>
+        </section>
+
+        <section class="signal-box panel" id="signalPanel">
+          <div class="mini-head"><div class="mini-title">AI Market Panel</div><span class="pill">Confidence Engine</span></div>
+          <div class="signal-grid">
+            <div class="signal-card"><small>Trend Score</small><strong id="trendScore">-</strong><span class="tiny" id="trendLabel">-</span></div>
+            <div class="signal-card"><small>Volatility Score</small><strong id="volatilityScore">-</strong><span class="tiny" id="volatilityLabel">-</span></div>
+            <div class="signal-card"><small>Liquidity Health</small><strong id="liquidityHealth">-</strong><span class="tiny" id="liquidityLabel">-</span></div>
+            <div class="signal-card"><small>Execution Quality</small><strong id="executionQuality">-</strong><span class="tiny" id="executionLabel">-</span></div>
+          </div>
+        </section>
+
+        <section class="risk-box panel" id="riskPanel">
+          <div class="mini-head"><div class="mini-title">Risk Monitor</div><span class="pill">Trust Layer</span></div>
+          <div class="risk-list" id="riskList"></div>
+        </section>
+
       </aside>
     </div>
 
@@ -416,6 +499,24 @@
           </div>
         </div>
       </section>
+
+      <section class="contracts-box panel" id="marketStatsPanel">
+        <div class="mini-head"><div class="mini-title">Market Metrics</div><strong>Health Snapshot</strong></div>
+        <div class="inner">
+          <div class="stack-rows">
+            <div class="info-tile"><small>Pair Address</small><strong class="mono" id="metricPair">-</strong></div>
+            <div class="split">
+              <div class="info-tile"><small>Reserve Token</small><strong id="metricReserveAX">-</strong></div>
+              <div class="info-tile"><small>Reserve BNB</small><strong id="metricReserveBNB">-</strong></div>
+            </div>
+            <div class="split">
+              <div class="info-tile"><small>Total LP Supply</small><strong id="metricLPSupply">-</strong></div>
+              <div class="info-tile"><small>24H Volume</small><strong id="metric24hVolume">-</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   </main>
 
@@ -437,6 +538,8 @@
       defaultChartInterval: '1',
       depthLevels: [0.05,0.10,0.25,0.50,1,2,5],
       recentTradeMax: 16,
+      favoritesKey: 'axionDexFavoritePairsV1',
+      viewedKey: 'axionDexViewedPairsV1'
     };
 
     const ERC20_ABI = [
@@ -484,7 +587,9 @@
       importedTokens:[],
       chartInterval: CONFIG.defaultChartInterval,
       currentPairMeta:null,
-      recentTrades:[]
+      recentTrades:[],
+      favorites:[],
+      viewed:[]
     };
 
     const $ = id => document.getElementById(id);
@@ -494,6 +599,169 @@
     function parseUnitsSafe(v,d=18){ const clean = String(v || '').trim(); if(!clean) throw new Error('Enter a valid amount.'); return ethers.utils.parseUnits(clean,d); }
     function formatUsd(v, p=6){ const n = Number(v || 0); if(!Number.isFinite(n) || n <= 0) return '-'; return `$${n.toLocaleString('en-US',{maximumFractionDigits:p})}`; }
     function setStatus(id,message,type=''){ const el=$(id); if(!el) return; el.className=`status ${type}`.trim(); el.textContent=message; }
+
+    function getFavorites(){ try{ const raw=JSON.parse(localStorage.getItem(CONFIG.favoritesKey)||'[]'); return Array.isArray(raw)?raw:[]; }catch{return [];} }
+    function saveFavorites(){ localStorage.setItem(CONFIG.favoritesKey, JSON.stringify(state.favorites)); }
+    function getViewed(){ try{ const raw=JSON.parse(localStorage.getItem(CONFIG.viewedKey)||'[]'); return Array.isArray(raw)?raw:[]; }catch{return [];} }
+    function saveViewed(){ localStorage.setItem(CONFIG.viewedKey, JSON.stringify(state.viewed)); }
+    function toggleFavorite(pairAddress){
+      if(!pairAddress) return;
+      const key = String(pairAddress).toLowerCase();
+      if(state.favorites.includes(key)) state.favorites = state.favorites.filter(v=>v!==key);
+      else state.favorites.unshift(key);
+      state.favorites = state.favorites.slice(0,12);
+      saveFavorites();
+      renderWatchlist();
+    }
+    function markViewed(meta){
+      if(!meta?.pairAddress) return;
+      const item = {
+        pairAddress: meta.pairAddress,
+        label: `${meta.baseToken?.symbol || state.tokenSymbol} / ${meta.quoteToken?.symbol || 'BNB'}`,
+        priceUsd: Number(meta.priceUsd || 0),
+        change: Number(meta.priceChange?.h24 || 0),
+        tokenAddress: state.selectedTokenAddress || meta.baseToken?.address || ''
+      };
+      state.viewed = [item, ...state.viewed.filter(v=>String(v.pairAddress).toLowerCase()!==String(item.pairAddress).toLowerCase())].slice(0,8);
+      saveViewed();
+      renderWatchlist();
+    }
+    function renderWatchlist(){
+      const el = $('watchlistList');
+      if(!el) return;
+      const current = state.currentPairMeta?.pairAddress ? String(state.currentPairMeta.pairAddress).toLowerCase() : '';
+      const items = state.viewed.length ? state.viewed : (state.currentPairMeta ? [{
+        pairAddress: state.currentPairMeta.pairAddress,
+        label: `${state.currentPairMeta.baseToken?.symbol || state.tokenSymbol} / ${state.currentPairMeta.quoteToken?.symbol || 'BNB'}`,
+        priceUsd: Number(state.currentPairMeta.priceUsd || 0),
+        change: Number(state.currentPairMeta.priceChange?.h24 || 0),
+        tokenAddress: state.selectedTokenAddress || ''
+      }] : []);
+      if(!items.length){ el.innerHTML = '<div class="watch-item"><div class="watch-meta"><strong>No pairs yet</strong><span>Import or sync a token pair</span></div></div>'; return; }
+      el.innerHTML = items.map(item=>{
+        const key = String(item.pairAddress || '').toLowerCase();
+        const active = key && key===current;
+        const fav = state.favorites.includes(key);
+        return `<div class="watch-item ${active?'active':''}" data-watch-pair="${item.pairAddress||''}" data-watch-token="${item.tokenAddress||''}">
+          <div class="watch-meta"><strong>${item.label || 'Pair'}</strong><span>${formatUsd(item.priceUsd,8)} • <span class="${Number(item.change||0)>=0?'strong-good':'strong-bad'}">${Number(item.change||0)>=0?'+':''}${Number(item.change||0).toFixed(2)}%</span></span></div>
+          <div class="watch-actions"><button class="mini-btn fav ${fav?'active':''}" data-fav-pair="${item.pairAddress||''}">★</button></div>
+        </div>`;
+      }).join('');
+      el.querySelectorAll('[data-fav-pair]').forEach(btn=>btn.addEventListener('click', e=>{ e.stopPropagation(); toggleFavorite(btn.getAttribute('data-fav-pair')); }));
+      el.querySelectorAll('[data-watch-pair]').forEach(row=>row.addEventListener('click', async ()=>{
+        const token = row.getAttribute('data-watch-token');
+        if(token && token !== 'BNB'){
+          try{
+            if(!state.importedTokens.find(t=>t.address.toLowerCase()===token.toLowerCase())){
+              await importToken(token, false);
+            }
+            $('tokenOutSelect').value = token;
+            await selectToken(token);
+          }catch{}
+        }
+      }));
+    }
+    async function loadTopMovers(){
+      const el = $('moversList');
+      if(!el) return;
+      try{
+        const pairs = [];
+        for(const token of state.importedTokens.slice(0,4)){
+          try{
+            const res = await fetch(`https://api.dexscreener.com/token-pairs/v1/bsc/${token.address}`);
+            if(!res.ok) continue;
+            const data = await res.json();
+            if(Array.isArray(data) && data[0]) pairs.push(data[0]);
+          }catch{}
+        }
+        if(state.currentPairMeta) pairs.unshift(state.currentPairMeta);
+        const unique = [];
+        const seen = new Set();
+        for(const p of pairs){
+          const key = String(p.pairAddress || '').toLowerCase();
+          if(key && !seen.has(key)){ seen.add(key); unique.push(p); }
+        }
+        const sorted = unique.sort((a,b)=>Math.abs(Number(b.priceChange?.h24||0))-Math.abs(Number(a.priceChange?.h24||0))).slice(0,6);
+        if(!sorted.length) throw new Error('No mover data');
+        el.innerHTML = sorted.map(pair=>`<div class="mover-item">
+          <div class="mover-meta"><strong>${pair.baseToken?.symbol || 'TOKEN'} / ${pair.quoteToken?.symbol || 'BNB'}</strong><span>${pair.dexId?.toUpperCase() || 'DEX'} • ${formatUsd(pair.priceUsd,8)}</span></div>
+          <strong class="${Number(pair.priceChange?.h24||0)>=0?'strong-good':'strong-bad'}">${Number(pair.priceChange?.h24||0)>=0?'+':''}${Number(pair.priceChange?.h24||0).toFixed(2)}%</strong>
+        </div>`).join('');
+      }catch(err){
+        el.innerHTML = '<div class="mover-item"><div class="mover-meta"><strong>Top movers loading</strong><span>Live market scan will appear here</span></div><strong class="accent">Stand by</strong></div>';
+      }
+    }
+    function renderRiskPanel(metrics={}){
+      const el = $('riskList');
+      if(!el) return;
+      const liquidity = Number(metrics.liquidityUsd || 0);
+      const volume = Number(metrics.volume24h || 0);
+      const impact = Number(metrics.priceImpact || 0);
+      const risks = [
+        {level: liquidity >= 50000 ? 'low' : liquidity >= 10000 ? 'mid' : 'high', title:'Liquidity Depth', text: liquidity >= 50000 ? 'Healthy pool depth for smoother execution.' : liquidity >= 10000 ? 'Moderate liquidity. Larger orders may move price.' : 'Thin liquidity. Use caution on larger swaps.'},
+        {level: volume >= 25000 ? 'low' : volume >= 5000 ? 'mid' : 'high', title:'Market Activity', text: volume >= 25000 ? 'Trading activity looks active and discoverable.' : volume >= 5000 ? 'Activity is acceptable but still developing.' : 'Low activity. Market discovery may be weak.'},
+        {level: impact <= 1 ? 'low' : impact <= 3 ? 'mid' : 'high', title:'Execution Risk', text: impact <= 1 ? 'Estimated execution impact is efficient.' : impact <= 3 ? 'Execution impact is noticeable on current quote.' : 'High estimated slippage / impact. Reduce order size.'}
+      ];
+      el.innerHTML = risks.map(r=>`<div class="risk-item"><span class="risk-dot risk-${r.level}"></span><div><strong>${r.title}</strong><div class="tiny" style="margin-top:4px;color:#b8c2d1">${r.text}</div></div></div>`).join('');
+    }
+    function renderSignals(meta={}){
+      const change = Number(meta.priceChange?.h24 || 0);
+      const liquidity = Number(meta.liquidity?.usd || 0);
+      const trend = Math.max(0, Math.min(100, 50 + change * 2));
+      const volatility = Math.max(0, Math.min(100, Math.abs(change) * 4));
+      const liquidityHealth = Math.max(0, Math.min(100, liquidity / 1500));
+      const execution = Math.max(0, Math.min(100, 100 - Math.max(0, Number(($('priceImpact')?.textContent || '0').replace('%','')) * 10)));
+      $('trendScore').textContent = `${trend.toFixed(0)}/100`;
+      $('trendLabel').textContent = trend >= 65 ? 'Bullish continuation bias' : trend >= 45 ? 'Balanced market' : 'Weak momentum';
+      $('volatilityScore').textContent = `${volatility.toFixed(0)}/100`;
+      $('volatilityLabel').textContent = volatility >= 65 ? 'Fast market conditions' : volatility >= 35 ? 'Tradable movement' : 'Calm price action';
+      $('liquidityHealth').textContent = `${liquidityHealth.toFixed(0)}/100`;
+      $('liquidityLabel').textContent = liquidityHealth >= 70 ? 'Strong execution environment' : liquidityHealth >= 40 ? 'Usable but watch size' : 'Thin pool conditions';
+      $('executionQuality').textContent = `${execution.toFixed(0)}/100`;
+      $('executionLabel').textContent = execution >= 75 ? 'Low friction' : execution >= 45 ? 'Moderate friction' : 'High friction';
+      renderRiskPanel({liquidityUsd: liquidity, volume24h: Number(meta.volume?.h24 || 0), priceImpact: Number(($('priceImpact')?.textContent || '0').replace('%','')) || 0});
+      $('tradeRiskBias').textContent = execution >= 75 ? 'Low' : execution >= 45 ? 'Moderate' : 'Elevated';
+    }
+    function updatePortfolioEstimates(){
+      const price = Number(state.currentPairMeta?.priceUsd || 0);
+      const tokenBalText = $('axBalance')?.textContent || '0';
+      const bnbBalText = $('bnbBalance')?.textContent || '0';
+      const lpBalText = $('lpBalanceRead')?.value || '0';
+      const tokenBal = parseFloat(tokenBalText.replace(/[^0-9.]/g,'')) || 0;
+      const bnbBal = parseFloat(bnbBalText.replace(/[^0-9.]/g,'')) || 0;
+      const lpBal = parseFloat(lpBalText.replace(/[^0-9.]/g,'')) || 0;
+      const tokenValue = tokenBal * price;
+      const liquidity = Number(state.currentPairMeta?.liquidity?.usd || 0);
+      const lpSupply = parseFloat(String($('metricLPSupply')?.textContent || '0').replace(/,/g,'')) || 0;
+      const lpValue = lpSupply > 0 ? (lpBal / lpSupply) * liquidity : 0;
+      const walletValue = tokenValue + lpValue;
+      $('tokenValueUsd').textContent = formatUsd(tokenValue,2);
+      $('lpValueUsd').textContent = formatUsd(lpValue,2);
+      $('portfolioValue').textContent = formatUsd(walletValue,2);
+    }
+    function updatePriceImpact(){
+      const impactEl = $('priceImpact');
+      if(!impactEl) return;
+      const amountInValue = parseFloat($('amountIn').value || '0');
+      const outValue = parseFloat(($('amountOut').value || '0').replace(/,/g,'')) || 0;
+      const metaIn = tokenMetaByAddress($('tokenInSelect').value);
+      const metaOut = tokenMetaByAddress($('tokenOutSelect').value);
+      let impact = 0;
+      if(amountInValue > 0 && outValue > 0 && state.currentPairMeta?.priceUsd){
+        if(metaIn?.symbol === 'BNB' && metaOut?.symbol !== 'BNB'){
+          const expected = amountInValue / Number(state.currentPairMeta.priceUsd || 1);
+          impact = expected > 0 ? Math.max(0, (1 - (outValue / expected)) * 100) : 0;
+        } else if(metaOut?.symbol === 'BNB' && state.currentPairMeta.priceUsd){
+          const expectedBnb = amountInValue * Number(state.currentPairMeta.priceUsd || 0);
+          impact = expectedBnb > 0 ? Math.max(0, (1 - (outValue / expectedBnb)) * 100) : 0;
+        } else {
+          impact = Math.min(9.99, amountInValue * 0.02);
+        }
+      }
+      impactEl.textContent = `${impact.toFixed(2)}%`;
+      renderSignals(state.currentPairMeta || {});
+    }
+
     function getImportedTokens(){ try{ const raw=JSON.parse(localStorage.getItem(CONFIG.storageKey)||'[]'); return Array.isArray(raw)?raw:[]; }catch{return [];} }
     function saveImportedTokens(){ localStorage.setItem(CONFIG.storageKey, JSON.stringify(state.importedTokens)); }
     function getTokenLabel(token){ if(token.native) return 'BNB'; return `${token.symbol || 'TOKEN'} • ${shortAddr(token.address)}`; }
@@ -630,13 +898,22 @@
         $('heroReserveAX').textContent = `${formatUnitsSafe(tokenReserve, state.tokenDecimals, 2)} ${state.tokenSymbol}`;
         $('heroReserveBNB').textContent = `${formatUnitsSafe(bnbReserve, 18, 4)} BNB`;
         $('heroLPSupply').textContent = formattedLPSupply;
+        $('metricPair').textContent = state.pairAddress;
+        $('metricReserveAX').textContent = `${formatUnitsSafe(tokenReserve, state.tokenDecimals, 2)} ${state.tokenSymbol}`;
+        $('metricReserveBNB').textContent = `${formatUnitsSafe(bnbReserve, 18, 4)} BNB`;
+        $('metricLPSupply').textContent = formattedLPSupply;
       } else {
         $('pairState').textContent = 'No pair';
         $('lpBalanceRead').value = '-';
         $('heroReserveAX').textContent = '-';
         $('heroReserveBNB').textContent = '-';
         $('heroLPSupply').textContent = '-';
+        $('metricPair').textContent = '-';
+        $('metricReserveAX').textContent = '-';
+        $('metricReserveBNB').textContent = '-';
+        $('metricLPSupply').textContent = '-';
       }
+      updatePortfolioEstimates();
     }
 
     async function loadPairMeta(){
@@ -663,6 +940,7 @@
         $('heroChange').className = `ticker-value ${change24 >= 0 ? 'good' : 'bad'}`;
         $('heroLiquidity').textContent = formatUsd(pair.liquidity?.usd, 2);
         $('statVolume').textContent = formatUsd(pair.volume?.h24, 2);
+        $('metric24hVolume').textContent = formatUsd(pair.volume?.h24, 2);
         $('statBuysSells').textContent = `${pair.txns?.h24?.buys ?? '-'} / ${pair.txns?.h24?.sells ?? '-'}`;
         const fdv = pair.fdv ? formatUsd(pair.fdv, 0) : '-';
         const mcap = pair.marketCap ? formatUsd(pair.marketCap, 0) : '-';
@@ -670,6 +948,9 @@
         $('midPrice').textContent = formatUsd(pair.priceUsd, 8);
         const spread = Math.abs(Number(pair.priceChange?.m5 || 0)) / 100;
         $('midSpread').textContent = `${(spread * 100).toFixed(2)}%`;
+        markViewed(pair);
+        renderSignals(pair);
+        updatePortfolioEstimates();
         pushRecentTrade(pair.priceUsd, change24 >= 0 ? 'buy' : 'sell');
       } catch(err){
         console.error(err);
@@ -817,10 +1098,12 @@
         const out = amounts[amounts.length - 1];
         $('amountOut').value = formatUnitsSafe(out, metaOut.decimals, 8);
         $('quoteRate').textContent = `1 ${metaIn.symbol} = ${formatUnitsSafe(out.mul(ethers.BigNumber.from(10).pow(metaIn.decimals)).div(amountIn), metaOut.decimals, 8)} ${metaOut.symbol}`;
-        $('quoteMin').textContent = `${formatUnitsSafe(out.mul(10000 - CONFIG.slippageBps).div(10000), metaOut.decimals, 8)} ${metaOut.symbol}`;
+$('quoteMin').textContent = `${formatUnitsSafe(out.mul(10000 - CONFIG.slippageBps).div(10000), metaOut.decimals, 8)} ${metaOut.symbol}`;
+        updatePriceImpact();
         setStatus('swapStatus', 'Live quote loaded from the Router.', 'success');
       } catch(err){
-        $('amountOut').value='';
+$('amountOut').value='';
+        $('priceImpact').textContent='-';
         setStatus('swapStatus', err.message || 'Quote failed.', 'error');
       }
     }
@@ -838,18 +1121,31 @@
         const deadline = Math.floor(Date.now()/1000) + CONFIG.deadlineMinutes * 60;
         let tx;
         if(tokenIn === 'BNB'){
+          $('autoApproveState').textContent = 'Not needed';
           tx = await state.router.swapExactETHForTokensSupportingFeeOnTransferTokens(amountOutMin, path, state.account, deadline, { value: amountIn });
           pushRecentTrade(state.currentPairMeta?.priceUsd, 'buy');
         } else if(tokenOut === 'BNB'){
           const tokenContract = new ethers.Contract(tokenIn, ERC20_ABI, state.signer);
           const allowance = await tokenContract.allowance(state.account, CONFIG.routerAddress);
-          if(allowance.lt(amountIn)) throw new Error(`Approve ${metaIn.symbol} before swapping.`);
+          if(allowance.lt(amountIn)){
+            $('autoApproveState').textContent = 'Approving';
+            const approveTx = await tokenContract.approve(CONFIG.routerAddress, ethers.constants.MaxUint256);
+            setStatus('swapStatus', `Approval submitted: ${approveTx.hash}`, '');
+            await approveTx.wait();
+          }
+          $('autoApproveState').textContent = 'Ready';
           tx = await state.router.swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, state.account, deadline);
           pushRecentTrade(state.currentPairMeta?.priceUsd, 'sell');
         } else {
           const tokenContract = new ethers.Contract(tokenIn, ERC20_ABI, state.signer);
           const allowance = await tokenContract.allowance(state.account, CONFIG.routerAddress);
-          if(allowance.lt(amountIn)) throw new Error(`Approve ${metaIn.symbol} before swapping.`);
+          if(allowance.lt(amountIn)){
+            $('autoApproveState').textContent = 'Approving';
+            const approveTx = await tokenContract.approve(CONFIG.routerAddress, ethers.constants.MaxUint256);
+            setStatus('swapStatus', `Approval submitted: ${approveTx.hash}`, '');
+            await approveTx.wait();
+          }
+          $('autoApproveState').textContent = 'Ready';
           tx = await state.router.swapExactTokensForTokensSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, state.account, deadline);
           pushRecentTrade(state.currentPairMeta?.priceUsd, 'buy');
         }
@@ -945,6 +1241,8 @@
 
     function init(){
       state.importedTokens = getImportedTokens();
+      state.favorites = getFavorites();
+      state.viewed = getViewed();
       $('routerAddressText').textContent = CONFIG.routerAddress;
       $('factoryAddressText').textContent = CONFIG.factoryAddress;
       $('wbnbAddressText').textContent = CONFIG.wbnbAddress;
@@ -963,8 +1261,9 @@
       $('addLiquidityBtn').addEventListener('click', addLiquidity);
       $('approveLPBtn').addEventListener('click', approveLP);
       $('removeLiquidityBtn').addEventListener('click', removeLiquidity);
-      $('tokenInSelect').addEventListener('change', syncRouteSelects);
-      $('tokenOutSelect').addEventListener('change', syncRouteSelects);
+      $('tokenInSelect').addEventListener('change', ()=>{ syncRouteSelects(); updatePriceImpact(); });
+      $('tokenOutSelect').addEventListener('change', ()=>{ syncRouteSelects(); updatePriceImpact(); });
+      $('amountIn').addEventListener('input', ()=>{ updatePriceImpact(); });
       $('addTokenBtn').addEventListener('click', handleAddToken);
       $('syncSelectedPairBtn').addEventListener('click', syncSelectedPair);
 
@@ -973,8 +1272,11 @@
         saveImportedTokens();
       }
       updateTokenSelects();
+      renderWatchlist();
       loadPairMeta();
+      loadTopMovers();
       setInterval(loadPairMeta, 15000);
+      setInterval(loadTopMovers, 30000);
       setInterval(()=>{ if(state.selectedTokenAddress) renderOrderBook(); }, 15000);
       if(window.ethereum){
         window.ethereum.on?.('accountsChanged', ()=>connectWallet());

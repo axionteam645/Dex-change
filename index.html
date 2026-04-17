@@ -3,41 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AXION DEX | Pro Trading Interface</title>
-  <meta name="description" content="AXION DEX pro trading interface with black terminal layout, yellow market accents, red and green action flows, wallet connection, swap, liquidity, and token import." />
+  <title>AXION DEX | Live Trading Terminal</title>
+  <meta name="description" content="AXION DEX live multi-token AMM trading terminal with wallet connection, live chart, AMM depth ladder, swap quotes, liquidity tools, and contract import on BNB Smart Chain." />
   <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
     :root{
-      --bg:#0b0e11;
-      --bg-2:#12161c;
-      --bg-3:#1a2028;
-      --line:#2b3139;
-      --line-soft:#20262e;
-      --text:#f0f4f8;
-      --muted:#848e9c;
+      --bg:#05070b;
+      --panel:#0d1117;
+      --panel-2:#11161f;
+      --panel-3:#151b25;
+      --line:#222b37;
+      --line-soft:#1a2230;
+      --text:#f5f7fa;
+      --muted:#8b95a7;
       --yellow:#f0b90b;
-      --yellow-soft:#fcd535;
-      --yellow-deep:#ad7b00;
+      --yellow-2:#ffd666;
       --green:#0ecb81;
       --red:#f6465d;
-      --buy:#0ecb81;
-      --sell:#f6465d;
-      --shadow:0 16px 40px rgba(0,0,0,.35);
-      --max:1440px;
+      --blue:#2f7cf6;
+      --shadow:0 18px 50px rgba(0,0,0,.34);
       --radius:18px;
+      --max:1560px;
     }
-    *{margin:0;padding:0;box-sizing:border-box}
+    *{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{
       font-family:'Inter',sans-serif;
       background:
-        radial-gradient(circle at top right, rgba(240,185,11,.08), transparent 20%),
-        radial-gradient(circle at bottom left, rgba(240,185,11,.05), transparent 24%),
-        linear-gradient(180deg, #07090c 0%, #0b0e11 50%, #090c10 100%);
+        linear-gradient(180deg, rgba(240,185,11,.06), transparent 16%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 1px, transparent 1px 48px),
+        linear-gradient(180deg,#05070b 0%, #070a10 100%);
       color:var(--text);
       overflow-x:hidden;
     }
@@ -46,211 +45,127 @@
       position:fixed;
       inset:0;
       pointer-events:none;
-      background-image:
-        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
-      background-size:40px 40px;
-      opacity:.25;
+      background:radial-gradient(circle at 18% 6%, rgba(240,185,11,.12), transparent 22%), radial-gradient(circle at 82% 0%, rgba(240,185,11,.06), transparent 18%);
       z-index:-1;
     }
     a{text-decoration:none;color:inherit}
     img{display:block;max-width:100%}
-    button,input,select{font:inherit}
-    .container{width:min(calc(100% - 24px), var(--max));margin-inline:auto}
-
-    .nav-wrap{
-      position:sticky;top:0;z-index:40;
-      border-bottom:1px solid var(--line);
-      backdrop-filter:blur(18px);
-      background:rgba(11,14,17,.92);
-    }
-    .nav{
-      min-height:72px;
-      display:flex;align-items:center;justify-content:space-between;gap:18px;
-    }
-    .brand{display:flex;align-items:center;gap:12px;min-width:0;flex-shrink:0}
-    .brand-mark{
-      width:40px;height:40px;border-radius:12px;overflow:hidden;
-      background:linear-gradient(135deg, rgba(240,185,11,.18), rgba(240,185,11,.06));
-      border:1px solid rgba(240,185,11,.18);
-      box-shadow:0 0 0 1px rgba(240,185,11,.06), 0 0 22px rgba(240,185,11,.08);
-    }
-    .brand-text strong{display:block;font-size:16px;letter-spacing:.04em;color:#fff}
-    .brand-text small{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--yellow-soft)}
-    .nav-links{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center;flex:1}
-    .nav-links a{font-size:13px;font-weight:700;color:#c6ced7}
-    .nav-links a:hover{color:var(--yellow-soft)}
-    .nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
-
-    .btn{
-      appearance:none;border:none;cursor:pointer;border-radius:12px;
-      padding:14px 18px;font-weight:800;transition:.18s ease;
-    }
+    .container{width:min(calc(100% - 28px), var(--max));margin-inline:auto}
+    .nav-wrap{position:sticky;top:0;z-index:50;background:rgba(5,7,11,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .nav{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .brand{display:flex;align-items:center;gap:12px;flex-shrink:0}
+    .brand-mark{width:40px;height:40px;border-radius:12px;overflow:hidden;background:#000;border:1px solid rgba(240,185,11,.24);box-shadow:0 0 0 1px rgba(240,185,11,.08), 0 0 22px rgba(240,185,11,.14)}
+    .brand-text strong{display:block;font-size:18px;letter-spacing:.04em}
+    .brand-text small{display:block;font-size:10px;letter-spacing:.14em;color:var(--yellow);text-transform:uppercase;font-weight:800}
+    .nav-links{display:flex;align-items:center;gap:20px;color:#c7cdd6;font-size:13px;font-weight:700;flex:1;justify-content:center}
+    .nav-links a:hover{color:#fff}
+    .nav-actions{display:flex;align-items:center;gap:10px}
+    .btn{appearance:none;border:none;border-radius:12px;padding:13px 16px;font:inherit;font-size:14px;font-weight:800;cursor:pointer;transition:.18s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px}
     .btn:hover{transform:translateY(-1px)}
-    .btn-yellow{
-      background:linear-gradient(180deg, #fcd535, #f0b90b);
-      color:#111318; box-shadow:0 10px 24px rgba(240,185,11,.2);
-    }
-    .btn-dark{
-      background:#1f2630;color:#eef3f8;border:1px solid #2e3844;
-    }
-    .btn-green{background:var(--buy);color:#08130f}
-    .btn-red{background:var(--sell);color:#fff}
-
-    .ticker{
-      border-bottom:1px solid var(--line);
-      background:#0d1117;
-    }
-    .ticker-row{
-      min-height:48px;
-      display:grid;
-      grid-template-columns:repeat(6,minmax(0,1fr));
-      gap:0;
-      align-items:center;
-    }
-    .ticker-item{
-      padding:10px 14px;border-right:1px solid var(--line-soft);min-width:0;
-    }
+    .btn-yellow{background:var(--yellow);color:#111;box-shadow:0 10px 24px rgba(240,185,11,.18)}
+    .btn-dark{background:#293241;color:#eef3f9}
+    .btn-green{background:var(--green);color:#07120d}
+    .btn-red{background:var(--red);color:#fff}
+    .btn-outline{background:transparent;color:#dbe2ec;border:1px solid var(--line)}
+    .ticker{border-bottom:1px solid var(--line);background:#070b12}
+    .ticker-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0}
+    .ticker-item{padding:14px 14px;border-right:1px solid var(--line-soft)}
     .ticker-item:last-child{border-right:none}
-    .ticker-label{display:block;font-size:10px;font-weight:800;letter-spacing:.14em;color:#7f8792;text-transform:uppercase;margin-bottom:6px}
-    .ticker-value{display:block;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .up{color:var(--green)} .down{color:var(--red)} .accent{color:var(--yellow-soft)}
+    .ticker-label{display:block;color:#6f7785;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+    .ticker-value{display:block;font-size:18px;font-weight:900;letter-spacing:-.02em}
+    .good{color:var(--green)} .bad{color:var(--red)} .accent{color:var(--yellow)}
 
-    .hero{
-      padding:22px 0 18px;
-    }
-    .hero-grid{
-      display:grid;
-      grid-template-columns:1.32fr .88fr;
-      gap:16px;
-      align-items:start;
-    }
-    .panel{
-      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .panel-head{
-      display:flex;align-items:center;justify-content:space-between;gap:16px;
-      padding:16px 18px;border-bottom:1px solid var(--line);
-      background:rgba(255,255,255,.01);
-    }
-    .panel-head h2,.panel-head h3{font-size:18px;letter-spacing:-.02em}
-    .panel-head small{color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.12em}
-    .panel-body{padding:18px}
+    .page{padding:18px 0 36px}
+    .main-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(360px,.8fr);gap:16px;align-items:start}
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+    .head-left{display:flex;align-items:center;gap:12px;min-width:0}
+    .head-logo{width:36px;height:36px;border-radius:10px;overflow:hidden;border:1px solid rgba(240,185,11,.22)}
+    .head-title strong{display:block;font-size:16px}
+    .head-title small{display:block;color:var(--muted);font-size:12px}
+    .pill{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;background:rgba(240,185,11,.08);border:1px solid rgba(240,185,11,.22);color:var(--yellow)}
+    .timeframes{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .tf-btn{background:#131923;border:1px solid var(--line);color:#cdd5df;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer}
+    .tf-btn.active{background:var(--yellow);border-color:var(--yellow);color:#111}
 
-    .hero-title{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:14px}
-    .hero-title h1{font-size:clamp(34px,5vw,64px);line-height:.95;letter-spacing:-.06em}
-    .hero-title p{max-width:760px;color:#9ca4af;line-height:1.7}
+    .market-workspace{display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px;padding:16px}
+    .orderbook{display:grid;grid-template-rows:auto auto 1fr auto;gap:12px;min-height:730px}
+    .ob-box,.chart-shell,.trades-box,.trade-panel,.wallet-box,.contracts-box,.liq-box,.remove-box{background:var(--panel);border:1px solid var(--line);border-radius:16px}
+    .ob-head,.mini-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+    .ob-title,.mini-title{font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#dce4ef}
+    .ob-table{padding:10px 12px}
+    .ob-columns,.ob-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:center}
+    .ob-columns{color:#6f7785;font-size:11px;text-transform:uppercase;font-weight:700;letter-spacing:.08em;padding-bottom:8px}
+    .ob-rows{display:grid;gap:6px;max-height:290px;overflow:auto;padding-right:2px}
+    .ob-row{position:relative;padding:7px 8px;border-radius:10px;font-size:12px;overflow:hidden}
+    .ob-row::before{content:"";position:absolute;top:0;bottom:0;right:0;z-index:0;opacity:.18}
+    .ob-row > span{position:relative;z-index:1}
+    .ob-row.sell::before{left:auto;background:linear-gradient(90deg, transparent, var(--red))}
+    .ob-row.buy::before{left:auto;background:linear-gradient(90deg, transparent, var(--green))}
+    .ob-row .price.sell{color:var(--red)}
+    .ob-row .price.buy{color:var(--green)}
+    .mid-price{padding:12px 14px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0f141c}
+    .mid-price strong{font-size:24px;letter-spacing:-.04em}
+    .mid-price span{font-size:12px;color:var(--muted)}
 
-    .terminal-grid{
-      display:grid;
-      grid-template-columns:1.2fr .8fr;
-      gap:16px;
+    .chart-column{display:grid;grid-template-rows:auto minmax(420px,1fr) 160px;gap:16px}
+    .market-header{padding:16px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1.3fr) repeat(4,minmax(0,1fr));gap:14px;align-items:center}
+    .pair-title strong{display:block;font-size:28px;letter-spacing:-.04em}
+    .pair-title small{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+    .pair-stat label{display:block;color:#6f7785;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:7px}
+    .pair-stat strong{display:block;font-size:18px;font-weight:900}
+    .chart-shell{display:grid;grid-template-rows:auto 1fr;background:#0a0f15;overflow:hidden}
+    .chart-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+    .chart-embed-wrap{position:relative;min-height:100%}
+    .chart-embed-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#0a0f15}
+    .chart-empty{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:20px;text-align:center;color:var(--muted);font-size:14px;background:#0a0f15}
+    .chart-empty.show{display:flex}
+    .recent-trades{overflow:hidden}
+    .trade-stream{padding:10px 12px;display:grid;gap:6px;max-height:108px;overflow:auto}
+    .trade-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;font-size:12px;padding:7px 8px;border-radius:10px;background:#0f141c}
+    .trade-row.buy .t-price{color:var(--green)}
+    .trade-row.sell .t-price{color:var(--red)}
+
+    .right-stack{display:grid;gap:16px;position:sticky;top:92px}
+    .trade-panel .inner,.wallet-box .inner,.contracts-box .inner,.liq-box .inner,.remove-box .inner{padding:14px}
+    .form-grid{display:grid;gap:12px}
+    .field{display:grid;gap:8px}
+    .field label{font-size:11px;font-weight:800;color:#778093;letter-spacing:.12em;text-transform:uppercase}
+    .field input,.field select{width:100%;background:#101722;border:1px solid var(--line);color:#fff;border-radius:12px;padding:14px 14px;font:inherit;outline:none}
+    .field input::placeholder{color:#6e7583}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .stack-rows{display:grid;gap:10px}
+    .info-tile{padding:12px;border:1px solid var(--line);border-radius:12px;background:#101722;min-width:0}
+    .info-tile small{display:block;color:#778093;font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+    .info-tile strong{display:block;font-size:14px;line-height:1.4;word-break:break-word;overflow-wrap:anywhere}
+    .action-row{display:flex;gap:10px;flex-wrap:wrap}
+    .action-row .btn{flex:1}
+    .status{margin-top:12px;padding:12px 13px;border-radius:12px;border:1px solid var(--line);background:#0f151f;color:#d7e0ed;font-size:13px;line-height:1.6;min-height:46px}
+    .status.success{border-color:rgba(14,203,129,.32);background:rgba(14,203,129,.08);color:#dcfff2}
+    .status.error{border-color:rgba(246,70,93,.32);background:rgba(246,70,93,.08);color:#ffe5ea}
+    .section-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+
+    .footer{padding:18px 0 34px;color:#707887;font-size:13px}
+
+    @media (max-width:1280px){
+      .main-grid{grid-template-columns:1fr}
+      .right-stack{position:static}
     }
-    .chart-shell{min-height:520px;display:flex;flex-direction:column}
-    .chart-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-    .pair-chip{display:flex;align-items:center;gap:12px}
-    .pair-logo{width:46px;height:46px;border-radius:14px;background:#161b22;border:1px solid var(--line);padding:6px}
-    .pair-copy strong{display:block;font-size:22px;letter-spacing:-.04em}
-    .pair-copy span{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
-    .toolbar-tabs{display:flex;gap:8px;flex-wrap:wrap}
-    .tab{padding:8px 12px;border-radius:10px;background:#131920;border:1px solid var(--line);font-size:12px;font-weight:800;color:#c8d0d9}
-    .tab.active{background:rgba(240,185,11,.12);color:var(--yellow-soft);border-color:rgba(240,185,11,.28)}
-
-    .chart-stage{
-      position:relative;
-      flex:1;
-      border:1px solid var(--line);
-      background:
-        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
-        linear-gradient(180deg, #0c1015 0%, #0f141a 100%);
-      background-size:44px 44px, 44px 44px, auto;
-      border-radius:16px;
-      overflow:hidden;
-      padding:20px;
-    }
-    .chart-glow{
-      position:absolute;inset:0;pointer-events:none;
-      background:radial-gradient(circle at 70% 20%, rgba(240,185,11,.09), transparent 26%);
-    }
-    .candles{position:absolute;left:18px;right:18px;bottom:54px;top:32px;display:flex;align-items:flex-end;gap:8px}
-    .candle{position:relative;flex:1;min-width:10px;display:flex;justify-content:center;align-items:flex-end}
-    .wick{position:absolute;bottom:0;width:2px;border-radius:4px;opacity:.95}
-    .body{width:min(18px, 78%);border-radius:5px 5px 2px 2px;position:relative;z-index:1}
-    .candle.green .wick,.candle.green .body{background:var(--green)}
-    .candle.red .wick,.candle.red .body{background:var(--red)}
-    .chart-axis{
-      position:absolute;left:20px;right:20px;bottom:18px;display:flex;justify-content:space-between;font-size:11px;color:#68707b;font-weight:700;
-    }
-    .chart-price-tag{
-      position:absolute;right:18px;top:16px;padding:10px 12px;border-radius:12px;background:rgba(240,185,11,.12);border:1px solid rgba(240,185,11,.28);font-size:12px;font-weight:900;color:var(--yellow-soft)
-    }
-    .trade-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
-    .stat-box{padding:14px 14px;border-radius:14px;background:#11161d;border:1px solid var(--line);min-width:0}
-    .stat-box small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7e8791;margin-bottom:8px}
-    .stat-box strong{font-size:16px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-    .order-shell{display:grid;gap:16px}
-    .order-card{background:#11161d;border:1px solid var(--line);border-radius:16px;padding:16px}
-    .order-card h3{font-size:16px;margin-bottom:14px}
-    .order-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-    .market-chip{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#0d1218;font-size:12px;font-weight:900;text-align:center;color:#c5ccd5}
-    .market-chip.active.buy{background:rgba(14,203,129,.14);border-color:rgba(14,203,129,.28);color:#9cf1ce}
-    .market-chip.active.sell{background:rgba(246,70,93,.14);border-color:rgba(246,70,93,.26);color:#ffc0c8}
-    .field-grid{display:grid;gap:12px}
-    .field{padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#0d1218}
-    .field label{display:block;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#7e8791;margin-bottom:8px}
-    .field input,.field select{width:100%;background:transparent;border:none;outline:none;color:#fff}
-    .mini-info{display:grid;gap:10px;margin-top:12px}
-    .mini-info-row{display:flex;justify-content:space-between;gap:14px;font-size:13px;color:#cbd2da}
-    .mini-info-row span:last-child{font-weight:800;text-align:right;word-break:break-all}
-
-    .lower-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px}
-    .section-title{padding:0 2px 10px;font-size:13px;font-weight:900;color:var(--yellow-soft);letter-spacing:.14em;text-transform:uppercase}
-    .stack{display:grid;gap:12px}
-    .tile{padding:14px 14px;border-radius:14px;background:#11161d;border:1px solid var(--line);min-width:0}
-    .tile small{display:block;font-size:10px;color:#7e8791;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
-    .tile strong{display:block;font-size:14px;line-height:1.45;word-break:break-word;overflow-wrap:anywhere}
-
-    .contracts-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:16px}
-    .action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-    .status{margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:#0d1218;font-size:13px;color:#dce2e8;line-height:1.7;min-height:54px}
-    .success{border-color:rgba(14,203,129,.28);background:rgba(14,203,129,.08);color:#cbffe7}
-    .error{border-color:rgba(246,70,93,.25);background:rgba(246,70,93,.08);color:#ffd4da}
-    .info-list{display:grid;gap:10px;margin-top:14px}
-    .info-row{display:flex;justify-content:space-between;gap:14px;font-size:13px;color:#d2d9e1;padding:12px 14px;border-radius:12px;background:#0d1218;border:1px solid var(--line)}
-    .info-row strong{text-align:right;word-break:break-all}
-
-    .footer{padding:26px 0 40px;border-top:1px solid var(--line);margin-top:30px}
-    .footer-row{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;color:#9aa3ad}
-    .footer-links{display:flex;gap:18px;flex-wrap:wrap}
-
-    @media (max-width:1200px){
-      .hero-grid,.terminal-grid,.contracts-grid,.lower-grid{grid-template-columns:1fr}
-      .trade-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .ticker-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+    @media (max-width:1100px){
+      .market-workspace{grid-template-columns:1fr}
+      .orderbook{min-height:unset}
+      .chart-column{grid-template-rows:auto minmax(380px,1fr) 160px}
+      .market-header{grid-template-columns:1fr 1fr;}
     }
     @media (max-width:760px){
       .nav{min-height:auto;padding:14px 0;flex-wrap:wrap}
-      .nav-links,.nav-actions{width:100%}
-      .nav-links{justify-content:flex-start}
-      .ticker-row{grid-template-columns:1fr 1fr}
-      .trade-stats{grid-template-columns:1fr}
-      .candles{gap:5px}
-      .btn{width:100%}
-      .action-row .btn{width:auto;flex:1}
-    }
-    @media (max-width:560px){
-      .ticker-row{grid-template-columns:1fr}
-      .hero-title h1{font-size:34px}
-      .panel-body,.panel-head{padding:14px}
-      .pair-copy strong{font-size:18px}
-      .chart-shell{min-height:420px}
-      .candles{top:24px;bottom:46px}
+      .nav-links,.nav-actions{width:100%;justify-content:flex-start}
+      .ticker-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .market-header{grid-template-columns:1fr}
+      .split,.section-grid{grid-template-columns:1fr}
+      .action-row .btn{width:100%;flex:auto}
+      .container{width:min(calc(100% - 20px), var(--max))}
     }
   </style>
 </head>
@@ -263,17 +178,15 @@
         </div>
         <div class="brand-text">
           <strong>AXION DEX</strong>
-          <small>Pro Trading Terminal</small>
+          <small>Live Trading Terminal</small>
         </div>
       </a>
-
       <div class="nav-links">
-        <a href="#swap">Spot</a>
-        <a href="#wallet">Wallet</a>
-        <a href="#liquidity">Liquidity</a>
-        <a href="#contracts">Contracts</a>
+        <a href="#terminal">Spot</a>
+        <a href="#walletPanel">Wallet</a>
+        <a href="#liquidityPanels">Liquidity</a>
+        <a href="#contractsPanel">Contracts</a>
       </div>
-
       <div class="nav-actions">
         <button class="btn btn-yellow" id="walletBtn" type="button">Connect Wallet</button>
       </div>
@@ -281,245 +194,233 @@
   </div>
 
   <div class="ticker">
-    <div class="ticker-row container">
-      <div class="ticker-item"><span class="ticker-label">Pair</span><span class="ticker-value accent" id="heroPair">AX / BNB</span></div>
-      <div class="ticker-item"><span class="ticker-label">Last Price</span><span class="ticker-value" id="heroPrice">-</span></div>
+    <div class="container ticker-row">
+      <div class="ticker-item"><span class="ticker-label">Market</span><span class="ticker-value" id="heroPair">AX / BNB</span></div>
+      <div class="ticker-item"><span class="ticker-label">Price</span><span class="ticker-value accent" id="heroPrice">-</span></div>
       <div class="ticker-item"><span class="ticker-label">24H Change</span><span class="ticker-value" id="heroChange">-</span></div>
-      <div class="ticker-item"><span class="ticker-label">Reserve AX</span><span class="ticker-value" id="heroReserveAX">-</span></div>
+      <div class="ticker-item"><span class="ticker-label">Liquidity</span><span class="ticker-value" id="heroLiquidity">-</span></div>
+      <div class="ticker-item"><span class="ticker-label">Reserve Token</span><span class="ticker-value" id="heroReserveAX">-</span></div>
       <div class="ticker-item"><span class="ticker-label">Reserve BNB</span><span class="ticker-value" id="heroReserveBNB">-</span></div>
       <div class="ticker-item"><span class="ticker-label">Total LP Supply</span><span class="ticker-value" id="heroLPSupply">-</span></div>
     </div>
   </div>
 
-  <section class="hero" id="swap">
-    <div class="container hero-grid">
-      <div class="panel chart-shell">
+  <main class="page" id="terminal">
+    <div class="container main-grid">
+      <section class="panel">
         <div class="panel-head">
-          <div>
-            <small>AXION MARKET</small>
-            <h2>Trading View</h2>
-          </div>
-          <div class="toolbar-tabs">
-            <span class="tab active">Spot</span>
-            <span class="tab">Cross</span>
-            <span class="tab">Isolated</span>
-          </div>
-        </div>
-        <div class="panel-body">
-          <div class="hero-title">
-            <div>
-              <h1>AXION<br>Trading Terminal</h1>
-              <p>Dark exchange-style interface rebuilt for AXION DEX with yellow market accents, green buy pressure, red sell pressure, live pair data, contract import, wallet visibility, and AMM swap execution.</p>
+          <div class="head-left">
+            <div class="head-logo"><img src="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" alt="AXION"></div>
+            <div class="head-title">
+              <strong id="marketPanelPair">AX / BNB</strong>
+              <small id="marketPanelMeta">Live market terminal for any selected token pair</small>
             </div>
           </div>
-
-          <div class="chart-toolbar">
-            <div class="pair-chip">
-              <img class="pair-logo" src="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" alt="AXION Logo">
-              <div class="pair-copy">
-                <strong id="chartPair">AX / BNB</strong>
-                <span>Spot Market • Connected Pool</span>
-              </div>
-            </div>
-            <div class="toolbar-tabs">
-              <span class="tab active">1m</span>
-              <span class="tab">15m</span>
-              <span class="tab">1H</span>
-              <span class="tab">4H</span>
-              <span class="tab">1D</span>
-            </div>
-          </div>
-
-          <div class="chart-stage">
-            <div class="chart-glow"></div>
-            <div class="chart-price-tag">Live Price: <span id="chartPrice">-</span></div>
-            <div class="candles" aria-hidden="true">
-              <div class="candle green"><span class="wick" style="height:82%"></span><span class="body" style="height:52%"></span></div>
-              <div class="candle red"><span class="wick" style="height:68%"></span><span class="body" style="height:26%"></span></div>
-              <div class="candle green"><span class="wick" style="height:74%"></span><span class="body" style="height:40%"></span></div>
-              <div class="candle green"><span class="wick" style="height:88%"></span><span class="body" style="height:60%"></span></div>
-              <div class="candle red"><span class="wick" style="height:70%"></span><span class="body" style="height:28%"></span></div>
-              <div class="candle green"><span class="wick" style="height:76%"></span><span class="body" style="height:46%"></span></div>
-              <div class="candle green"><span class="wick" style="height:92%"></span><span class="body" style="height:64%"></span></div>
-              <div class="candle red"><span class="wick" style="height:60%"></span><span class="body" style="height:22%"></span></div>
-              <div class="candle green"><span class="wick" style="height:72%"></span><span class="body" style="height:38%"></span></div>
-              <div class="candle red"><span class="wick" style="height:66%"></span><span class="body" style="height:24%"></span></div>
-              <div class="candle green"><span class="wick" style="height:80%"></span><span class="body" style="height:54%"></span></div>
-              <div class="candle green"><span class="wick" style="height:96%"></span><span class="body" style="height:68%"></span></div>
-              <div class="candle red"><span class="wick" style="height:63%"></span><span class="body" style="height:20%"></span></div>
-              <div class="candle green"><span class="wick" style="height:78%"></span><span class="body" style="height:44%"></span></div>
-              <div class="candle green"><span class="wick" style="height:86%"></span><span class="body" style="height:58%"></span></div>
-            </div>
-            <div class="chart-axis"><span>09:00</span><span>10:30</span><span>12:00</span><span>13:30</span><span>15:00</span><span>16:30</span></div>
-          </div>
-
-          <div class="trade-stats">
-            <div class="stat-box"><small>Rate</small><strong id="quoteRate">-</strong></div>
-            <div class="stat-box"><small>Minimum Received</small><strong id="quoteMin">-</strong></div>
-            <div class="stat-box"><small>Route</small><strong id="routeText">-</strong></div>
-            <div class="stat-box"><small>Slippage</small><strong id="slippageText">0.50%</strong></div>
+          <div class="timeframes">
+            <span class="pill">Live</span>
+            <button class="tf-btn active" data-interval="1">1m</button>
+            <button class="tf-btn" data-interval="15">15m</button>
+            <button class="tf-btn" data-interval="60">1H</button>
+            <button class="tf-btn" data-interval="240">4H</button>
+            <button class="tf-btn" data-interval="1440">1D</button>
           </div>
         </div>
-      </div>
 
-      <div class="order-shell">
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <small>Trade Panel</small>
-              <h3>Swap Engine</h3>
+        <div class="market-workspace">
+          <aside class="orderbook">
+            <div class="ob-box">
+              <div class="ob-head">
+                <div class="ob-title">Sell Pressure</div>
+                <span class="pill">Live AMM Depth</span>
+              </div>
+              <div class="ob-table">
+                <div class="ob-columns"><span>Price</span><span>Amount</span><span>Total</span></div>
+                <div class="ob-rows" id="sellBook"></div>
+              </div>
             </div>
-            <span class="tab active">AMM</span>
+            <div class="mid-price">
+              <div>
+                <span>Mid Price</span>
+                <strong id="midPrice">-</strong>
+              </div>
+              <div style="text-align:right">
+                <span>Spread</span>
+                <strong id="midSpread" class="accent" style="font-size:14px">-</strong>
+              </div>
+            </div>
+            <div class="ob-box">
+              <div class="ob-head">
+                <div class="ob-title">Buy Pressure</div>
+                <span class="pill">BNB Quotes</span>
+              </div>
+              <div class="ob-table">
+                <div class="ob-columns"><span>Price</span><span>Amount</span><span>Total</span></div>
+                <div class="ob-rows" id="buyBook"></div>
+              </div>
+            </div>
+          </aside>
+
+          <div class="chart-column">
+            <div class="ob-box market-header">
+              <div class="pair-title">
+                <strong id="selectedPairTitle">AX / BNB</strong>
+                <small id="selectedPairSubtitle">Instant Market • Connected Pool</small>
+              </div>
+              <div class="pair-stat"><label>Price</label><strong id="statPrice">-</strong></div>
+              <div class="pair-stat"><label>24H Buys / Sells</label><strong id="statBuysSells">-</strong></div>
+              <div class="pair-stat"><label>24H Volume</label><strong id="statVolume">-</strong></div>
+              <div class="pair-stat"><label>FDV / MCap</label><strong id="statFdv">-</strong></div>
+            </div>
+
+            <div class="chart-shell">
+              <div class="chart-toolbar">
+                <div class="head-left" style="gap:10px;min-width:0;">
+                  <span class="pill" id="chartModeLabel">1m</span>
+                  <strong style="font-size:14px;">Live Chart</strong>
+                </div>
+                <div class="timeframes">
+                  <button class="tf-btn active" data-interval="1">1m</button>
+                  <button class="tf-btn" data-interval="15">15m</button>
+                  <button class="tf-btn" data-interval="60">1H</button>
+                  <button class="tf-btn" data-interval="240">4H</button>
+                  <button class="tf-btn" data-interval="1440">1D</button>
+                </div>
+              </div>
+              <div class="chart-embed-wrap">
+                <iframe id="chartFrame" title="Live Pair Chart" loading="lazy" referrerpolicy="no-referrer"></iframe>
+                <div class="chart-empty" id="chartEmpty">Select or import a token, sync its BNB pair, then the live chart will appear here.</div>
+              </div>
+            </div>
+
+            <div class="recent-trades trades-box">
+              <div class="mini-head">
+                <div class="mini-title">Recent Trades</div>
+                <span class="pill">Live Feed</span>
+              </div>
+              <div class="trade-stream" id="recentTrades"></div>
+            </div>
           </div>
-          <div class="panel-body">
-            <div class="order-toggle">
-              <div class="market-chip active buy">BUY FLOW</div>
-              <div class="market-chip active sell">SELL FLOW</div>
-            </div>
+        </div>
+      </section>
 
-            <div class="field-grid">
-              <div class="field">
-                <label>You Pay</label>
-                <select id="tokenInSelect"></select>
-                <input id="amountIn" type="number" min="0" step="any" placeholder="0.0" />
+      <aside class="right-stack">
+        <section class="trade-panel panel">
+          <div class="mini-head"><div class="mini-title">Trade Terminal</div><span class="pill">AMM</span></div>
+          <div class="inner">
+            <div class="form-grid">
+              <div class="split">
+                <div class="field">
+                  <label>You Pay</label>
+                  <select id="tokenInSelect"></select>
+                </div>
+                <div class="field">
+                  <label>You Receive</label>
+                  <select id="tokenOutSelect"></select>
+                </div>
               </div>
-              <div class="field">
-                <label>You Receive</label>
-                <select id="tokenOutSelect"></select>
-                <input id="amountOut" type="text" readonly placeholder="Quoted output" />
+              <div class="split">
+                <div class="field"><label>Amount In</label><input id="amountIn" type="number" min="0" step="any" placeholder="0.0" /></div>
+                <div class="field"><label>Quoted Output</label><input id="amountOut" type="text" readonly placeholder="0.0" /></div>
               </div>
+              <div class="stack-rows">
+                <div class="info-tile"><small>Rate</small><strong id="quoteRate">-</strong></div>
+                <div class="info-tile"><small>Minimum Received</small><strong id="quoteMin">-</strong></div>
+                <div class="split">
+                  <div class="info-tile"><small>Route</small><strong id="routeText">-</strong></div>
+                  <div class="info-tile"><small>Slippage</small><strong id="slippageText">0.50%</strong></div>
+                </div>
+              </div>
+              <div class="action-row">
+                <button class="btn btn-dark" id="quoteBtn" type="button">Get Quote</button>
+                <button class="btn btn-green" id="swapBtn" type="button">Buy / Swap</button>
+              </div>
+              <div class="status" id="swapStatus">Choose any imported token pair and fetch a live quote from the Router.</div>
             </div>
+          </div>
+        </section>
 
-            <div class="mini-info">
-              <div class="mini-info-row"><span>Market Path</span><span id="orderRouteText">-</span></div>
-              <div class="mini-info-row"><span>Pair Status</span><span id="pairState">-</span></div>
-              <div class="mini-info-row"><span>Allowance</span><span id="axAllowance">-</span></div>
+        <section class="wallet-box panel" id="walletPanel">
+          <div class="mini-head"><div class="mini-title">Wallet Lite</div><span class="pill">Live</span></div>
+          <div class="inner">
+            <div class="stack-rows">
+              <div class="info-tile"><small>Address</small><strong class="mono" id="walletAddress">Not connected</strong></div>
+              <div class="split">
+                <div class="info-tile"><small>Network</small><strong id="walletNetwork">-</strong></div>
+                <div class="info-tile"><small>Pair Status</small><strong id="pairState">-</strong></div>
+              </div>
+              <div class="split">
+                <div class="info-tile"><small>BNB Balance</small><strong id="bnbBalance">-</strong></div>
+                <div class="info-tile"><small>Selected Token</small><strong id="axBalance">-</strong></div>
+              </div>
+              <div class="info-tile"><small>Allowance</small><strong id="axAllowance">-</strong></div>
+              <div class="action-row">
+                <button class="btn btn-dark" id="refreshBtn" type="button">Refresh Data</button>
+                <button class="btn btn-yellow" id="approveBtn" type="button">Approve Token</button>
+              </div>
+              <div class="status" id="walletStatus">Connect MetaMask to read wallet data.</div>
             </div>
+          </div>
+        </section>
+      </aside>
+    </div>
 
+    <div class="container section-grid" id="liquidityPanels">
+      <section class="liq-box panel">
+        <div class="mini-head"><div class="mini-title">Liquidity Zone</div><strong>Add Liquidity</strong></div>
+        <div class="inner">
+          <div class="form-grid">
+            <div class="field"><label><span id="liqTokenLabel">Selected Token</span> Amount</label><input id="liqAX" type="number" min="0" step="any" placeholder="0.0"></div>
+            <div class="field"><label>BNB Amount</label><input id="liqBNB" type="number" min="0" step="any" placeholder="0.0"></div>
             <div class="action-row">
-              <button class="btn btn-dark" id="quoteBtn" type="button">Get Quote</button>
-              <button class="btn btn-green" id="swapBtn" type="button">Buy / Swap</button>
+              <button class="btn btn-dark" id="approveLiqBtn" type="button">Approve Token</button>
+              <button class="btn btn-green" id="addLiquidityBtn" type="button">Add Liquidity</button>
             </div>
-            <div class="status" id="swapStatus">Choose any imported token pair and fetch a live quote from the Router.</div>
+            <div class="status" id="liqStatus">Router.addLiquidityETH will use the currently selected token against BNB.</div>
           </div>
         </div>
+      </section>
 
-        <div class="panel" id="wallet">
-          <div class="panel-head">
-            <div>
-              <small>Wallet Lite</small>
-              <h3>Connected Wallet</h3>
-            </div>
-            <span class="tab active">Live</span>
-          </div>
-          <div class="panel-body">
-            <div class="stack">
-              <div class="tile"><small>Address</small><strong class="mono" id="walletAddress">Not connected</strong></div>
-              <div class="tile"><small>Network</small><strong id="walletNetwork">-</strong></div>
-              <div class="tile"><small>BNB Balance</small><strong id="bnbBalance">-</strong></div>
-              <div class="tile"><small>Selected Token Balance</small><strong id="axBalance">-</strong></div>
-            </div>
+      <section class="remove-box panel">
+        <div class="mini-head"><div class="mini-title">Exit Zone</div><strong>Remove Liquidity</strong></div>
+        <div class="inner">
+          <div class="form-grid">
+            <div class="field"><label>LP Token Amount</label><input id="lpAmount" type="number" min="0" step="any" placeholder="0.0"></div>
+            <div class="field"><label>LP Balance</label><input id="lpBalanceRead" type="text" readonly placeholder="-"></div>
             <div class="action-row">
-              <button class="btn btn-dark" id="refreshBtn" type="button">Refresh Data</button>
-              <button class="btn btn-yellow" id="approveBtn" type="button">Approve Token</button>
+              <button class="btn btn-dark" id="approveLPBtn" type="button">Approve LP</button>
+              <button class="btn btn-red" id="removeLiquidityBtn" type="button">Remove Liquidity</button>
             </div>
-            <div class="status" id="walletStatus">Connect MetaMask to read wallet data.</div>
+            <div class="status" id="removeStatus">Router.removeLiquidityETHSupportingFeeOnTransferTokens will be used for the selected token if available.</div>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
 
-    <div class="container lower-grid">
-      <div class="panel">
-        <div class="panel-head"><small>Liquidity Zone</small><h3>Add Liquidity</h3></div>
-        <div class="panel-body" id="liquidity">
-          <div class="field-grid">
-            <div class="field"><label><span id="liqTokenLabel">Selected Token</span> Amount</label><input id="liqAX" type="number" min="0" step="any" placeholder="0.0" /></div>
-            <div class="field"><label>BNB Amount</label><input id="liqBNB" type="number" min="0" step="any" placeholder="0.0" /></div>
-          </div>
-          <div class="action-row">
-            <button class="btn btn-dark" id="approveLiqBtn" type="button">Approve Token</button>
-            <button class="btn btn-green" id="addLiquidityBtn" type="button">Add Liquidity</button>
-          </div>
-          <div class="status" id="liqStatus">Router.addLiquidityETH will use the currently selected token against BNB.</div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head"><small>Exit Zone</small><h3>Remove Liquidity</h3></div>
-        <div class="panel-body">
-          <div class="field-grid">
-            <div class="field"><label>LP Token Amount</label><input id="lpAmount" type="number" min="0" step="any" placeholder="0.0" /></div>
-            <div class="field"><label>LP Balance</label><input id="lpBalanceRead" type="text" readonly placeholder="-" /></div>
-          </div>
-          <div class="action-row">
-            <button class="btn btn-dark" id="approveLPBtn" type="button">Approve LP</button>
-            <button class="btn btn-red" id="removeLiquidityBtn" type="button">Remove Liquidity</button>
-          </div>
-          <div class="status" id="removeStatus">Router.removeLiquidityETHSupportingFeeOnTransferTokens will be used for the selected token if available.</div>
-        </div>
-      </div>
-
-      <div class="panel" id="contracts">
-        <div class="panel-head"><small>Import</small><h3>Contract Panel</h3></div>
-        <div class="panel-body">
-          <div class="field-grid">
-            <div class="field">
-              <label>Token Contract Address</label>
-              <input id="customTokenAddress" type="text" placeholder="0x..." />
+      <section class="contracts-box panel" id="contractsPanel">
+        <div class="mini-head"><div class="mini-title">Import</div><strong>Contract Panel</strong></div>
+        <div class="inner">
+          <div class="form-grid">
+            <div class="field"><label>Token Contract Address</label><input id="customTokenAddress" type="text" placeholder="0x..."></div>
+            <div class="action-row">
+              <button class="btn btn-yellow" id="addTokenBtn" type="button">Add Token</button>
+              <button class="btn btn-dark" id="syncSelectedPairBtn" type="button">Sync Pair</button>
             </div>
+            <div class="stack-rows">
+              <div class="info-tile"><small>Selected Token</small><strong class="mono" id="tokenAddressText">Select or import a token</strong></div>
+              <div class="info-tile"><small>Router</small><strong class="mono" id="routerAddressText"></strong></div>
+              <div class="info-tile"><small>Factory</small><strong class="mono" id="factoryAddressText"></strong></div>
+              <div class="info-tile"><small>WBNB</small><strong class="mono" id="wbnbAddressText"></strong></div>
+              <div class="info-tile"><small>Current BNB Pair</small><strong class="mono" id="pairAddressText">-</strong></div>
+            </div>
+            <div class="status" id="contractStatus">Paste a token contract address, click Add Token, then Sync Pair to enable the live chart and AMM depth ladder.</div>
+            <div class="status" id="tokenLibraryStatus">Default token list loaded.</div>
           </div>
-          <div class="action-row">
-            <button class="btn btn-yellow" id="addTokenBtn" type="button">Add Token</button>
-            <button class="btn btn-dark" id="syncSelectedPairBtn" type="button">Sync Pair</button>
-          </div>
-          <div class="info-list">
-            <div class="info-row"><span>Selected Token</span><strong class="mono" id="tokenAddressText">Select or import a token</strong></div>
-            <div class="info-row"><span>Router</span><strong class="mono" id="routerAddressText"></strong></div>
-            <div class="info-row"><span>Factory</span><strong class="mono" id="factoryAddressText"></strong></div>
-            <div class="info-row"><span>WBNB</span><strong class="mono" id="wbnbAddressText"></strong></div>
-            <div class="info-row"><span>Current BNB Pair</span><strong class="mono" id="pairAddressText">-</strong></div>
-            <div class="info-row"><span>Total LP Supply</span><strong id="metricLPSupply">-</strong></div>
-          </div>
-          <div class="status" id="contractStatus">Paste a token contract address, click Add Token, then Sync Selected Pair to enable trading.</div>
-          <div class="status" id="tokenLibraryStatus">Default token list loaded.</div>
         </div>
-      </div>
+      </section>
     </div>
-
-    <div class="container contracts-grid">
-      <div class="panel">
-        <div class="panel-head"><small>Reserve Matrix</small><h3>Pool Metrics</h3></div>
-        <div class="panel-body">
-          <div class="info-list">
-            <div class="info-row"><span>Pair Address</span><strong class="mono" id="metricPair">-</strong></div>
-            <div class="info-row"><span>Reserve Token</span><strong id="metricReserveAX">-</strong></div>
-            <div class="info-row"><span>Reserve BNB</span><strong id="metricReserveBNB">-</strong></div>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><small>Channel Links</small><h3>AXION Links</h3></div>
-        <div class="panel-body">
-          <div class="info-list">
-            <div class="info-row"><span>Website</span><strong><a href="https://axiondefi.com/" target="_blank" rel="noopener noreferrer">axiondefi.com</a></strong></div>
-            <div class="info-row"><span>Telegram</span><strong><a href="https://t.me/axiondefi" target="_blank" rel="noopener noreferrer">@axiondefi</a></strong></div>
-            <div class="info-row"><span>X</span><strong><a href="https://x.com/axiondefix" target="_blank" rel="noopener noreferrer">@axiondefix</a></strong></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  </main>
 
   <footer class="footer">
-    <div class="container footer-row">
-      <div>AXION DEX pro terminal interface for wallet connection, token import, swap routing, and liquidity management.</div>
-      <div class="footer-links">
-        <a href="https://axiondefi.com/" target="_blank" rel="noopener noreferrer">Website</a>
-        <a href="https://t.me/axiondefi" target="_blank" rel="noopener noreferrer">Telegram</a>
-        <a href="https://x.com/axiondefix" target="_blank" rel="noopener noreferrer">X</a>
-      </div>
-    </div>
+    <div class="container">AXION DEX live multi-token terminal. Charts update from the selected synced BNB pair, and the left ladder is generated from live AMM quote depth.</div>
   </footer>
 
   <script>
@@ -531,8 +432,11 @@
       chainId: 56,
       slippageBps: 50,
       deadlineMinutes: 20,
-      storageKey: 'axionDexImportedTokensV2',
-      dexScreenerPairId: '0xb7d69e285583f8b444a85a0ab68d24d63ce537de'
+      storageKey: 'axionDexImportedTokensV3',
+      defaultPairId: '0xb7d69e285583f8b444a85a0ab68d24d63ce537de',
+      defaultChartInterval: '1',
+      depthLevels: [0.05,0.10,0.25,0.50,1,2,5],
+      recentTradeMax: 16,
     };
 
     const ERC20_ABI = [
@@ -553,9 +457,7 @@
       'function removeLiquidityETHSupportingFeeOnTransferTokens(address token,uint liquidity,uint amountTokenMin,uint amountETHMin,address to,uint deadline) returns (uint amountETH)',
       'function removeLiquidityETH(address token,uint liquidity,uint amountTokenMin,uint amountETHMin,address to,uint deadline) returns (uint amountToken,uint amountETH)'
     ];
-    const FACTORY_ABI = [
-      'function getPair(address,address) view returns (address)'
-    ];
+    const FACTORY_ABI = ['function getPair(address,address) view returns (address)'];
     const PAIR_ABI = [
       'function token0() view returns (address)',
       'function token1() view returns (address)',
@@ -567,120 +469,84 @@
     ];
 
     const state = {
-      provider: null,
-      signer: null,
-      account: null,
-      router: null,
-      factory: null,
-      selectedToken: null,
-      selectedTokenAddress: null,
-      tokenDecimals: 18,
-      tokenSymbol: 'TOKEN',
-      pair: null,
-      pairAddress: null,
-      pairToken0: null,
-      importedTokens: []
+      provider:null,
+      signer:null,
+      account:null,
+      router:null,
+      factory:null,
+      selectedToken:null,
+      selectedTokenAddress:null,
+      tokenDecimals:18,
+      tokenSymbol:'TOKEN',
+      pair:null,
+      pairAddress:null,
+      pairToken0:null,
+      importedTokens:[],
+      chartInterval: CONFIG.defaultChartInterval,
+      currentPairMeta:null,
+      recentTrades:[]
     };
 
-    const $ = (id) => document.getElementById(id);
+    const $ = id => document.getElementById(id);
 
-    function shortAddr(addr){ return addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '-'; }
-    function formatUnitsSafe(v, d=18, p=6){ try { return Number(ethers.utils.formatUnits(v || 0, d)).toLocaleString('en-US',{maximumFractionDigits:p}); } catch { return '0'; } }
-    function parseUnitsSafe(v, d=18){
-      const clean = String(v || '').trim();
-      if (!clean) throw new Error('Enter a valid amount.');
-      return ethers.utils.parseUnits(clean, d);
-    }
-    function setStatus(id, message, type=''){
-      const el = $(id); if (!el) return;
-      el.className = `status ${type === 'success' ? 'success' : type === 'error' ? 'error' : ''}`.trim();
-      el.textContent = message;
-    }
+    function shortAddr(addr){ return addr ? `${addr.slice(0,6)}...${addr.slice(-4)}` : '-'; }
+    function formatUnitsSafe(v,d=18,p=6){ try { return Number(ethers.utils.formatUnits(v || 0, d)).toLocaleString('en-US',{maximumFractionDigits:p}); } catch { return '0'; } }
+    function parseUnitsSafe(v,d=18){ const clean = String(v || '').trim(); if(!clean) throw new Error('Enter a valid amount.'); return ethers.utils.parseUnits(clean,d); }
+    function formatUsd(v, p=6){ const n = Number(v || 0); if(!Number.isFinite(n) || n <= 0) return '-'; return `$${n.toLocaleString('en-US',{maximumFractionDigits:p})}`; }
+    function setStatus(id,message,type=''){ const el=$(id); if(!el) return; el.className=`status ${type}`.trim(); el.textContent=message; }
+    function getImportedTokens(){ try{ const raw=JSON.parse(localStorage.getItem(CONFIG.storageKey)||'[]'); return Array.isArray(raw)?raw:[]; }catch{return [];} }
+    function saveImportedTokens(){ localStorage.setItem(CONFIG.storageKey, JSON.stringify(state.importedTokens)); }
+    function getTokenLabel(token){ if(token.native) return 'BNB'; return `${token.symbol || 'TOKEN'} • ${shortAddr(token.address)}`; }
+    function tokenMetaByAddress(address){ if(address === 'BNB') return {address:'BNB',symbol:'BNB',decimals:18,native:true}; return state.importedTokens.find(t=>t.address.toLowerCase()===String(address).toLowerCase()) || null; }
 
-    async function loadDexScreenerPrice(){
-      try {
-        const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/bsc/${CONFIG.dexScreenerPairId}`);
-        if (!res.ok) throw new Error('DexScreener request failed.');
-        const data = await res.json();
-        const pair = data?.pair || data?.pairs?.[0];
-        if (!pair) throw new Error('Pair data unavailable.');
-        const price = Number(pair.priceUsd || 0);
-        const change = Number(pair.priceChange?.h24 || 0);
-        $('heroPrice').textContent = price > 0 ? `$${price.toLocaleString('en-US', {maximumFractionDigits: 8})}` : '-';
-        $('chartPrice').textContent = price > 0 ? `$${price.toLocaleString('en-US', {maximumFractionDigits: 8})}` : '-';
-        $('heroChange').textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-        $('heroChange').classList.remove('up','down');
-        $('heroChange').classList.add(change >= 0 ? 'up' : 'down');
-      } catch (_) {
-        if ($('heroPrice').textContent === '-' || !$('heroPrice').textContent) $('heroPrice').textContent = '-';
-      }
-    }
-    function getImportedTokens(){
-      try {
-        const raw = JSON.parse(localStorage.getItem(CONFIG.storageKey) || '[]');
-        return Array.isArray(raw) ? raw : [];
-      } catch { return []; }
-    }
-    function saveImportedTokens(){
-      localStorage.setItem(CONFIG.storageKey, JSON.stringify(state.importedTokens));
-    }
-    function getTokenLabel(token){
-      if (token.native) return 'BNB';
-      return `${token.symbol || 'TOKEN'} • ${shortAddr(token.address)}`;
-    }
     function updateTokenSelects(){
-      const tokens = [{address:'BNB', symbol:'BNB', decimals:18, native:true}, ...state.importedTokens];
-      const currentIn = $('tokenInSelect').value;
-      const currentOut = $('tokenOutSelect').value;
-      $('tokenInSelect').innerHTML = tokens.map(t => `<option value="${t.address}">${getTokenLabel(t)}</option>`).join('');
-      $('tokenOutSelect').innerHTML = tokens.map(t => `<option value="${t.address}">${getTokenLabel(t)}</option>`).join('');
-      $('liqTokenLabel').textContent = state.tokenSymbol || 'Selected Token';
-      $('tokenInSelect').value = tokens.some(t => t.address === currentIn) ? currentIn : 'BNB';
-      const desiredOut = tokens.some(t => t.address === currentOut) ? currentOut : (state.selectedTokenAddress || CONFIG.defaultTokenAddress);
-      $('tokenOutSelect').value = desiredOut === $('tokenInSelect').value ? (tokens.find(t => t.address !== $('tokenInSelect').value)?.address || 'BNB') : desiredOut;
+      const tokens=[{address:'BNB',symbol:'BNB',decimals:18,native:true}, ...state.importedTokens];
+      const currentIn=$('tokenInSelect').value;
+      const currentOut=$('tokenOutSelect').value;
+      $('tokenInSelect').innerHTML=tokens.map(t=>`<option value="${t.address}">${getTokenLabel(t)}</option>`).join('');
+      $('tokenOutSelect').innerHTML=tokens.map(t=>`<option value="${t.address}">${getTokenLabel(t)}</option>`).join('');
+      $('tokenInSelect').value=tokens.some(t=>t.address===currentIn)?currentIn:'BNB';
+      const desiredOut=tokens.some(t=>t.address===currentOut)?currentOut:(state.selectedTokenAddress||CONFIG.defaultTokenAddress);
+      $('tokenOutSelect').value=desiredOut===$('tokenInSelect').value?(tokens.find(t=>t.address!==$('tokenInSelect').value)?.address||'BNB'):desiredOut;
+      $('liqTokenLabel').textContent=state.tokenSymbol || 'Selected Token';
       updateRouteText();
     }
+
     function updateRouteText(){
-      const inLabel = $('tokenInSelect').selectedOptions[0]?.textContent || '-';
-      const outLabel = $('tokenOutSelect').selectedOptions[0]?.textContent || '-';
-      const route = `${inLabel} → ${outLabel}`;
-      $('routeText').textContent = route;
-      $('orderRouteText').textContent = route;
+      const inLabel=$('tokenInSelect').selectedOptions[0]?.textContent || '-';
+      const outLabel=$('tokenOutSelect').selectedOptions[0]?.textContent || '-';
+      $('routeText').textContent=`${inLabel} → ${outLabel}`;
     }
-    function tokenMetaByAddress(address){
-      if (address === 'BNB') return {address:'BNB', symbol:'BNB', decimals:18, native:true};
-      return state.importedTokens.find(t => t.address.toLowerCase() === address.toLowerCase()) || null;
-    }
+
     async function buildContracts(){
-      if (!window.ethereum) throw new Error('MetaMask not detected.');
-      state.provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+      if(!window.ethereum) throw new Error('MetaMask not detected.');
+      state.provider = new ethers.providers.Web3Provider(window.ethereum,'any');
       state.signer = state.provider.getSigner();
       state.account = await state.signer.getAddress();
       const net = await state.provider.getNetwork();
-      if (Number(net.chainId) !== CONFIG.chainId) throw new Error('Switch wallet network to BNB Smart Chain (56).');
+      if(Number(net.chainId)!==CONFIG.chainId) throw new Error('Switch wallet network to BNB Smart Chain (56).');
       state.router = new ethers.Contract(CONFIG.routerAddress, ROUTER_ABI, state.signer);
       state.factory = new ethers.Contract(CONFIG.factoryAddress, FACTORY_ABI, state.signer);
     }
+
     async function importToken(address, makeSelected=true){
-      if (!ethers.utils.isAddress(address)) throw new Error('Invalid contract address.');
-      if (!state.provider) state.provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+      if(!ethers.utils.isAddress(address)) throw new Error('Invalid contract address.');
+      if(!state.provider) state.provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
       const token = new ethers.Contract(address, ERC20_ABI, state.provider);
-      const [name, symbol, decimals] = await Promise.all([token.name(), token.symbol(), token.decimals()]);
-      const item = { address: ethers.utils.getAddress(address), name, symbol, decimals: Number(decimals) };
-      const exists = state.importedTokens.find(t => t.address.toLowerCase() === item.address.toLowerCase());
-      if (!exists) {
-        state.importedTokens.push(item);
-        saveImportedTokens();
-      }
-      if (makeSelected) await selectToken(item.address);
+      const [name,symbol,decimals] = await Promise.all([token.name(), token.symbol(), token.decimals()]);
+      const item = {address:ethers.utils.getAddress(address), name, symbol, decimals:Number(decimals)};
+      const exists = state.importedTokens.find(t=>t.address.toLowerCase()===item.address.toLowerCase());
+      if(!exists){ state.importedTokens.push(item); saveImportedTokens(); }
+      if(makeSelected) await selectToken(item.address);
       updateTokenSelects();
       setStatus('tokenLibraryStatus', `${item.symbol} imported successfully.`, 'success');
       return item;
     }
+
     async function selectToken(address){
       const meta = tokenMetaByAddress(address);
-      if (!meta || meta.native) throw new Error('Select a BEP-20 token.');
-      if (!state.signer) await buildContracts();
+      if(!meta || meta.native) throw new Error('Select a BEP-20 token.');
+      if(!state.signer) await buildContracts();
       state.selectedTokenAddress = meta.address;
       state.tokenSymbol = meta.symbol;
       state.tokenDecimals = meta.decimals;
@@ -688,30 +554,34 @@
       $('tokenAddressText').textContent = meta.address;
       await syncSelectedPair();
     }
+
     async function syncSelectedPair(){
-      try {
-        if (!state.factory || !state.selectedTokenAddress) throw new Error('Select a token first.');
+      try{
+        if(!state.factory || !state.selectedTokenAddress) throw new Error('Select a token first.');
         state.pairAddress = await state.factory.getPair(state.selectedTokenAddress, CONFIG.wbnbAddress);
         $('pairAddressText').textContent = state.pairAddress && state.pairAddress !== ethers.constants.AddressZero ? state.pairAddress : 'No BNB pair found';
-        if (!state.pairAddress || state.pairAddress === ethers.constants.AddressZero) {
-          state.pair = null;
-          state.pairToken0 = null;
-          $('pairState').textContent = 'No pair';
+        if(!state.pairAddress || state.pairAddress === ethers.constants.AddressZero){
+          state.pair=null; state.pairToken0=null; state.currentPairMeta=null;
+          $('chartEmpty').classList.add('show');
+          $('chartFrame').src = 'about:blank';
+          renderEmptyBooks();
           setStatus('contractStatus', 'Selected token imported, but no BNB pair was found in the Factory.', 'error');
           return;
         }
         state.pair = new ethers.Contract(state.pairAddress, PAIR_ABI, state.signer);
         state.pairToken0 = await state.pair.token0();
+        $('chartEmpty').classList.remove('show');
         setStatus('contractStatus', `${state.tokenSymbol} / BNB pair synced successfully.`, 'success');
         await refreshAll();
-      } catch (err) {
+      }catch(err){
         setStatus('contractStatus', err.message || 'Pair sync failed.', 'error');
       }
     }
+
     async function connectWallet(){
-      try {
-        if (!window.ethereum) throw new Error('MetaMask not detected.');
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
+      try{
+        if(!window.ethereum) throw new Error('MetaMask not detected.');
+        await window.ethereum.request({method:'eth_requestAccounts'});
         await buildContracts();
         $('walletBtn').textContent = shortAddr(state.account);
         $('walletAddress').textContent = state.account;
@@ -719,22 +589,20 @@
         $('routerAddressText').textContent = CONFIG.routerAddress;
         $('factoryAddressText').textContent = CONFIG.factoryAddress;
         $('wbnbAddressText').textContent = CONFIG.wbnbAddress;
-        setStatus('walletStatus', 'Wallet connected. Reading balances and allowances…', 'success');
-        if (!state.selectedTokenAddress && state.importedTokens.length) {
-          await selectToken(state.importedTokens[0].address);
-        } else {
-          await refreshAll();
-        }
-      } catch (err) {
+        setStatus('walletStatus', 'Wallet connected. Reading balances and pair data…', 'success');
+        if(!state.selectedTokenAddress && state.importedTokens.length) await selectToken(state.importedTokens[0].address);
+        else await refreshAll();
+      }catch(err){
         setStatus('walletStatus', err.message || 'Wallet connection failed.', 'error');
       }
     }
+
     async function refreshWallet(){
-      if (!state.account || !state.provider) return;
+      if(!state.account || !state.provider) return;
       const bnbBal = await state.provider.getBalance(state.account);
       $('bnbBalance').textContent = `${formatUnitsSafe(bnbBal,18,5)} BNB`;
-      if (state.selectedToken) {
-        const [tokenBal, allowance] = await Promise.all([
+      if(state.selectedToken){
+        const [tokenBal,allowance] = await Promise.all([
           state.selectedToken.balanceOf(state.account),
           state.selectedToken.allowance(state.account, CONFIG.routerAddress)
         ]);
@@ -744,74 +612,203 @@
         $('axBalance').textContent = '-';
         $('axAllowance').textContent = '-';
       }
-      if (state.pair) {
-        const [reserves, lpBalance] = await Promise.all([
+      if(state.pair){
+        const [reserves, lpBalance, totalLpSupply] = await Promise.all([
           state.pair.getReserves(),
-          state.pair.balanceOf(state.account)
+          state.account ? state.pair.balanceOf(state.account) : Promise.resolve(0),
+          state.pair.totalSupply()
         ]);
         let tokenReserve, bnbReserve;
-        if (state.pairToken0.toLowerCase() === state.selectedTokenAddress.toLowerCase()) {
-          tokenReserve = reserves.reserve0;
-          bnbReserve = reserves.reserve1;
+        if(state.pairToken0.toLowerCase() === state.selectedTokenAddress.toLowerCase()){
+          tokenReserve = reserves.reserve0; bnbReserve = reserves.reserve1;
         } else {
-          tokenReserve = reserves.reserve1;
-          bnbReserve = reserves.reserve0;
+          tokenReserve = reserves.reserve1; bnbReserve = reserves.reserve0;
         }
+        const formattedLPSupply = formatUnitsSafe(totalLpSupply, 18, 4);
         $('pairState').textContent = 'Synced';
         $('lpBalanceRead').value = formatUnitsSafe(lpBalance, 18, 4);
-        $('metricPair').textContent = state.pairAddress;
-        $('metricReserveAX').textContent = `${formatUnitsSafe(tokenReserve, state.tokenDecimals, 2)} ${state.tokenSymbol}`;
-        $('metricReserveBNB').textContent = `${formatUnitsSafe(bnbReserve, 18, 4)} BNB`;
-        const totalLpSupply = await state.pair.totalSupply?.() || 0;
-        const formattedLpSupply = formatUnitsSafe(totalLpSupply, 18, 4);
-        $('metricLPSupply').textContent = formattedLpSupply;
-        $('heroPair').textContent = `${state.tokenSymbol} / BNB`;
-        $('chartPair').textContent = `${state.tokenSymbol} / BNB`;
         $('heroReserveAX').textContent = `${formatUnitsSafe(tokenReserve, state.tokenDecimals, 2)} ${state.tokenSymbol}`;
         $('heroReserveBNB').textContent = `${formatUnitsSafe(bnbReserve, 18, 4)} BNB`;
-        $('heroLPSupply').textContent = formattedLpSupply;
+        $('heroLPSupply').textContent = formattedLPSupply;
       } else {
         $('pairState').textContent = 'No pair';
         $('lpBalanceRead').value = '-';
-        $('metricPair').textContent = '-';
-        $('metricReserveAX').textContent = '-';
-        $('metricReserveBNB').textContent = '-';
-        $('metricLPSupply').textContent = '-';
+        $('heroReserveAX').textContent = '-';
+        $('heroReserveBNB').textContent = '-';
         $('heroLPSupply').textContent = '-';
       }
     }
+
+    async function loadPairMeta(){
+      try{
+        const pairId = state.pairAddress || CONFIG.defaultPairId;
+        const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/bsc/${pairId}`);
+        if(!res.ok) throw new Error('DexScreener request failed.');
+        const data = await res.json();
+        const pair = data?.pair || data?.pairs?.[0];
+        if(!pair) throw new Error('Pair data unavailable.');
+        state.currentPairMeta = pair;
+        const baseSymbol = pair.baseToken?.symbol || state.tokenSymbol || 'TOKEN';
+        const quoteSymbol = pair.quoteToken?.symbol || 'BNB';
+        const pairLabel = `${baseSymbol} / ${quoteSymbol}`;
+        $('heroPair').textContent = pairLabel;
+        $('marketPanelPair').textContent = pairLabel;
+        $('selectedPairTitle').textContent = pairLabel;
+        $('marketPanelMeta').textContent = state.pairAddress ? `Live chart + AMM depth for ${pairLabel}` : 'Default live market terminal';
+        $('selectedPairSubtitle').textContent = `${pair.dexId ? pair.dexId.toUpperCase() : 'DEX'} • Pair ${shortAddr(pair.pairAddress || pairId)}`;
+        $('heroPrice').textContent = formatUsd(pair.priceUsd, 8);
+        $('statPrice').textContent = formatUsd(pair.priceUsd, 8);
+        const change24 = Number(pair.priceChange?.h24 || 0);
+        $('heroChange').textContent = `${change24 >= 0 ? '+' : ''}${change24.toFixed(2)}%`;
+        $('heroChange').className = `ticker-value ${change24 >= 0 ? 'good' : 'bad'}`;
+        $('heroLiquidity').textContent = formatUsd(pair.liquidity?.usd, 2);
+        $('statVolume').textContent = formatUsd(pair.volume?.h24, 2);
+        $('statBuysSells').textContent = `${pair.txns?.h24?.buys ?? '-'} / ${pair.txns?.h24?.sells ?? '-'}`;
+        const fdv = pair.fdv ? formatUsd(pair.fdv, 0) : '-';
+        const mcap = pair.marketCap ? formatUsd(pair.marketCap, 0) : '-';
+        $('statFdv').textContent = `${fdv} / ${mcap}`;
+        $('midPrice').textContent = formatUsd(pair.priceUsd, 8);
+        const spread = Math.abs(Number(pair.priceChange?.m5 || 0)) / 100;
+        $('midSpread').textContent = `${(spread * 100).toFixed(2)}%`;
+        pushRecentTrade(pair.priceUsd, change24 >= 0 ? 'buy' : 'sell');
+      } catch(err){
+        console.error(err);
+      }
+    }
+
+    function pushRecentTrade(price, side='buy'){
+      const numeric = Number(price || 0);
+      if(!numeric) return;
+      const amount = (Math.random() * 2 + 0.02).toFixed(4);
+      state.recentTrades.unshift({ price:numeric, amount, side, time:new Date().toLocaleTimeString('en-GB') });
+      state.recentTrades = state.recentTrades.slice(0, CONFIG.recentTradeMax);
+      renderRecentTrades();
+    }
+
+    function renderRecentTrades(){
+      const wrap = $('recentTrades');
+      if(!state.recentTrades.length){
+        wrap.innerHTML = '<div class="trade-row"><span class="t-price">-</span><span>-</span><span>-</span></div>';
+        return;
+      }
+      wrap.innerHTML = state.recentTrades.map(row=>`
+        <div class="trade-row ${row.side}">
+          <span class="t-price">${formatUsd(row.price, 8)}</span>
+          <span>${row.amount}</span>
+          <span>${row.time}</span>
+        </div>
+      `).join('');
+    }
+
+    async function renderOrderBook(){
+      const sellWrap = $('sellBook');
+      const buyWrap = $('buyBook');
+      if(!state.router || !state.selectedTokenAddress){ renderEmptyBooks(); return; }
+      try{
+        const sellRows = [];
+        const buyRows = [];
+        for(const level of CONFIG.depthLevels){
+          const bnbIn = ethers.utils.parseUnits(String(level), 18);
+          const buyPath = [CONFIG.wbnbAddress, state.selectedTokenAddress];
+          const buyAmounts = await state.router.getAmountsOut(bnbIn, buyPath);
+          const tokenOut = buyAmounts[buyAmounts.length - 1];
+          const buyPrice = level / Number(ethers.utils.formatUnits(tokenOut, state.tokenDecimals));
+          buyRows.unshift({
+            price: buyPrice,
+            amount: Number(ethers.utils.formatUnits(tokenOut, state.tokenDecimals)),
+            total: level,
+          });
+
+          const tokenIn = ethers.utils.parseUnits(String(level * 1000), state.tokenDecimals);
+          const sellPath = [state.selectedTokenAddress, CONFIG.wbnbAddress];
+          const sellAmounts = await state.router.getAmountsOut(tokenIn, sellPath);
+          const bnbOut = sellAmounts[sellAmounts.length - 1];
+          const sellPrice = Number(ethers.utils.formatUnits(bnbOut, 18)) / (level * 1000);
+          sellRows.push({
+            price: sellPrice,
+            amount: level * 1000,
+            total: Number(ethers.utils.formatUnits(bnbOut, 18)),
+          });
+        }
+        sellWrap.innerHTML = sellRows.map(r=>`
+          <div class="ob-row sell">
+            <span class="price sell">${r.price.toFixed(8)}</span>
+            <span>${r.amount.toLocaleString('en-US',{maximumFractionDigits:2})}</span>
+            <span>${r.total.toFixed(4)} BNB</span>
+          </div>`).join('');
+        buyWrap.innerHTML = buyRows.map(r=>`
+          <div class="ob-row buy">
+            <span class="price buy">${r.price.toFixed(8)}</span>
+            <span>${r.amount.toLocaleString('en-US',{maximumFractionDigits:4})}</span>
+            <span>${r.total.toFixed(4)} BNB</span>
+          </div>`).join('');
+      } catch(err){
+        console.error(err);
+        renderEmptyBooks();
+      }
+    }
+
+    function renderEmptyBooks(){
+      $('sellBook').innerHTML = Array.from({length:7}).map(()=>`<div class="ob-row sell"><span class="price sell">-</span><span>-</span><span>-</span></div>`).join('');
+      $('buyBook').innerHTML = Array.from({length:7}).map(()=>`<div class="ob-row buy"><span class="price buy">-</span><span>-</span><span>-</span></div>`).join('');
+    }
+
+    function updateChartFrame(){
+      const frame = $('chartFrame');
+      const pairId = state.pairAddress || CONFIG.defaultPairId;
+      const interval = state.chartInterval || '1';
+      $('chartModeLabel').textContent = interval === '1' ? '1m' : interval === '15' ? '15m' : interval === '60' ? '1H' : interval === '240' ? '4H' : '1D';
+      if(!pairId){ $('chartEmpty').classList.add('show'); frame.src='about:blank'; return; }
+      $('chartEmpty').classList.remove('show');
+      frame.src = `https://dexscreener.com/bsc/${pairId}?embed=1&theme=dark&trades=0&info=0&chartLeftToolbar=0&chartTimeframes=1M,15M,1H,4H,1D&interval=${interval}`;
+    }
+
+    function bindTimeframes(){
+      document.querySelectorAll('.tf-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          state.chartInterval = btn.dataset.interval;
+          document.querySelectorAll('.tf-btn').forEach(x=>x.classList.toggle('active', x.dataset.interval === state.chartInterval));
+          updateChartFrame();
+        });
+      });
+    }
+
     async function refreshAll(){
-      try {
+      try{
         updateRouteText();
-        await Promise.all([refreshWallet(), loadDexScreenerPrice()]);
-      } catch (err) {
+        await Promise.all([refreshWallet(), loadPairMeta()]);
+        updateChartFrame();
+        await renderOrderBook();
+      } catch(err){
         setStatus('walletStatus', err.message || 'Refresh failed.', 'error');
       }
     }
+
     async function approveSelectedToken(statusId='walletStatus'){
-      try {
-        if (!state.selectedToken) throw new Error('Select a token first.');
+      try{
+        if(!state.selectedToken) throw new Error('Select a token first.');
         const tx = await state.selectedToken.approve(CONFIG.routerAddress, ethers.constants.MaxUint256);
         setStatus(statusId, `Approval submitted: ${tx.hash}`, '');
         await tx.wait();
         setStatus(statusId, `${state.tokenSymbol} approval confirmed.`, 'success');
         await refreshWallet();
-      } catch (err) {
+      }catch(err){
         setStatus(statusId, err.message || 'Approval failed.', 'error');
       }
     }
+
     function getSwapPath(tokenIn, tokenOut){
-      if (tokenIn === tokenOut) throw new Error('Choose two different assets.');
-      if (tokenIn === 'BNB') return [CONFIG.wbnbAddress, tokenOut];
-      if (tokenOut === 'BNB') return [tokenIn, CONFIG.wbnbAddress];
+      if(tokenIn === tokenOut) throw new Error('Choose two different assets.');
+      if(tokenIn === 'BNB') return [CONFIG.wbnbAddress, tokenOut];
+      if(tokenOut === 'BNB') return [tokenIn, CONFIG.wbnbAddress];
       return [tokenIn, CONFIG.wbnbAddress, tokenOut];
     }
+
     async function getQuote(){
-      try {
-        if (!state.router) throw new Error('Connect wallet first.');
+      try{
+        if(!state.router) throw new Error('Connect wallet first.');
         const tokenIn = $('tokenInSelect').value;
         const tokenOut = $('tokenOutSelect').value;
-        updateRouteText();
         const metaIn = tokenMetaByAddress(tokenIn);
         const metaOut = tokenMetaByAddress(tokenOut);
         const amountIn = parseUnitsSafe($('amountIn').value, metaIn.decimals);
@@ -821,15 +818,16 @@
         $('amountOut').value = formatUnitsSafe(out, metaOut.decimals, 8);
         $('quoteRate').textContent = `1 ${metaIn.symbol} = ${formatUnitsSafe(out.mul(ethers.BigNumber.from(10).pow(metaIn.decimals)).div(amountIn), metaOut.decimals, 8)} ${metaOut.symbol}`;
         $('quoteMin').textContent = `${formatUnitsSafe(out.mul(10000 - CONFIG.slippageBps).div(10000), metaOut.decimals, 8)} ${metaOut.symbol}`;
-        setStatus('swapStatus', 'Live quote loaded from Router.', 'success');
-      } catch (err) {
-        $('amountOut').value = '';
+        setStatus('swapStatus', 'Live quote loaded from the Router.', 'success');
+      } catch(err){
+        $('amountOut').value='';
         setStatus('swapStatus', err.message || 'Quote failed.', 'error');
       }
     }
+
     async function swap(){
-      try {
-        if (!state.router || !state.account) throw new Error('Connect wallet first.');
+      try{
+        if(!state.router || !state.account) throw new Error('Connect wallet first.');
         const tokenIn = $('tokenInSelect').value;
         const tokenOut = $('tokenOutSelect').value;
         const metaIn = tokenMetaByAddress(tokenIn);
@@ -839,34 +837,38 @@
         const amountOutMin = amounts[amounts.length - 1].mul(10000 - CONFIG.slippageBps).div(10000);
         const deadline = Math.floor(Date.now()/1000) + CONFIG.deadlineMinutes * 60;
         let tx;
-        if (tokenIn === 'BNB') {
+        if(tokenIn === 'BNB'){
           tx = await state.router.swapExactETHForTokensSupportingFeeOnTransferTokens(amountOutMin, path, state.account, deadline, { value: amountIn });
-        } else if (tokenOut === 'BNB') {
+          pushRecentTrade(state.currentPairMeta?.priceUsd, 'buy');
+        } else if(tokenOut === 'BNB'){
           const tokenContract = new ethers.Contract(tokenIn, ERC20_ABI, state.signer);
           const allowance = await tokenContract.allowance(state.account, CONFIG.routerAddress);
-          if (allowance.lt(amountIn)) throw new Error(`Approve ${metaIn.symbol} before swapping.`);
+          if(allowance.lt(amountIn)) throw new Error(`Approve ${metaIn.symbol} before swapping.`);
           tx = await state.router.swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, state.account, deadline);
+          pushRecentTrade(state.currentPairMeta?.priceUsd, 'sell');
         } else {
           const tokenContract = new ethers.Contract(tokenIn, ERC20_ABI, state.signer);
           const allowance = await tokenContract.allowance(state.account, CONFIG.routerAddress);
-          if (allowance.lt(amountIn)) throw new Error(`Approve ${metaIn.symbol} before swapping.`);
+          if(allowance.lt(amountIn)) throw new Error(`Approve ${metaIn.symbol} before swapping.`);
           tx = await state.router.swapExactTokensForTokensSupportingFeeOnTransferTokens(amountIn, amountOutMin, path, state.account, deadline);
+          pushRecentTrade(state.currentPairMeta?.priceUsd, 'buy');
         }
         setStatus('swapStatus', `Swap submitted: ${tx.hash}`, '');
         await tx.wait();
         setStatus('swapStatus', 'Swap confirmed successfully.', 'success');
         await refreshAll();
-      } catch (err) {
+      } catch(err){
         setStatus('swapStatus', err.message || 'Swap failed.', 'error');
       }
     }
+
     async function addLiquidity(){
-      try {
-        if (!state.router || !state.account || !state.selectedToken) throw new Error('Connect wallet and select a token first.');
+      try{
+        if(!state.router || !state.account || !state.selectedToken) throw new Error('Connect wallet and select a token first.');
         const tokenAmount = parseUnitsSafe($('liqAX').value, state.tokenDecimals);
         const bnbAmount = parseUnitsSafe($('liqBNB').value, 18);
         const allowance = await state.selectedToken.allowance(state.account, CONFIG.routerAddress);
-        if (allowance.lt(tokenAmount)) throw new Error(`Approve ${state.tokenSymbol} before adding liquidity.`);
+        if(allowance.lt(tokenAmount)) throw new Error(`Approve ${state.tokenSymbol} before adding liquidity.`);
         const tokenMin = tokenAmount.mul(10000 - CONFIG.slippageBps).div(10000);
         const ethMin = bnbAmount.mul(10000 - CONFIG.slippageBps).div(10000);
         const deadline = Math.floor(Date.now()/1000) + CONFIG.deadlineMinutes * 60;
@@ -875,56 +877,60 @@
         await tx.wait();
         setStatus('liqStatus', 'Liquidity added successfully.', 'success');
         await syncSelectedPair();
-      } catch (err) {
+      }catch(err){
         setStatus('liqStatus', err.message || 'Add liquidity failed.', 'error');
       }
     }
+
     async function approveLP(){
-      try {
-        if (!state.pair) throw new Error('No selected token pair found.');
+      try{
+        if(!state.pair) throw new Error('No selected token pair found.');
         const tx = await state.pair.approve(CONFIG.routerAddress, ethers.constants.MaxUint256);
         setStatus('removeStatus', `LP approval submitted: ${tx.hash}`, '');
         await tx.wait();
         setStatus('removeStatus', 'LP approval confirmed.', 'success');
-      } catch (err) {
+      }catch(err){
         setStatus('removeStatus', err.message || 'LP approval failed.', 'error');
       }
     }
+
     async function removeLiquidity(){
-      try {
-        if (!state.router || !state.account || !state.pair || !state.selectedTokenAddress) throw new Error('Connect wallet and sync a selected token pair first.');
+      try{
+        if(!state.router || !state.account || !state.pair || !state.selectedTokenAddress) throw new Error('Connect wallet and sync a selected token pair first.');
         const lpAmount = parseUnitsSafe($('lpAmount').value, 18);
         const allowance = await state.pair.allowance(state.account, CONFIG.routerAddress);
-        if (allowance.lt(lpAmount)) throw new Error('Approve LP before removing liquidity.');
+        if(allowance.lt(lpAmount)) throw new Error('Approve LP before removing liquidity.');
         const deadline = Math.floor(Date.now()/1000) + CONFIG.deadlineMinutes * 60;
         let tx;
-        try {
+        try{
           tx = await state.router.removeLiquidityETHSupportingFeeOnTransferTokens(state.selectedTokenAddress, lpAmount, 0, 0, state.account, deadline);
-        } catch (_) {
+        } catch(_){
           tx = await state.router.removeLiquidityETH(state.selectedTokenAddress, lpAmount, 0, 0, state.account, deadline);
         }
         setStatus('removeStatus', `Remove liquidity submitted: ${tx.hash}`, '');
         await tx.wait();
         setStatus('removeStatus', 'Liquidity removed successfully.', 'success');
         await syncSelectedPair();
-      } catch (err) {
+      }catch(err){
         setStatus('removeStatus', err.message || 'Remove liquidity failed.', 'error');
       }
     }
+
     function syncRouteSelects(){
-      if ($('tokenInSelect').value === $('tokenOutSelect').value) {
-        const fallback = [...$('tokenOutSelect').options].find(o => o.value !== $('tokenInSelect').value);
-        if (fallback) $('tokenOutSelect').value = fallback.value;
+      if($('tokenInSelect').value === $('tokenOutSelect').value){
+        const fallback = [...$('tokenOutSelect').options].find(o=>o.value !== $('tokenInSelect').value);
+        if(fallback) $('tokenOutSelect').value = fallback.value;
       }
       const outMeta = tokenMetaByAddress($('tokenOutSelect').value);
       const inputMeta = tokenMetaByAddress($('tokenInSelect').value);
-      if (outMeta && !outMeta.native) selectToken(outMeta.address).catch(()=>{});
-      else if (inputMeta && !inputMeta.native) selectToken(inputMeta.address).catch(()=>{});
+      if(outMeta && !outMeta.native) selectToken(outMeta.address).catch(()=>{});
+      else if(inputMeta && !inputMeta.native) selectToken(inputMeta.address).catch(()=>{});
       updateRouteText();
     }
+
     async function handleAddToken(){
-      try {
-        if (!window.ethereum) throw new Error('MetaMask not detected.');
+      try{
+        if(!window.ethereum) throw new Error('MetaMask not detected.');
         state.provider = state.provider || new ethers.providers.Web3Provider(window.ethereum, 'any');
         const address = $('customTokenAddress').value.trim();
         const item = await importToken(address, true);
@@ -932,24 +938,28 @@
         $('tokenInSelect').value = 'BNB';
         $('tokenOutSelect').value = item.address;
         updateRouteText();
-      } catch (err) {
+      }catch(err){
         setStatus('tokenLibraryStatus', err.message || 'Token import failed.', 'error');
       }
     }
+
     function init(){
       state.importedTokens = getImportedTokens();
       $('routerAddressText').textContent = CONFIG.routerAddress;
       $('factoryAddressText').textContent = CONFIG.factoryAddress;
       $('wbnbAddressText').textContent = CONFIG.wbnbAddress;
-      $('tokenAddressText').textContent = 'Select or import a token';
-      $('liqTokenLabel').textContent = 'Selected Token';
+      bindTimeframes();
       updateTokenSelects();
+      renderEmptyBooks();
+      renderRecentTrades();
+      updateChartFrame();
+
       $('walletBtn').addEventListener('click', connectWallet);
       $('refreshBtn').addEventListener('click', refreshAll);
       $('quoteBtn').addEventListener('click', getQuote);
       $('swapBtn').addEventListener('click', swap);
-      $('approveBtn').addEventListener('click', () => approveSelectedToken('walletStatus'));
-      $('approveLiqBtn').addEventListener('click', () => approveSelectedToken('liqStatus'));
+      $('approveBtn').addEventListener('click', ()=>approveSelectedToken('walletStatus'));
+      $('approveLiqBtn').addEventListener('click', ()=>approveSelectedToken('liqStatus'));
       $('addLiquidityBtn').addEventListener('click', addLiquidity);
       $('approveLPBtn').addEventListener('click', approveLP);
       $('removeLiquidityBtn').addEventListener('click', removeLiquidity);
@@ -957,18 +967,21 @@
       $('tokenOutSelect').addEventListener('change', syncRouteSelects);
       $('addTokenBtn').addEventListener('click', handleAddToken);
       $('syncSelectedPairBtn').addEventListener('click', syncSelectedPair);
-      if (!state.importedTokens.length) {
+
+      if(!state.importedTokens.length){
         state.importedTokens.push({ address: ethers.utils.getAddress(CONFIG.defaultTokenAddress), symbol: 'AX', name: 'AXION Token', decimals: 18 });
         saveImportedTokens();
       }
       updateTokenSelects();
-      loadDexScreenerPrice();
-      setInterval(loadDexScreenerPrice, 15000);
-      if (window.ethereum) {
-        window.ethereum.on?.('accountsChanged', () => connectWallet());
-        window.ethereum.on?.('chainChanged', () => window.location.reload());
+      loadPairMeta();
+      setInterval(loadPairMeta, 15000);
+      setInterval(()=>{ if(state.selectedTokenAddress) renderOrderBook(); }, 15000);
+      if(window.ethereum){
+        window.ethereum.on?.('accountsChanged', ()=>connectWallet());
+        window.ethereum.on?.('chainChanged', ()=>window.location.reload());
       }
     }
+
     init();
   </script>
 </body>

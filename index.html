@@ -85,12 +85,12 @@
     .card h3{font-size:28px;letter-spacing:-.03em}
     .card p,.muted{color:var(--muted);line-height:1.75;font-size:15px}
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-    .hero-market-bar{margin-top:18px;max-width:760px;padding:14px 18px;border-radius:20px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;align-items:center;background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow)}
+    .hero-market-bar{margin-top:18px;max-width:760px;padding:14px 18px;border-radius:20px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;align-items:center;background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow)}
     .market-item{padding:10px 16px}
     .market-label{display:block;font-size:11px;font-weight:800;letter-spacing:.14em;color:#bcd0f6;margin-bottom:8px}
-    .market-value{font-size:18px;font-weight:900;letter-spacing:-.03em}
+    .market-value{font-size:18px;font-weight:900;letter-spacing:-.03em;word-break:break-word}
     .market-divider{width:1px;height:44px;background:rgba(255,255,255,.08);justify-self:center}
-    .hero-swap-panel{padding:22px 24px;border-radius:24px;background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow);position:relative;overflow:hidden}
+    .hero-swap-panel{padding:28px 28px 30px;border-radius:24px;background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow);position:relative;overflow:hidden;min-height:292px;display:flex;flex-direction:column;justify-content:flex-start}
     .hero-swap-panel::before{content:"";position:absolute;inset:0;background:linear-gradient(140deg, rgba(78,216,255,.08), transparent 28%, transparent 68%, rgba(255,201,92,.08)),radial-gradient(circle at 100% 100%, rgba(255,201,92,.08), transparent 22%);pointer-events:none}
     .hero-swap-panel>*{position:relative;z-index:1}
     .swap-pair{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
@@ -99,6 +99,8 @@
     .swap-logo + .swap-logo{margin-left:-10px}
     .swap-meta strong{display:block;font-size:20px;letter-spacing:-.03em}
     .swap-meta span{display:block;font-size:13px;color:#cbd8f7;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    .hero-swap-panel p{margin-bottom:22px}
+    .hero-swap-panel .btn{margin-top:auto;align-self:flex-start}
     .section{padding:84px 0 0}
     .section-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:26px;flex-wrap:wrap}
     .eyebrow{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid rgba(255,255,255,.08);border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:rgba(255,255,255,.03);color:#d8e3ff}
@@ -116,10 +118,13 @@
     .status{margin-top:14px;padding:14px 16px;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);font-size:14px;color:#dfe8ff;line-height:1.7;min-height:56px}
     .success{border-color:rgba(67,243,177,.28);background:rgba(67,243,177,.09);color:#dffff2}
     .error{border-color:rgba(255,102,121,.25);background:rgba(255,102,121,.08);color:#ffe1e6}
-    .wallet-tile{padding:16px 18px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)}
-    .wallet-tile small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#b8c6e6;margin-bottom:8px}
-    .wallet-tile strong{font-size:16px}
-    .wallet-grid,.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+    .wallet-tile{padding:14px 14px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);min-width:0}
+    .wallet-tile small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#b8c6e6;margin-bottom:8px}
+    .wallet-tile strong{font-size:15px;line-height:1.35;display:block;word-break:break-word;overflow-wrap:anywhere}
+    .wallet-grid,.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+    .wallet-grid-top{grid-template-columns:minmax(0,1.8fr) minmax(0,.7fr) minmax(0,.7fr)}
+    .wallet-grid-top .wallet-tile strong{font-size:13px}
+    .wallet-grid-bottom .wallet-tile strong{font-size:14px}
     .metric-grid{grid-template-columns:repeat(4,1fr)}
     .metric small{display:block;color:#b8c6e6;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
     .metric strong{font-size:20px}
@@ -132,13 +137,15 @@
       .hero-grid,.grid-2{grid-template-columns:1fr}
       .hero-feature-cards,.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
       .wallet-grid{grid-template-columns:1fr 1fr 1fr}
+      .wallet-grid-top{grid-template-columns:minmax(0,1.5fr) minmax(0,.8fr) minmax(0,.8fr)}
     }
     @media (max-width:940px){
-      .hero-actions,.hero-feature-cards,.hero-market-bar,.swap-grid,.metric-grid,.wallet-grid{grid-template-columns:1fr}
+      .hero-actions,.hero-feature-cards,.hero-market-bar,.swap-grid,.metric-grid,.wallet-grid,.wallet-grid-top,.wallet-grid-bottom{grid-template-columns:1fr}
       .hero-market-bar{gap:10px}
       .market-divider{display:none}
       .nav{min-height:auto;padding:16px 0;flex-wrap:wrap}
       .nav-links{justify-content:flex-start}
+      .hero-swap-panel{min-height:auto}
     }
     @media (max-width:640px){
       .brand-mark{width:38px;height:38px}
@@ -226,6 +233,11 @@
             <span class="market-label">Reserve BNB</span>
             <strong class="market-value" id="heroReserveBNB">-</strong>
           </div>
+          <div class="market-divider"></div>
+          <div class="market-item">
+            <span class="market-label">Total LP Supply</span>
+            <strong class="market-value" id="heroLPSupply">-</strong>
+          </div>
         </div>
 
         <div class="hero-feature-cards">
@@ -273,7 +285,7 @@
                   <strong>Any Token / BNB / Token Swap</strong>
                 </div>
               </div>
-              <p>Import any BEP-20 contract, sync its pair through Factory, and trade BNB ⇄ Token or Token ⇄ Token through a Pancake/Uniswap V2-compatible Router.</p>
+              <p>Import any BEP-20 contract, sync its pair through Factory, and trade BNB ⇄ Token or Token ⇄ Token through a Pancake/Uniswap-compatible Router.</p>
               <a class="btn btn-gold" href="#swap">OPEN CONNECTED SWAP</a>
             </div>
           </div>
@@ -365,13 +377,13 @@
             </div>
             <p>Reads current wallet state for BNB and the selected imported token. Native BNB and token balances refresh after connection.</p>
 
-            <div class="wallet-grid">
+            <div class="wallet-grid wallet-grid-top">
               <div class="wallet-tile"><small>Address</small><strong class="mono" id="walletAddress">Not connected</strong></div>
               <div class="wallet-tile"><small>Network</small><strong id="walletNetwork">-</strong></div>
               <div class="wallet-tile"><small>Pair Status</small><strong id="pairState">-</strong></div>
             </div>
 
-            <div class="wallet-grid">
+            <div class="wallet-grid wallet-grid-bottom">
               <div class="wallet-tile"><small>BNB Balance</small><strong id="bnbBalance">-</strong></div>
               <div class="wallet-tile"><small>Selected Token Balance</small><strong id="axBalance">-</strong></div>
               <div class="wallet-tile"><small>Allowance</small><strong id="axAllowance">-</strong></div>
@@ -477,6 +489,8 @@
       routerAddress: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
       factoryAddress: '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73',
       wbnbAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+      dexScreenerPairAddress: '0xb7d69e285583f8b444a85a0ab68d24d63ce537de',
+      dexScreenerChainId: 'bsc',
       chainId: 56,
       slippageBps: 50,
       deadlineMinutes: 20,
@@ -624,6 +638,7 @@
         if (!state.pairAddress || state.pairAddress === ethers.constants.AddressZero) {
           state.pair = null;
           state.pairToken0 = null;
+          $('heroLPSupply').textContent = '-';
           setStatus('contractStatus', 'Selected token imported, but no BNB pair was found in the Factory.', 'error');
           return;
         }
@@ -656,6 +671,18 @@
         setStatus('walletStatus', err.message || 'Wallet connection failed.', 'error');
       }
     }
+    async function fetchDexScreenerPrice(){
+      try {
+        const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/${CONFIG.dexScreenerChainId}/${CONFIG.dexScreenerPairAddress}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('DexScreener request failed.');
+        const data = await response.json();
+        const pair = Array.isArray(data?.pairs) ? data.pairs[0] : null;
+        const priceUsd = pair?.priceUsd;
+        $('heroPrice').textContent = priceUsd ? `$${Number(priceUsd).toLocaleString('en-US', { minimumFractionDigits: 6, maximumFractionDigits: 8 })}` : '-';
+      } catch {
+        $('heroPrice').textContent = '-';
+      }
+    }
     async function refreshWallet(){
       if (!state.account || !state.provider) return;
       const bnbBal = await state.provider.getBalance(state.account);
@@ -672,9 +699,10 @@
         $('axAllowance').textContent = '-';
       }
       if (state.pair) {
-        const [reserves, lpBalance] = await Promise.all([
+        const [reserves, lpBalance, totalLPSupply] = await Promise.all([
           state.pair.getReserves(),
-          state.pair.balanceOf(state.account)
+          state.pair.balanceOf(state.account),
+          state.pair.totalSupply()
         ]);
         let tokenReserve, bnbReserve;
         if (state.pairToken0.toLowerCase() === state.selectedTokenAddress.toLowerCase()) {
@@ -689,10 +717,11 @@
         $('metricPair').textContent = state.pairAddress;
         $('metricReserveAX').textContent = `${formatUnitsSafe(tokenReserve, state.tokenDecimals, 2)} ${state.tokenSymbol}`;
         $('metricReserveBNB').textContent = `${formatUnitsSafe(bnbReserve, 18, 4)} BNB`;
-        $('metricLPSupply').textContent = formatUnitsSafe(await state.pair.totalSupply?.() || 0, 18, 4);
+        $('metricLPSupply').textContent = formatUnitsSafe(totalLPSupply, 18, 4);
         $('heroPair').textContent = `${state.tokenSymbol} / BNB`;
         $('heroReserveAX').textContent = `${formatUnitsSafe(tokenReserve, state.tokenDecimals, 2)} ${state.tokenSymbol}`;
         $('heroReserveBNB').textContent = `${formatUnitsSafe(bnbReserve, 18, 4)} BNB`;
+        $('heroLPSupply').textContent = formatUnitsSafe(totalLPSupply, 18, 4);
       } else {
         $('pairState').textContent = 'No pair';
         $('lpBalanceRead').value = '-';
@@ -700,12 +729,13 @@
         $('metricReserveAX').textContent = '-';
         $('metricReserveBNB').textContent = '-';
         $('metricLPSupply').textContent = '-';
+        $('heroLPSupply').textContent = '-';
       }
     }
     async function refreshAll(){
       try {
         updateRouteText();
-        await refreshWallet();
+        await Promise.all([refreshWallet(), fetchDexScreenerPrice()]);
       } catch (err) {
         setStatus('walletStatus', err.message || 'Refresh failed.', 'error');
       }
@@ -867,6 +897,7 @@
       $('tokenAddressText').textContent = 'Select or import a token';
       $('liqTokenLabel').textContent = 'Selected Token';
       updateTokenSelects();
+      fetchDexScreenerPrice();
       $('walletBtn').addEventListener('click', connectWallet);
       $('refreshBtn').addEventListener('click', refreshAll);
       $('quoteBtn').addEventListener('click', getQuote);
@@ -891,7 +922,6 @@
       }
     }
     init();
-  </script>
   </script>
 </body>
 </html>

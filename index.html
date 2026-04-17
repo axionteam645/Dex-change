@@ -858,6 +858,48 @@
       }
     }
 
+    function isMobileDevice(){
+      return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|Mobile/i.test(navigator.userAgent || '');
+    }
+
+    function getMetaMaskDeeplink(){
+      const cleanUrl = String(window.location.href || '').replace(/^https?:\/\//i, '');
+      return `https://metamask.app.link/dapp/${cleanUrl}`;
+    }
+
+    async function ensureBscNetwork(){
+      if(!window.ethereum) return false;
+      try{
+        const currentChainId = await window.ethereum.request({ method:'eth_chainId' });
+        if(parseInt(currentChainId, 16) === CONFIG.chainId) return true;
+        try{
+          await window.ethereum.request({
+            method:'wallet_switchEthereumChain',
+            params:[{ chainId:'0x38' }]
+          });
+          return true;
+        } catch(switchError){
+          if(switchError?.code === 4902){
+            await window.ethereum.request({
+              method:'wallet_addEthereumChain',
+              params:[{
+                chainId:'0x38',
+                chainName:'BNB Smart Chain',
+                nativeCurrency:{ name:'BNB', symbol:'BNB', decimals:18 },
+                rpcUrls:['https://bsc-dataseed.binance.org/','https://rpc.ankr.com/bsc'],
+                blockExplorerUrls:['https://bscscan.com']
+              }]
+            });
+            return true;
+          }
+          throw switchError;
+        }
+      } catch(err){
+        setStatus('walletStatus', 'Please switch your wallet to BNB Smart Chain.', 'error');
+        return false;
+      }
+    }
+
     function setWalletButtonState(){
       const btn = $('walletBtn');
       if(!btn) return;
@@ -867,7 +909,7 @@
         btn.textContent = 'Disconnect Wallet';
       } else {
         btn.classList.add('btn-red');
-        btn.textContent = 'Connect Wallet';
+        btn.textContent = isMobileDevice() ? 'Connect Wallet' : 'Connect Wallet';
       }
     }
 
@@ -894,7 +936,19 @@
           disconnectWallet();
           return;
         }
-        if(!window.ethereum) throw new Error('MetaMask not detected.');
+
+        if(!window.ethereum){
+          if(isMobileDevice()){
+            setStatus('walletStatus', 'No wallet provider detected. Opening MetaMask mobile browser…', '');
+            window.location.href = getMetaMaskDeeplink();
+            return;
+          }
+          throw new Error('MetaMask not detected.');
+        }
+
+        const networkOk = await ensureBscNetwork();
+        if(!networkOk) return;
+
         await window.ethereum.request({method:'eth_requestAccounts'});
         await buildContracts();
         $('walletAddress').textContent = state.account;
@@ -904,7 +958,8 @@
         if(!state.selectedTokenAddress && state.importedTokens.length) await selectToken(state.importedTokens[0].address);
         else await refreshAll();
       }catch(err){
-        setStatus('walletStatus', err.message || 'Wallet connection failed.', 'error');
+        const msg = err?.code === 4001 ? 'Connection request rejected in wallet.' : (err.message || 'Wallet connection failed.');
+        setStatus('walletStatus', msg, 'error');
       }
     }
 

@@ -3,167 +3,258 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AXION DEX | Connected AMM Interface</title>
-  <meta name="description" content="AXION DEX connected AMM frontend with wallet connection, live swap quote, liquidity tools, and Pancake/Uniswap V2-compatible Router/Factory/Pair integration." />
+  <title>AXION DEX | Pro Trading Interface</title>
+  <meta name="description" content="AXION DEX pro trading interface with black terminal layout, yellow market accents, red and green action flows, wallet connection, swap, liquidity, and token import." />
   <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
     :root{
-      --bg:#040814;
-      --text:#ecf3ff;
-      --muted:#99a8c7;
-      --cyan:#4ed8ff;
-      --blue:#5f8cff;
-      --purple:#a85cff;
-      --pink:#ff5cb8;
-      --gold:#ffc95c;
-      --green:#43f3b1;
-      --red:#ff6679;
-      --shadow:0 18px 60px rgba(0,0,0,.42);
-      --max:1280px;
+      --bg:#0b0e11;
+      --bg-2:#12161c;
+      --bg-3:#1a2028;
+      --line:#2b3139;
+      --line-soft:#20262e;
+      --text:#f0f4f8;
+      --muted:#848e9c;
+      --yellow:#f0b90b;
+      --yellow-soft:#fcd535;
+      --yellow-deep:#ad7b00;
+      --green:#0ecb81;
+      --red:#f6465d;
+      --buy:#0ecb81;
+      --sell:#f6465d;
+      --shadow:0 16px 40px rgba(0,0,0,.35);
+      --max:1440px;
+      --radius:18px;
     }
     *{margin:0;padding:0;box-sizing:border-box}
     html{scroll-behavior:smooth}
     body{
       font-family:'Inter',sans-serif;
       background:
-        radial-gradient(circle at 20% 0%, rgba(78,216,255,.16), transparent 24%),
-        radial-gradient(circle at 80% 10%, rgba(168,92,255,.15), transparent 26%),
-        radial-gradient(circle at 50% 100%, rgba(255,92,184,.08), transparent 28%),
-        linear-gradient(180deg,#02050e 0%, #040814 36%, #060b1a 100%);
+        radial-gradient(circle at top right, rgba(240,185,11,.08), transparent 20%),
+        radial-gradient(circle at bottom left, rgba(240,185,11,.05), transparent 24%),
+        linear-gradient(180deg, #07090c 0%, #0b0e11 50%, #090c10 100%);
       color:var(--text);
       overflow-x:hidden;
     }
     body::before{
-      content:"";position:fixed;inset:0;pointer-events:none;
-      background-image:radial-gradient(rgba(255,255,255,.65) .7px, transparent .7px);
-      background-size:38px 38px;opacity:.08;z-index:-1;
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+      background-size:40px 40px;
+      opacity:.25;
+      z-index:-1;
     }
     a{text-decoration:none;color:inherit}
     img{display:block;max-width:100%}
-    .container{width:min(calc(100% - 28px), var(--max));margin-inline:auto}
-    .nav-wrap{position:sticky;top:0;z-index:50;backdrop-filter:blur(18px);background:rgba(4,9,20,.66);border-bottom:1px solid rgba(255,255,255,.06)}
-    .nav{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-    .brand{display:flex;align-items:center;gap:14px;min-width:0;flex-shrink:0}
-    .brand-mark{width:46px;height:46px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg, var(--cyan), var(--blue), var(--purple), var(--pink), var(--gold));box-shadow:0 0 0 1px rgba(255,255,255,.08),0 0 30px rgba(112,118,255,.18)}
-    .brand-text strong{display:block;font-size:18px;letter-spacing:.08em}
-    .brand-text small{display:block;color:#d3def8;letter-spacing:.12em;font-size:10px;font-weight:700;text-transform:uppercase;white-space:nowrap}
-    .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;flex:1}
-    .nav-links a{font-size:12px;font-weight:700;color:#cbd8f7;white-space:nowrap}
+    button,input,select{font:inherit}
+    .container{width:min(calc(100% - 24px), var(--max));margin-inline:auto}
+
+    .nav-wrap{
+      position:sticky;top:0;z-index:40;
+      border-bottom:1px solid var(--line);
+      backdrop-filter:blur(18px);
+      background:rgba(11,14,17,.92);
+    }
+    .nav{
+      min-height:72px;
+      display:flex;align-items:center;justify-content:space-between;gap:18px;
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:0;flex-shrink:0}
+    .brand-mark{
+      width:40px;height:40px;border-radius:12px;overflow:hidden;
+      background:linear-gradient(135deg, rgba(240,185,11,.18), rgba(240,185,11,.06));
+      border:1px solid rgba(240,185,11,.18);
+      box-shadow:0 0 0 1px rgba(240,185,11,.06), 0 0 22px rgba(240,185,11,.08);
+    }
+    .brand-text strong{display:block;font-size:16px;letter-spacing:.04em;color:#fff}
+    .brand-text small{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--yellow-soft)}
+    .nav-links{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center;flex:1}
+    .nav-links a{font-size:13px;font-weight:700;color:#c6ced7}
+    .nav-links a:hover{color:var(--yellow-soft)}
     .nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
-    .btn{appearance:none;border:none;cursor:pointer;border-radius:999px;padding:14px 22px;font-size:14px;font-weight:800;font-family:inherit;transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;color:#09111f;background:linear-gradient(90deg, var(--cyan), var(--blue), var(--purple), var(--pink));box-shadow:0 10px 26px rgba(124,94,255,.26)}
-    .btn:hover{transform:translateY(-2px) scale(1.015)}
-    .btn-secondary{color:var(--text);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);box-shadow:none}
-    .btn-gold{color:#0b0b0b;background:linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.04)),linear-gradient(90deg, #fff2b8 0%, #ffd76a 18%, #ffbf3f 42%, #d99a1f 72%, #fff0a6 100%);border:1px solid rgba(255,224,140,.34);box-shadow:0 0 18px rgba(255,215,106,.18),0 14px 34px rgba(0,0,0,.34)}
-    .hero{padding:76px 0 24px}
-    .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:24px;align-items:start}
-    .hero-copy h1{font-size:clamp(46px,7vw,86px);line-height:.96;letter-spacing:-.06em;margin:0 0 18px}
-    .hero-copy .sub{font-size:clamp(18px,2vw,24px);font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#c8d6f8;margin-bottom:18px}
-    .hero-copy p{max-width:760px;color:var(--muted);line-height:1.8;font-size:16px}
-    .gradient-title{background:linear-gradient(90deg,#ffffff 0%, #9bddff 26%, #c4b1ff 58%, #ffcfe6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .hero-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:760px;margin-top:24px}
-    .hero-actions .btn{width:100%;min-height:54px;display:flex;align-items:center;justify-content:center;text-align:center}
-    .hero-feature-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:30px;max-width:760px}
-    .card,.hero-feature-card,.mini-stat,.panel{position:relative;background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}
-    .card::before,.hero-feature-card::before,.panel::before{content:"";position:absolute;inset:0;background:linear-gradient(140deg, rgba(78,216,255,.08), transparent 28%, transparent 68%, rgba(255,92,184,.08)),radial-gradient(circle at 100% 100%, rgba(255,201,92,.08), transparent 22%);pointer-events:none}
-    .card:hover,.hero-feature-card:hover,.mini-stat:hover,.panel:hover{transform:translateY(-4px);transition:.24s ease;box-shadow:0 20px 50px rgba(0,0,0,.42),0 0 28px rgba(78,216,255,.08),0 0 44px rgba(168,92,255,.08)}
-    .hero-feature-card{padding:18px 20px}
-    .hero-feature-card-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-    .hero-feature-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;flex-shrink:0;background:linear-gradient(135deg, rgba(78,216,255,.12), rgba(168,92,255,.10));border:1px solid rgba(255,255,255,.08)}
-    .hero-feature-icon svg{width:22px;height:22px;stroke:url(#axGradient);stroke-width:1.9;fill:none;filter:drop-shadow(0 0 4px rgba(78,216,255,.55)) drop-shadow(0 0 8px rgba(168,92,255,.28))}
-    .hero-feature-card strong{display:block;font-size:18px;color:#fff}
-    .hero-feature-card p{color:var(--muted);font-size:13px;line-height:1.7;margin-top:8px}
-    .hero-side-stack{display:grid;gap:18px}
-    .card-inner{position:relative;z-index:1;padding:24px}
-    .tag{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#e4edff;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
-    .title-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-    .icon-badge{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg, rgba(78,216,255,.14), rgba(168,92,255,.10));border:1px solid rgba(255,255,255,.08);overflow:hidden;flex-shrink:0}
-    .icon-badge svg{width:24px;height:24px;stroke:url(#axGradient);stroke-width:1.9;fill:none}
-    .card h3{font-size:28px;letter-spacing:-.03em}
-    .card p,.muted{color:var(--muted);line-height:1.75;font-size:15px}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-    .hero-market-bar{margin-top:18px;max-width:760px;padding:14px 18px;border-radius:20px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;align-items:center;background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow)}
-    .market-item{padding:10px 16px}
-    .market-label{display:block;font-size:11px;font-weight:800;letter-spacing:.14em;color:#bcd0f6;margin-bottom:8px}
-    .market-value{font-size:18px;font-weight:900;letter-spacing:-.03em}
-    .market-divider{width:1px;height:44px;background:rgba(255,255,255,.08);justify-self:center}
-    .hero-swap-panel{padding:22px 24px 34px;border-radius:24px;background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow);position:relative;overflow:hidden}
-    .hero-swap-panel::before{content:"";position:absolute;inset:0;background:linear-gradient(140deg, rgba(78,216,255,.08), transparent 28%, transparent 68%, rgba(255,201,92,.08)),radial-gradient(circle at 100% 100%, rgba(255,201,92,.08), transparent 22%);pointer-events:none}
-    .hero-swap-panel>*{position:relative;z-index:1}
-    .swap-pair{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
-    .swap-logos{display:flex;align-items:center}
-    .swap-logo{width:42px;height:42px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,.12);background:#0b1224;box-shadow:0 0 18px rgba(0,0,0,.25)}
-    .swap-logo + .swap-logo{margin-left:-10px}
-    .swap-meta strong{display:block;font-size:20px;letter-spacing:-.03em}
-    .swap-meta span{display:block;font-size:13px;color:#cbd8f7;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-    .section{padding:84px 0 0}
-    .section-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:26px;flex-wrap:wrap}
-    .eyebrow{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid rgba(255,255,255,.08);border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:rgba(255,255,255,.03);color:#d8e3ff}
-    .section-head h2{margin-top:14px;font-size:clamp(32px,4vw,58px);line-height:1;letter-spacing:-.04em}
-    .input-shell,.info-row,.pill,.metric{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)}
-    .input-shell label{display:block;font-size:12px;font-weight:700;letter-spacing:.1em;color:#c8dafd;text-transform:uppercase;margin-bottom:10px}
-    .input-shell input,.input-shell select{width:100%;border:none;outline:none;background:transparent;color:#fff;font:inherit}
-    .input-shell input::placeholder{color:#7f90b5}
-    .swap-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:end;margin-top:16px}
-    .swap-arrow{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.08)}
-    .info-list{display:grid;gap:12px;margin-top:16px}
-    .info-row{display:flex;justify-content:space-between;gap:14px;color:#dce7ff;font-size:14px}
-    .info-row strong{word-break:break-all;text-align:right}
-    .action-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
-    .status{margin-top:14px;padding:14px 16px;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);font-size:14px;color:#dfe8ff;line-height:1.7;min-height:56px}
-    .success{border-color:rgba(67,243,177,.28);background:rgba(67,243,177,.09);color:#dffff2}
-    .error{border-color:rgba(255,102,121,.25);background:rgba(255,102,121,.08);color:#ffe1e6}
-    .wallet-tile{padding:16px 16px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);min-width:0;overflow:hidden}
-    .wallet-tile small{display:block;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#b8c6e6;margin-bottom:8px}
-    .wallet-tile strong{font-size:14px;line-height:1.35;display:block;word-break:break-word;overflow-wrap:anywhere}
-    .wallet-grid,.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
-    .metric-grid{grid-template-columns:repeat(4,1fr)}
-    .metric small{display:block;color:#b8c6e6;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
-    .metric strong{font-size:20px}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
-    .footer{padding:34px 0 54px;border-top:1px solid rgba(255,255,255,.06);margin-top:88px}
-    .footer-row{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
-    .footer-links{display:flex;gap:18px;flex-wrap:wrap;color:#c7d5f2;font-size:14px;font-weight:700}
-    .good{color:var(--green)} .bad{color:var(--red)}
-    @media (max-width:1180px){
-      .hero-grid,.grid-2{grid-template-columns:1fr}
-      .hero-feature-cards,.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .wallet-grid{grid-template-columns:1fr 1fr 1fr}
+
+    .btn{
+      appearance:none;border:none;cursor:pointer;border-radius:12px;
+      padding:14px 18px;font-weight:800;transition:.18s ease;
     }
-    @media (max-width:940px){
-      .hero-actions,.hero-feature-cards,.hero-market-bar,.swap-grid,.metric-grid,.wallet-grid{grid-template-columns:1fr}
-      .hero-market-bar{gap:10px}
-      .market-divider{display:none}
-      .nav{min-height:auto;padding:16px 0;flex-wrap:wrap}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-yellow{
+      background:linear-gradient(180deg, #fcd535, #f0b90b);
+      color:#111318; box-shadow:0 10px 24px rgba(240,185,11,.2);
+    }
+    .btn-dark{
+      background:#1f2630;color:#eef3f8;border:1px solid #2e3844;
+    }
+    .btn-green{background:var(--buy);color:#08130f}
+    .btn-red{background:var(--sell);color:#fff}
+
+    .ticker{
+      border-bottom:1px solid var(--line);
+      background:#0d1117;
+    }
+    .ticker-row{
+      min-height:48px;
+      display:grid;
+      grid-template-columns:repeat(6,minmax(0,1fr));
+      gap:0;
+      align-items:center;
+    }
+    .ticker-item{
+      padding:10px 14px;border-right:1px solid var(--line-soft);min-width:0;
+    }
+    .ticker-item:last-child{border-right:none}
+    .ticker-label{display:block;font-size:10px;font-weight:800;letter-spacing:.14em;color:#7f8792;text-transform:uppercase;margin-bottom:6px}
+    .ticker-value{display:block;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .up{color:var(--green)} .down{color:var(--red)} .accent{color:var(--yellow-soft)}
+
+    .hero{
+      padding:22px 0 18px;
+    }
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.32fr .88fr;
+      gap:16px;
+      align-items:start;
+    }
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .panel-head{
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
+      padding:16px 18px;border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.01);
+    }
+    .panel-head h2,.panel-head h3{font-size:18px;letter-spacing:-.02em}
+    .panel-head small{color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.12em}
+    .panel-body{padding:18px}
+
+    .hero-title{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+    .hero-title h1{font-size:clamp(34px,5vw,64px);line-height:.95;letter-spacing:-.06em}
+    .hero-title p{max-width:760px;color:#9ca4af;line-height:1.7}
+
+    .terminal-grid{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:16px;
+    }
+    .chart-shell{min-height:520px;display:flex;flex-direction:column}
+    .chart-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .pair-chip{display:flex;align-items:center;gap:12px}
+    .pair-logo{width:46px;height:46px;border-radius:14px;background:#161b22;border:1px solid var(--line);padding:6px}
+    .pair-copy strong{display:block;font-size:22px;letter-spacing:-.04em}
+    .pair-copy span{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
+    .toolbar-tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab{padding:8px 12px;border-radius:10px;background:#131920;border:1px solid var(--line);font-size:12px;font-weight:800;color:#c8d0d9}
+    .tab.active{background:rgba(240,185,11,.12);color:var(--yellow-soft);border-color:rgba(240,185,11,.28)}
+
+    .chart-stage{
+      position:relative;
+      flex:1;
+      border:1px solid var(--line);
+      background:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(180deg, #0c1015 0%, #0f141a 100%);
+      background-size:44px 44px, 44px 44px, auto;
+      border-radius:16px;
+      overflow:hidden;
+      padding:20px;
+    }
+    .chart-glow{
+      position:absolute;inset:0;pointer-events:none;
+      background:radial-gradient(circle at 70% 20%, rgba(240,185,11,.09), transparent 26%);
+    }
+    .candles{position:absolute;left:18px;right:18px;bottom:54px;top:32px;display:flex;align-items:flex-end;gap:8px}
+    .candle{position:relative;flex:1;min-width:10px;display:flex;justify-content:center;align-items:flex-end}
+    .wick{position:absolute;bottom:0;width:2px;border-radius:4px;opacity:.95}
+    .body{width:min(18px, 78%);border-radius:5px 5px 2px 2px;position:relative;z-index:1}
+    .candle.green .wick,.candle.green .body{background:var(--green)}
+    .candle.red .wick,.candle.red .body{background:var(--red)}
+    .chart-axis{
+      position:absolute;left:20px;right:20px;bottom:18px;display:flex;justify-content:space-between;font-size:11px;color:#68707b;font-weight:700;
+    }
+    .chart-price-tag{
+      position:absolute;right:18px;top:16px;padding:10px 12px;border-radius:12px;background:rgba(240,185,11,.12);border:1px solid rgba(240,185,11,.28);font-size:12px;font-weight:900;color:var(--yellow-soft)
+    }
+    .trade-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+    .stat-box{padding:14px 14px;border-radius:14px;background:#11161d;border:1px solid var(--line);min-width:0}
+    .stat-box small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7e8791;margin-bottom:8px}
+    .stat-box strong{font-size:16px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .order-shell{display:grid;gap:16px}
+    .order-card{background:#11161d;border:1px solid var(--line);border-radius:16px;padding:16px}
+    .order-card h3{font-size:16px;margin-bottom:14px}
+    .order-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+    .market-chip{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#0d1218;font-size:12px;font-weight:900;text-align:center;color:#c5ccd5}
+    .market-chip.active.buy{background:rgba(14,203,129,.14);border-color:rgba(14,203,129,.28);color:#9cf1ce}
+    .market-chip.active.sell{background:rgba(246,70,93,.14);border-color:rgba(246,70,93,.26);color:#ffc0c8}
+    .field-grid{display:grid;gap:12px}
+    .field{padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#0d1218}
+    .field label{display:block;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#7e8791;margin-bottom:8px}
+    .field input,.field select{width:100%;background:transparent;border:none;outline:none;color:#fff}
+    .mini-info{display:grid;gap:10px;margin-top:12px}
+    .mini-info-row{display:flex;justify-content:space-between;gap:14px;font-size:13px;color:#cbd2da}
+    .mini-info-row span:last-child{font-weight:800;text-align:right;word-break:break-all}
+
+    .lower-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px}
+    .section-title{padding:0 2px 10px;font-size:13px;font-weight:900;color:var(--yellow-soft);letter-spacing:.14em;text-transform:uppercase}
+    .stack{display:grid;gap:12px}
+    .tile{padding:14px 14px;border-radius:14px;background:#11161d;border:1px solid var(--line);min-width:0}
+    .tile small{display:block;font-size:10px;color:#7e8791;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
+    .tile strong{display:block;font-size:14px;line-height:1.45;word-break:break-word;overflow-wrap:anywhere}
+
+    .contracts-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:16px}
+    .action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .status{margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:#0d1218;font-size:13px;color:#dce2e8;line-height:1.7;min-height:54px}
+    .success{border-color:rgba(14,203,129,.28);background:rgba(14,203,129,.08);color:#cbffe7}
+    .error{border-color:rgba(246,70,93,.25);background:rgba(246,70,93,.08);color:#ffd4da}
+    .info-list{display:grid;gap:10px;margin-top:14px}
+    .info-row{display:flex;justify-content:space-between;gap:14px;font-size:13px;color:#d2d9e1;padding:12px 14px;border-radius:12px;background:#0d1218;border:1px solid var(--line)}
+    .info-row strong{text-align:right;word-break:break-all}
+
+    .footer{padding:26px 0 40px;border-top:1px solid var(--line);margin-top:30px}
+    .footer-row{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;color:#9aa3ad}
+    .footer-links{display:flex;gap:18px;flex-wrap:wrap}
+
+    @media (max-width:1200px){
+      .hero-grid,.terminal-grid,.contracts-grid,.lower-grid{grid-template-columns:1fr}
+      .trade-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .ticker-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:760px){
+      .nav{min-height:auto;padding:14px 0;flex-wrap:wrap}
+      .nav-links,.nav-actions{width:100%}
       .nav-links{justify-content:flex-start}
-    }
-    @media (max-width:640px){
-      .brand-mark{width:38px;height:38px}
-      .brand-text strong{font-size:14px}
-      .brand-text small{font-size:8px;white-space:normal}
-      .hero{padding-top:54px}
-      .hero-copy h1{font-size:44px}
-      .card-inner{padding:18px}
-      .nav-actions,.nav-links{width:100%}
+      .ticker-row{grid-template-columns:1fr 1fr}
+      .trade-stats{grid-template-columns:1fr}
+      .candles{gap:5px}
       .btn{width:100%}
+      .action-row .btn{width:auto;flex:1}
+    }
+    @media (max-width:560px){
+      .ticker-row{grid-template-columns:1fr}
+      .hero-title h1{font-size:34px}
+      .panel-body,.panel-head{padding:14px}
+      .pair-copy strong{font-size:18px}
+      .chart-shell{min-height:420px}
+      .candles{top:24px;bottom:46px}
     }
   </style>
 </head>
 <body>
-  <svg width="0" height="0" aria-hidden="true" style="position:absolute">
-    <defs>
-      <linearGradient id="axGradient" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#4ed8ff"/>
-        <stop offset="0.35" stop-color="#5f8cff"/>
-        <stop offset="0.72" stop-color="#a85cff"/>
-        <stop offset="1" stop-color="#ff5cb8"/>
-      </linearGradient>
-    </defs>
-  </svg>
-
   <div class="nav-wrap">
     <nav class="nav container">
       <a class="brand" href="https://axiondefi.com/" target="_blank" rel="noopener noreferrer" aria-label="AXION DEX">
@@ -172,304 +263,259 @@
         </div>
         <div class="brand-text">
           <strong>AXION DEX</strong>
-          <small>Intelligent Layer for DeFi</small>
+          <small>Pro Trading Terminal</small>
         </div>
       </a>
 
       <div class="nav-links">
-        <a href="#swap">Swap</a>
-        <a href="#liquidity">Liquidity</a>
+        <a href="#swap">Spot</a>
         <a href="#wallet">Wallet</a>
+        <a href="#liquidity">Liquidity</a>
         <a href="#contracts">Contracts</a>
       </div>
 
       <div class="nav-actions">
-        <button class="btn btn-gold" id="walletBtn" type="button">Connect Wallet</button>
+        <button class="btn btn-yellow" id="walletBtn" type="button">Connect Wallet</button>
       </div>
     </nav>
   </div>
 
-  <section class="hero" id="hero">
-    <div class="container hero-grid">
-      <div class="hero-copy">
-        <div class="sub">Connected AMM Interface</div>
-        <h1><span class="gradient-title">AXION DEX</span><br>Swap. Route. Provide Liquidity.</h1>
-        <p>
-          This version keeps the AXION premium dashboard language, brand logo usage, hero swap emphasis,
-          and gradient card system while wiring the frontend to Uniswap V2 / Pancake-style Router, Factory,
-          and Pair contracts. Replace the contract addresses only when your own DEX contracts are deployed.
-        </p>
-
-        <div class="hero-actions">
-          <a class="btn" href="#swap">Open Swap</a>
-          <a class="btn btn-secondary" href="#liquidity">Add Liquidity</a>
-          <a class="btn btn-secondary" href="#contracts">Contract Panel</a>
-        </div>
-
-        <div class="hero-market-bar">
-          <div class="market-item">
-            <span class="market-label">Pair</span>
-            <strong class="market-value" id="heroPair">AX / BNB</strong>
-          </div>
-          <div class="market-divider"></div>
-          <div class="market-item">
-            <span class="market-label">Price</span>
-            <strong class="market-value" id="heroPrice">-</strong>
-          </div>
-          <div class="market-divider"></div>
-          <div class="market-item">
-            <span class="market-label">Reserve AX</span>
-            <strong class="market-value" id="heroReserveAX">-</strong>
-          </div>
-          <div class="market-divider"></div>
-          <div class="market-item">
-            <span class="market-label">Reserve BNB</span>
-            <strong class="market-value" id="heroReserveBNB">-</strong>
-          </div>
-          <div class="market-divider"></div>
-          <div class="market-item">
-            <span class="market-label">Total LP Supply</span>
-            <strong class="market-value" id="heroLPSupply">-</strong>
-          </div>
-        </div>
-
-        <div class="hero-feature-cards">
-          <div class="hero-feature-card">
-            <div class="hero-feature-card-head">
-              <div class="hero-feature-icon">
-                <svg viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M12 4l8 8-8 8"/></svg>
-              </div>
-              <strong>Router Connected</strong>
-            </div>
-            <p>Quotes, token approvals, swap execution, and add/remove liquidity flows are prepared for live calls.</p>
-          </div>
-          <div class="hero-feature-card">
-            <div class="hero-feature-card-head">
-              <div class="hero-feature-icon">
-                <svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>
-              </div>
-              <strong>Factory + Pair Read</strong>
-            </div>
-            <p>The interface reads the Pair from the Factory and pulls live reserve data directly from the Pair contract.</p>
-          </div>
-          <div class="hero-feature-card">
-            <div class="hero-feature-card-head">
-              <div class="hero-feature-icon">
-                <svg viewBox="0 0 24 24"><path d="M5 19V5"/><path d="M10 19v-8"/><path d="M15 19v-5"/><path d="M20 19v-12"/></svg>
-              </div>
-              <strong>Own DEX Ready</strong>
-            </div>
-            <p>When your own AMM contracts are deployed, changing the addresses below is enough to switch from the default setup.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="hero-side-stack">
-        <article class="card">
-          <div class="card-inner">
-            <div class="hero-swap-panel">
-              <div class="swap-pair">
-                <div class="swap-logos">
-                  <img class="swap-logo" src="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" alt="AXION Logo">
-                  <img class="swap-logo" src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/info/logo.png" alt="BNB Logo">
-                </div>
-                <div class="swap-meta">
-                  <span>Connected Pool</span>
-                  <strong>Any Token / BNB / Token Swap</strong>
-                </div>
-              </div>
-              <p>Import any BEP-20 contract, sync its pair through Factory, and trade BNB ⇄ Token or Token ⇄ Token through a Pancake/Uniswap V2-compatible Router.</p>
-              <a class="btn btn-gold" href="#swap">OPEN CONNECTED SWAP</a>
-            </div>
-          </div>
-        </article>
-
-        <article class="card" id="contracts">
-          <div class="card-inner">
-            <div class="tag">Token Import + Configuration</div>
-            <div class="title-row">
-              <div class="icon-badge"><img src="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" alt="AXION Logo"></div>
-              <h3>Trade Any Token (Contract Import Enabled)</h3>
-            </div>
-            <div class="input-shell" style="margin-bottom:14px;">
-              <label>Token Contract Address</label>
-              <input id="customTokenAddress" type="text" placeholder="0x..." />
-            </div>
-            <div class="action-row" style="margin-bottom:16px;">
-              <button class="btn" id="addTokenBtn" type="button">Add Token</button>
-              <button class="btn btn-secondary" id="syncSelectedPairBtn" type="button">Sync Selected Pair</button>
-            </div>
-            <div class="info-list">
-              <div class="info-row"><span>Selected Token</span><strong class="mono" id="tokenAddressText"></strong></div>
-              <div class="info-row"><span>Router</span><strong class="mono" id="routerAddressText"></strong></div>
-              <div class="info-row"><span>Factory</span><strong class="mono" id="factoryAddressText"></strong></div>
-              <div class="info-row"><span>WBNB</span><strong class="mono" id="wbnbAddressText"></strong></div>
-              <div class="info-row"><span>Current BNB Pair</span><strong class="mono" id="pairAddressText">-</strong></div>
-            </div>
-            <div class="status" id="contractStatus">Paste a token contract address, click Add Token, then Sync Selected Pair to enable trading.</div>
-            <div class="status" id="tokenLibraryStatus" style="margin-top:10px;">Default token list loaded.</div>
-          </div>
-        </article>
-      </div>
+  <div class="ticker">
+    <div class="ticker-row container">
+      <div class="ticker-item"><span class="ticker-label">Pair</span><span class="ticker-value accent" id="heroPair">AX / BNB</span></div>
+      <div class="ticker-item"><span class="ticker-label">Last Price</span><span class="ticker-value" id="heroPrice">-</span></div>
+      <div class="ticker-item"><span class="ticker-label">24H Change</span><span class="ticker-value" id="heroChange">-</span></div>
+      <div class="ticker-item"><span class="ticker-label">Reserve AX</span><span class="ticker-value" id="heroReserveAX">-</span></div>
+      <div class="ticker-item"><span class="ticker-label">Reserve BNB</span><span class="ticker-value" id="heroReserveBNB">-</span></div>
+      <div class="ticker-item"><span class="ticker-label">Total LP Supply</span><span class="ticker-value" id="heroLPSupply">-</span></div>
     </div>
-  </section>
+  </div>
 
-  <section class="section" id="swap">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <div class="eyebrow">Swap</div>
-          <h2 class="gradient-title">Universal Router Quote & Token Import</h2>
+  <section class="hero" id="swap">
+    <div class="container hero-grid">
+      <div class="panel chart-shell">
+        <div class="panel-head">
+          <div>
+            <small>AXION MARKET</small>
+            <h2>Trading View</h2>
+          </div>
+          <div class="toolbar-tabs">
+            <span class="tab active">Spot</span>
+            <span class="tab">Cross</span>
+            <span class="tab">Isolated</span>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="hero-title">
+            <div>
+              <h1>AXION<br>Trading Terminal</h1>
+              <p>Dark exchange-style interface rebuilt for AXION DEX with yellow market accents, green buy pressure, red sell pressure, live pair data, contract import, wallet visibility, and AMM swap execution.</p>
+            </div>
+          </div>
+
+          <div class="chart-toolbar">
+            <div class="pair-chip">
+              <img class="pair-logo" src="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" alt="AXION Logo">
+              <div class="pair-copy">
+                <strong id="chartPair">AX / BNB</strong>
+                <span>Spot Market • Connected Pool</span>
+              </div>
+            </div>
+            <div class="toolbar-tabs">
+              <span class="tab active">1m</span>
+              <span class="tab">15m</span>
+              <span class="tab">1H</span>
+              <span class="tab">4H</span>
+              <span class="tab">1D</span>
+            </div>
+          </div>
+
+          <div class="chart-stage">
+            <div class="chart-glow"></div>
+            <div class="chart-price-tag">Live Price: <span id="chartPrice">-</span></div>
+            <div class="candles" aria-hidden="true">
+              <div class="candle green"><span class="wick" style="height:82%"></span><span class="body" style="height:52%"></span></div>
+              <div class="candle red"><span class="wick" style="height:68%"></span><span class="body" style="height:26%"></span></div>
+              <div class="candle green"><span class="wick" style="height:74%"></span><span class="body" style="height:40%"></span></div>
+              <div class="candle green"><span class="wick" style="height:88%"></span><span class="body" style="height:60%"></span></div>
+              <div class="candle red"><span class="wick" style="height:70%"></span><span class="body" style="height:28%"></span></div>
+              <div class="candle green"><span class="wick" style="height:76%"></span><span class="body" style="height:46%"></span></div>
+              <div class="candle green"><span class="wick" style="height:92%"></span><span class="body" style="height:64%"></span></div>
+              <div class="candle red"><span class="wick" style="height:60%"></span><span class="body" style="height:22%"></span></div>
+              <div class="candle green"><span class="wick" style="height:72%"></span><span class="body" style="height:38%"></span></div>
+              <div class="candle red"><span class="wick" style="height:66%"></span><span class="body" style="height:24%"></span></div>
+              <div class="candle green"><span class="wick" style="height:80%"></span><span class="body" style="height:54%"></span></div>
+              <div class="candle green"><span class="wick" style="height:96%"></span><span class="body" style="height:68%"></span></div>
+              <div class="candle red"><span class="wick" style="height:63%"></span><span class="body" style="height:20%"></span></div>
+              <div class="candle green"><span class="wick" style="height:78%"></span><span class="body" style="height:44%"></span></div>
+              <div class="candle green"><span class="wick" style="height:86%"></span><span class="body" style="height:58%"></span></div>
+            </div>
+            <div class="chart-axis"><span>09:00</span><span>10:30</span><span>12:00</span><span>13:30</span><span>15:00</span><span>16:30</span></div>
+          </div>
+
+          <div class="trade-stats">
+            <div class="stat-box"><small>Rate</small><strong id="quoteRate">-</strong></div>
+            <div class="stat-box"><small>Minimum Received</small><strong id="quoteMin">-</strong></div>
+            <div class="stat-box"><small>Route</small><strong id="routeText">-</strong></div>
+            <div class="stat-box"><small>Slippage</small><strong id="slippageText">0.50%</strong></div>
+          </div>
         </div>
       </div>
 
-      <div class="grid-2">
-        <article class="card">
-          <div class="card-inner">
-            <div class="tag">Swap Panel</div>
-            <div class="title-row">
-              <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M7 7h11"/><path d="M14 4l4 3-4 3"/><path d="M17 17H6"/><path d="M10 14l-4 3 4 3"/></svg></div>
-              <h3>Universal Swap</h3>
+      <div class="order-shell">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <small>Trade Panel</small>
+              <h3>Swap Engine</h3>
+            </div>
+            <span class="tab active">AMM</span>
+          </div>
+          <div class="panel-body">
+            <div class="order-toggle">
+              <div class="market-chip active buy">BUY FLOW</div>
+              <div class="market-chip active sell">SELL FLOW</div>
             </div>
 
-            <div class="swap-grid">
-              <div class="input-shell">
+            <div class="field-grid">
+              <div class="field">
                 <label>You Pay</label>
                 <select id="tokenInSelect"></select>
                 <input id="amountIn" type="number" min="0" step="any" placeholder="0.0" />
               </div>
-              <div class="swap-arrow">⇄</div>
-              <div class="input-shell">
+              <div class="field">
                 <label>You Receive</label>
                 <select id="tokenOutSelect"></select>
                 <input id="amountOut" type="text" readonly placeholder="Quoted output" />
               </div>
             </div>
 
-            <div class="info-list">
-              <div class="info-row"><span>Rate</span><strong id="quoteRate">-</strong></div>
-              <div class="info-row"><span>Minimum Received</span><strong id="quoteMin">-</strong></div>
-              <div class="info-row"><span>Slippage</span><strong id="slippageText">0.50%</strong></div>
-              <div class="info-row"><span>Route</span><strong id="routeText">-</strong></div>
+            <div class="mini-info">
+              <div class="mini-info-row"><span>Market Path</span><span id="orderRouteText">-</span></div>
+              <div class="mini-info-row"><span>Pair Status</span><span id="pairState">-</span></div>
+              <div class="mini-info-row"><span>Allowance</span><span id="axAllowance">-</span></div>
             </div>
 
             <div class="action-row">
-              <button class="btn" id="quoteBtn" type="button">Get Quote</button>
-              <button class="btn btn-gold" id="swapBtn" type="button">Swap</button>
+              <button class="btn btn-dark" id="quoteBtn" type="button">Get Quote</button>
+              <button class="btn btn-green" id="swapBtn" type="button">Buy / Swap</button>
             </div>
             <div class="status" id="swapStatus">Choose any imported token pair and fetch a live quote from the Router.</div>
           </div>
-        </article>
+        </div>
 
-        <article class="card" id="wallet">
-          <div class="card-inner">
-            <div class="tag">Wallet Lite</div>
-            <div class="title-row">
-              <div class="icon-badge"><img src="https://raw.githubusercontent.com/axionteam645/axion-dashboard/main/axion-logo.png" alt="AXION Logo"></div>
+        <div class="panel" id="wallet">
+          <div class="panel-head">
+            <div>
+              <small>Wallet Lite</small>
               <h3>Connected Wallet</h3>
             </div>
-            <p>Reads current wallet state for BNB and the selected imported token. Native BNB and token balances refresh after connection.</p>
-
-            <div class="wallet-grid">
-              <div class="wallet-tile"><small>Address</small><strong class="mono" id="walletAddress">Not connected</strong></div>
-              <div class="wallet-tile"><small>Network</small><strong id="walletNetwork">-</strong></div>
-              <div class="wallet-tile"><small>Pair Status</small><strong id="pairState">-</strong></div>
+            <span class="tab active">Live</span>
+          </div>
+          <div class="panel-body">
+            <div class="stack">
+              <div class="tile"><small>Address</small><strong class="mono" id="walletAddress">Not connected</strong></div>
+              <div class="tile"><small>Network</small><strong id="walletNetwork">-</strong></div>
+              <div class="tile"><small>BNB Balance</small><strong id="bnbBalance">-</strong></div>
+              <div class="tile"><small>Selected Token Balance</small><strong id="axBalance">-</strong></div>
             </div>
-
-            <div class="wallet-grid">
-              <div class="wallet-tile"><small>BNB Balance</small><strong id="bnbBalance">-</strong></div>
-              <div class="wallet-tile"><small>Selected Token Balance</small><strong id="axBalance">-</strong></div>
-              <div class="wallet-tile"><small>Allowance</small><strong id="axAllowance">-</strong></div>
-            </div>
-
             <div class="action-row">
-              <button class="btn btn-secondary" id="refreshBtn" type="button">Refresh Data</button>
-              <button class="btn btn-secondary" id="approveBtn" type="button">Approve Token</button>
+              <button class="btn btn-dark" id="refreshBtn" type="button">Refresh Data</button>
+              <button class="btn btn-yellow" id="approveBtn" type="button">Approve Token</button>
             </div>
             <div class="status" id="walletStatus">Connect MetaMask to read wallet data.</div>
           </div>
-        </article>
+        </div>
       </div>
     </div>
-  </section>
 
-  <section class="section" id="liquidity">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <div class="eyebrow">Liquidity</div>
-          <h2 class="gradient-title">Add / Remove</h2>
+    <div class="container lower-grid">
+      <div class="panel">
+        <div class="panel-head"><small>Liquidity Zone</small><h3>Add Liquidity</h3></div>
+        <div class="panel-body" id="liquidity">
+          <div class="field-grid">
+            <div class="field"><label><span id="liqTokenLabel">Selected Token</span> Amount</label><input id="liqAX" type="number" min="0" step="any" placeholder="0.0" /></div>
+            <div class="field"><label>BNB Amount</label><input id="liqBNB" type="number" min="0" step="any" placeholder="0.0" /></div>
+          </div>
+          <div class="action-row">
+            <button class="btn btn-dark" id="approveLiqBtn" type="button">Approve Token</button>
+            <button class="btn btn-green" id="addLiquidityBtn" type="button">Add Liquidity</button>
+          </div>
+          <div class="status" id="liqStatus">Router.addLiquidityETH will use the currently selected token against BNB.</div>
         </div>
       </div>
 
-      <div class="grid-2">
-        <article class="card">
-          <div class="card-inner">
-            <div class="tag">Add Liquidity</div>
-            <div class="title-row">
-              <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
-              <h3>Selected Token + BNB</h3>
-            </div>
-            <div class="grid-2">
-              <div class="input-shell">
-                <label><span id="liqTokenLabel">Selected Token</span> Amount</label>
-                <input id="liqAX" type="number" min="0" step="any" placeholder="0.0" />
-              </div>
-              <div class="input-shell">
-                <label>BNB Amount</label>
-                <input id="liqBNB" type="number" min="0" step="any" placeholder="0.0" />
-              </div>
-            </div>
-            <div class="action-row">
-              <button class="btn btn-secondary" id="approveLiqBtn" type="button">Approve Token</button>
-              <button class="btn" id="addLiquidityBtn" type="button">Add Liquidity</button>
-            </div>
-            <div class="status" id="liqStatus">Router.addLiquidityETH will use the currently selected token against BNB.</div>
+      <div class="panel">
+        <div class="panel-head"><small>Exit Zone</small><h3>Remove Liquidity</h3></div>
+        <div class="panel-body">
+          <div class="field-grid">
+            <div class="field"><label>LP Token Amount</label><input id="lpAmount" type="number" min="0" step="any" placeholder="0.0" /></div>
+            <div class="field"><label>LP Balance</label><input id="lpBalanceRead" type="text" readonly placeholder="-" /></div>
           </div>
-        </article>
-
-        <article class="card">
-          <div class="card-inner">
-            <div class="tag">Remove Liquidity</div>
-            <div class="title-row">
-              <div class="icon-badge"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></div>
-              <h3>LP Position</h3>
-            </div>
-            <div class="grid-2">
-              <div class="input-shell">
-                <label>LP Token Amount</label>
-                <input id="lpAmount" type="number" min="0" step="any" placeholder="0.0" />
-              </div>
-              <div class="input-shell">
-                <label>LP Balance</label>
-                <input id="lpBalanceRead" type="text" readonly placeholder="-" />
-              </div>
-            </div>
-            <div class="action-row">
-              <button class="btn btn-secondary" id="approveLPBtn" type="button">Approve LP</button>
-              <button class="btn btn-gold" id="removeLiquidityBtn" type="button">Remove Liquidity</button>
-            </div>
-            <div class="status" id="removeStatus">Router.removeLiquidityETHSupportingFeeOnTransferTokens will be used for the selected token if available.</div>
+          <div class="action-row">
+            <button class="btn btn-dark" id="approveLPBtn" type="button">Approve LP</button>
+            <button class="btn btn-red" id="removeLiquidityBtn" type="button">Remove Liquidity</button>
           </div>
-        </article>
+          <div class="status" id="removeStatus">Router.removeLiquidityETHSupportingFeeOnTransferTokens will be used for the selected token if available.</div>
+        </div>
       </div>
 
-      <div class="metric-grid" style="margin-top:18px;">
-        <div class="metric"><small>Pair Address</small><strong class="mono" id="metricPair">-</strong></div>
-        <div class="metric"><small>Reserve Token</small><strong id="metricReserveAX">-</strong></div>
-        <div class="metric"><small>Reserve BNB</small><strong id="metricReserveBNB">-</strong></div>
-        <div class="metric"><small>Total LP Supply</small><strong id="metricLPSupply">-</strong></div>
+      <div class="panel" id="contracts">
+        <div class="panel-head"><small>Import</small><h3>Contract Panel</h3></div>
+        <div class="panel-body">
+          <div class="field-grid">
+            <div class="field">
+              <label>Token Contract Address</label>
+              <input id="customTokenAddress" type="text" placeholder="0x..." />
+            </div>
+          </div>
+          <div class="action-row">
+            <button class="btn btn-yellow" id="addTokenBtn" type="button">Add Token</button>
+            <button class="btn btn-dark" id="syncSelectedPairBtn" type="button">Sync Pair</button>
+          </div>
+          <div class="info-list">
+            <div class="info-row"><span>Selected Token</span><strong class="mono" id="tokenAddressText">Select or import a token</strong></div>
+            <div class="info-row"><span>Router</span><strong class="mono" id="routerAddressText"></strong></div>
+            <div class="info-row"><span>Factory</span><strong class="mono" id="factoryAddressText"></strong></div>
+            <div class="info-row"><span>WBNB</span><strong class="mono" id="wbnbAddressText"></strong></div>
+            <div class="info-row"><span>Current BNB Pair</span><strong class="mono" id="pairAddressText">-</strong></div>
+            <div class="info-row"><span>Total LP Supply</span><strong id="metricLPSupply">-</strong></div>
+          </div>
+          <div class="status" id="contractStatus">Paste a token contract address, click Add Token, then Sync Selected Pair to enable trading.</div>
+          <div class="status" id="tokenLibraryStatus">Default token list loaded.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container contracts-grid">
+      <div class="panel">
+        <div class="panel-head"><small>Reserve Matrix</small><h3>Pool Metrics</h3></div>
+        <div class="panel-body">
+          <div class="info-list">
+            <div class="info-row"><span>Pair Address</span><strong class="mono" id="metricPair">-</strong></div>
+            <div class="info-row"><span>Reserve Token</span><strong id="metricReserveAX">-</strong></div>
+            <div class="info-row"><span>Reserve BNB</span><strong id="metricReserveBNB">-</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><small>Channel Links</small><h3>AXION Links</h3></div>
+        <div class="panel-body">
+          <div class="info-list">
+            <div class="info-row"><span>Website</span><strong><a href="https://axiondefi.com/" target="_blank" rel="noopener noreferrer">axiondefi.com</a></strong></div>
+            <div class="info-row"><span>Telegram</span><strong><a href="https://t.me/axiondefi" target="_blank" rel="noopener noreferrer">@axiondefi</a></strong></div>
+            <div class="info-row"><span>X</span><strong><a href="https://x.com/axiondefix" target="_blank" rel="noopener noreferrer">@axiondefix</a></strong></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <footer class="footer">
     <div class="container footer-row">
-      <div>
-        <strong style="display:block;margin-bottom:6px;">AXION DEX</strong>
-        <div class="muted">Connected frontend for Pancake / Uniswap V2 compatible Router, Factory, and Pair contracts.</div>
-      </div>
+      <div>AXION DEX pro terminal interface for wallet connection, token import, swap routing, and liquidity management.</div>
       <div class="footer-links">
+        <a href="https://axiondefi.com/" target="_blank" rel="noopener noreferrer">Website</a>
         <a href="https://t.me/axiondefi" target="_blank" rel="noopener noreferrer">Telegram</a>
         <a href="https://x.com/axiondefix" target="_blank" rel="noopener noreferrer">X</a>
       </div>
@@ -517,8 +563,7 @@
       'function totalSupply() view returns (uint256)',
       'function balanceOf(address) view returns (uint256)',
       'function allowance(address,address) view returns (uint256)',
-      'function approve(address,uint256) returns (bool)',
-      'function totalSupply() view returns (uint256)'
+      'function approve(address,uint256) returns (bool)'
     ];
 
     const state = {
@@ -551,6 +596,7 @@
       el.className = `status ${type === 'success' ? 'success' : type === 'error' ? 'error' : ''}`.trim();
       el.textContent = message;
     }
+
     async function loadDexScreenerPrice(){
       try {
         const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/bsc/${CONFIG.dexScreenerPairId}`);
@@ -559,7 +605,12 @@
         const pair = data?.pair || data?.pairs?.[0];
         if (!pair) throw new Error('Pair data unavailable.');
         const price = Number(pair.priceUsd || 0);
+        const change = Number(pair.priceChange?.h24 || 0);
         $('heroPrice').textContent = price > 0 ? `$${price.toLocaleString('en-US', {maximumFractionDigits: 8})}` : '-';
+        $('chartPrice').textContent = price > 0 ? `$${price.toLocaleString('en-US', {maximumFractionDigits: 8})}` : '-';
+        $('heroChange').textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+        $('heroChange').classList.remove('up','down');
+        $('heroChange').classList.add(change >= 0 ? 'up' : 'down');
       } catch (_) {
         if ($('heroPrice').textContent === '-' || !$('heroPrice').textContent) $('heroPrice').textContent = '-';
       }
@@ -592,7 +643,9 @@
     function updateRouteText(){
       const inLabel = $('tokenInSelect').selectedOptions[0]?.textContent || '-';
       const outLabel = $('tokenOutSelect').selectedOptions[0]?.textContent || '-';
-      $('routeText').textContent = `${inLabel} → ${outLabel}`;
+      const route = `${inLabel} → ${outLabel}`;
+      $('routeText').textContent = route;
+      $('orderRouteText').textContent = route;
     }
     function tokenMetaByAddress(address){
       if (address === 'BNB') return {address:'BNB', symbol:'BNB', decimals:18, native:true};
@@ -643,6 +696,7 @@
         if (!state.pairAddress || state.pairAddress === ethers.constants.AddressZero) {
           state.pair = null;
           state.pairToken0 = null;
+          $('pairState').textContent = 'No pair';
           setStatus('contractStatus', 'Selected token imported, but no BNB pair was found in the Factory.', 'error');
           return;
         }
@@ -712,6 +766,7 @@
         const formattedLpSupply = formatUnitsSafe(totalLpSupply, 18, 4);
         $('metricLPSupply').textContent = formattedLpSupply;
         $('heroPair').textContent = `${state.tokenSymbol} / BNB`;
+        $('chartPair').textContent = `${state.tokenSymbol} / BNB`;
         $('heroReserveAX').textContent = `${formatUnitsSafe(tokenReserve, state.tokenDecimals, 2)} ${state.tokenSymbol}`;
         $('heroReserveBNB').textContent = `${formatUnitsSafe(bnbReserve, 18, 4)} BNB`;
         $('heroLPSupply').textContent = formattedLpSupply;
@@ -778,7 +833,6 @@
         const tokenIn = $('tokenInSelect').value;
         const tokenOut = $('tokenOutSelect').value;
         const metaIn = tokenMetaByAddress(tokenIn);
-        const metaOut = tokenMetaByAddress(tokenOut);
         const amountIn = parseUnitsSafe($('amountIn').value, metaIn.decimals);
         const path = getSwapPath(tokenIn, tokenOut);
         const amounts = await state.router.getAmountsOut(amountIn, path);
@@ -916,7 +970,6 @@
       }
     }
     init();
-  </script>
   </script>
 </body>
 </html>

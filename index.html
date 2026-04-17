@@ -97,13 +97,14 @@
     .ob-columns,.ob-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:center}
     .ob-columns{color:#6f7785;font-size:11px;text-transform:uppercase;font-weight:700;letter-spacing:.08em;padding-bottom:8px}
     .ob-rows{display:grid;gap:6px;max-height:290px;overflow:auto;padding-right:2px}
-    .ob-row{position:relative;padding:7px 8px;border-radius:10px;font-size:12px;overflow:hidden}
+    .ob-row{position:relative;padding:7px 8px;border-radius:10px;font-size:12px;overflow:hidden;cursor:pointer;transition:.16s ease}
     .ob-row::before{content:"";position:absolute;top:0;bottom:0;right:0;z-index:0;opacity:.18}
     .ob-row > span{position:relative;z-index:1}
     .ob-row.sell::before{left:auto;background:linear-gradient(90deg, transparent, var(--red))}
     .ob-row.buy::before{left:auto;background:linear-gradient(90deg, transparent, var(--green))}
     .ob-row .price.sell{color:var(--red)}
     .ob-row .price.buy{color:var(--green)}
+    .ob-row:hover{border-color:rgba(240,185,11,.18);background:#131a24;transform:translateX(2px)}
     .mid-price{padding:12px 14px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0f141c}
     .mid-price strong{font-size:24px;letter-spacing:-.04em}
     .mid-price span{font-size:12px;color:var(--muted)}
@@ -225,7 +226,7 @@
         <a href="#contractsPanel">Contracts</a>
       </div>
       <div class="nav-actions">
-        <button class="btn btn-yellow" id="walletBtn" type="button">Connect Wallet</button>
+        <button class="btn btn-red" id="walletBtn" type="button">Connect Wallet</button>
       </div>
     </nav>
   </div>
@@ -340,16 +341,33 @@
         </div>
       </section>
 
+      
       <aside class="right-stack">
+
+        <section class="wallet-box panel" id="walletPanel">
+          <div class="mini-head"><div class="mini-title">Wallet Lite</div><span class="pill">Live</span></div>
+          <div class="inner">
+            <div class="stack-rows">
+              <div class="info-tile"><small>Address</small><strong class="mono" id="walletAddress">Not connected</strong></div>
+              <div class="split">
+                <div class="info-tile"><small>Network</small><strong id="walletNetwork">-</strong></div>
+                <div class="info-tile"><small>Pair Status</small><strong id="pairState">-</strong></div>
+              </div>
+              <div class="split">
+                <div class="info-tile"><small>BNB Balance</small><strong id="bnbBalance">-</strong></div>
+                <div class="info-tile"><small>Selected Token</small><strong id="axBalance">-</strong></div>
+              </div>
+              <div class="action-row">
+                <button class="btn btn-dark" id="refreshBtn" type="button">Refresh Data</button>
+              </div>
+              <div class="status" id="walletStatus">Connect MetaMask to read wallet data.</div>
+            </div>
+          </div>
+        </section>
 
         <section class="watchlist-box panel" id="watchlistPanel">
           <div class="mini-head"><div class="mini-title">Watchlist</div><span class="pill">Favorites</span></div>
           <div class="watchlist-list" id="watchlistList"></div>
-        </section>
-
-        <section class="movers-box panel" id="moversPanel">
-          <div class="mini-head"><div class="mini-title">Top Movers</div><span class="pill">Live Scan</span></div>
-          <div class="movers-list" id="moversList"></div>
         </section>
 
         <section class="trade-panel panel">
@@ -397,29 +415,6 @@
           </div>
         </section>
 
-        <section class="wallet-box panel" id="walletPanel">
-          <div class="mini-head"><div class="mini-title">Wallet Lite</div><span class="pill">Live</span></div>
-          <div class="inner">
-            <div class="stack-rows">
-              <div class="info-tile"><small>Address</small><strong class="mono" id="walletAddress">Not connected</strong></div>
-              <div class="split">
-                <div class="info-tile"><small>Network</small><strong id="walletNetwork">-</strong></div>
-                <div class="info-tile"><small>Pair Status</small><strong id="pairState">-</strong></div>
-              </div>
-              <div class="split">
-                <div class="info-tile"><small>BNB Balance</small><strong id="bnbBalance">-</strong></div>
-                <div class="info-tile"><small>Selected Token</small><strong id="axBalance">-</strong></div>
-              </div>
-              <div class="info-tile"><small>Allowance</small><strong id="axAllowance">-</strong></div>
-              <div class="action-row">
-                <button class="btn btn-dark" id="refreshBtn" type="button">Refresh Data</button>
-                <button class="btn btn-yellow" id="approveBtn" type="button">Approve Token</button>
-              </div>
-              <div class="status" id="walletStatus">Connect MetaMask to read wallet data.</div>
-            </div>
-          </div>
-        </section>
-
         <section class="portfolio-box panel" id="portfolioPanel">
           <div class="mini-head"><div class="mini-title">Portfolio</div><span class="pill">Wallet Intelligence</span></div>
           <div class="portfolio-grid">
@@ -429,22 +424,8 @@
           </div>
         </section>
 
-        <section class="signal-box panel" id="signalPanel">
-          <div class="mini-head"><div class="mini-title">AI Market Panel</div><span class="pill">Confidence Engine</span></div>
-          <div class="signal-grid">
-            <div class="signal-card"><small>Trend Score</small><strong id="trendScore">-</strong><span class="tiny" id="trendLabel">-</span></div>
-            <div class="signal-card"><small>Volatility Score</small><strong id="volatilityScore">-</strong><span class="tiny" id="volatilityLabel">-</span></div>
-            <div class="signal-card"><small>Liquidity Health</small><strong id="liquidityHealth">-</strong><span class="tiny" id="liquidityLabel">-</span></div>
-            <div class="signal-card"><small>Execution Quality</small><strong id="executionQuality">-</strong><span class="tiny" id="executionLabel">-</span></div>
-          </div>
-        </section>
-
-        <section class="risk-box panel" id="riskPanel">
-          <div class="mini-head"><div class="mini-title">Risk Monitor</div><span class="pill">Trust Layer</span></div>
-          <div class="risk-list" id="riskList"></div>
-        </section>
-
       </aside>
+
     </div>
 
     <div class="container section-grid" id="liquidityPanels">
@@ -489,10 +470,6 @@
             </div>
             <div class="stack-rows">
               <div class="info-tile"><small>Selected Token</small><strong class="mono" id="tokenAddressText">Select or import a token</strong></div>
-              <div class="info-tile"><small>Router</small><strong class="mono" id="routerAddressText"></strong></div>
-              <div class="info-tile"><small>Factory</small><strong class="mono" id="factoryAddressText"></strong></div>
-              <div class="info-tile"><small>WBNB</small><strong class="mono" id="wbnbAddressText"></strong></div>
-              <div class="info-tile"><small>Current BNB Pair</small><strong class="mono" id="pairAddressText">-</strong></div>
             </div>
             <div class="status" id="contractStatus">Paste a token contract address, click Add Token, then Sync Pair to enable the live chart and AMM depth ladder.</div>
             <div class="status" id="tokenLibraryStatus">Default token list loaded.</div>
@@ -711,15 +688,17 @@
       const volatility = Math.max(0, Math.min(100, Math.abs(change) * 4));
       const liquidityHealth = Math.max(0, Math.min(100, liquidity / 1500));
       const execution = Math.max(0, Math.min(100, 100 - Math.max(0, Number(($('priceImpact')?.textContent || '0').replace('%','')) * 10)));
-      $('trendScore').textContent = `${trend.toFixed(0)}/100`;
-      $('trendLabel').textContent = trend >= 65 ? 'Bullish continuation bias' : trend >= 45 ? 'Balanced market' : 'Weak momentum';
-      $('volatilityScore').textContent = `${volatility.toFixed(0)}/100`;
-      $('volatilityLabel').textContent = volatility >= 65 ? 'Fast market conditions' : volatility >= 35 ? 'Tradable movement' : 'Calm price action';
-      $('liquidityHealth').textContent = `${liquidityHealth.toFixed(0)}/100`;
-      $('liquidityLabel').textContent = liquidityHealth >= 70 ? 'Strong execution environment' : liquidityHealth >= 40 ? 'Usable but watch size' : 'Thin pool conditions';
-      $('executionQuality').textContent = `${execution.toFixed(0)}/100`;
-      $('executionLabel').textContent = execution >= 75 ? 'Low friction' : execution >= 45 ? 'Moderate friction' : 'High friction';
-      renderRiskPanel({liquidityUsd: liquidity, volume24h: Number(meta.volume?.h24 || 0), priceImpact: Number(($('priceImpact')?.textContent || '0').replace('%','')) || 0});
+      if($('trendScore')){
+        $('trendScore').textContent = `${trend.toFixed(0)}/100`;
+        $('trendLabel').textContent = trend >= 65 ? 'Bullish continuation bias' : trend >= 45 ? 'Balanced market' : 'Weak momentum';
+        $('volatilityScore').textContent = `${volatility.toFixed(0)}/100`;
+        $('volatilityLabel').textContent = volatility >= 65 ? 'Fast market conditions' : volatility >= 35 ? 'Tradable movement' : 'Calm price action';
+        $('liquidityHealth').textContent = `${liquidityHealth.toFixed(0)}/100`;
+        $('liquidityLabel').textContent = liquidityHealth >= 70 ? 'Strong execution environment' : liquidityHealth >= 40 ? 'Usable but watch size' : 'Thin pool conditions';
+        $('executionQuality').textContent = `${execution.toFixed(0)}/100`;
+        $('executionLabel').textContent = execution >= 75 ? 'Low friction' : execution >= 45 ? 'Moderate friction' : 'High friction';
+      }
+      if($('riskList')) renderRiskPanel({liquidityUsd: liquidity, volume24h: Number(meta.volume?.h24 || 0), priceImpact: Number(($('priceImpact')?.textContent || '0').replace('%','')) || 0});
       $('tradeRiskBias').textContent = execution >= 75 ? 'Low' : execution >= 45 ? 'Moderate' : 'Elevated';
     }
     function updatePortfolioEstimates(){
@@ -827,7 +806,7 @@
       try{
         if(!state.factory || !state.selectedTokenAddress) throw new Error('Select a token first.');
         state.pairAddress = await state.factory.getPair(state.selectedTokenAddress, CONFIG.wbnbAddress);
-        $('pairAddressText').textContent = state.pairAddress && state.pairAddress !== ethers.constants.AddressZero ? state.pairAddress : 'No BNB pair found';
+        if($('pairAddressText')) $('pairAddressText').textContent = state.pairAddress && state.pairAddress !== ethers.constants.AddressZero ? state.pairAddress : 'No BNB pair found';
         if(!state.pairAddress || state.pairAddress === ethers.constants.AddressZero){
           state.pair=null; state.pairToken0=null; state.currentPairMeta=null;
           $('chartEmpty').classList.add('show');
@@ -846,17 +825,48 @@
       }
     }
 
+    function setWalletButtonState(){
+      const btn = $('walletBtn');
+      if(!btn) return;
+      btn.classList.remove('btn-red','btn-green','btn-yellow');
+      if(state.account){
+        btn.classList.add('btn-green');
+        btn.textContent = 'Disconnect Wallet';
+      } else {
+        btn.classList.add('btn-red');
+        btn.textContent = 'Connect Wallet';
+      }
+    }
+
+    function disconnectWallet(){
+      state.account = null;
+      state.signer = null;
+      state.provider = null;
+      state.router = null;
+      state.factory = null;
+      state.selectedToken = null;
+      $('walletAddress').textContent = 'Not connected';
+      $('walletNetwork').textContent = '-';
+      $('pairState').textContent = '-';
+      $('bnbBalance').textContent = '-';
+      $('axBalance').textContent = '-';
+      $('lpBalanceRead').value = '-';
+      setWalletButtonState();
+      setStatus('walletStatus', 'Wallet disconnected.', '');
+    }
+
     async function connectWallet(){
       try{
+        if(state.account){
+          disconnectWallet();
+          return;
+        }
         if(!window.ethereum) throw new Error('MetaMask not detected.');
         await window.ethereum.request({method:'eth_requestAccounts'});
         await buildContracts();
-        $('walletBtn').textContent = shortAddr(state.account);
         $('walletAddress').textContent = state.account;
         $('walletNetwork').textContent = 'BNB Smart Chain';
-        $('routerAddressText').textContent = CONFIG.routerAddress;
-        $('factoryAddressText').textContent = CONFIG.factoryAddress;
-        $('wbnbAddressText').textContent = CONFIG.wbnbAddress;
+        setWalletButtonState();
         setStatus('walletStatus', 'Wallet connected. Reading balances and pair data…', 'success');
         if(!state.selectedTokenAddress && state.importedTokens.length) await selectToken(state.importedTokens[0].address);
         else await refreshAll();
@@ -870,15 +880,10 @@
       const bnbBal = await state.provider.getBalance(state.account);
       $('bnbBalance').textContent = `${formatUnitsSafe(bnbBal,18,5)} BNB`;
       if(state.selectedToken){
-        const [tokenBal,allowance] = await Promise.all([
-          state.selectedToken.balanceOf(state.account),
-          state.selectedToken.allowance(state.account, CONFIG.routerAddress)
-        ]);
+        const tokenBal = await state.selectedToken.balanceOf(state.account);
         $('axBalance').textContent = `${formatUnitsSafe(tokenBal, state.tokenDecimals, 4)} ${state.tokenSymbol}`;
-        $('axAllowance').textContent = formatUnitsSafe(allowance, state.tokenDecimals, 4);
       } else {
         $('axBalance').textContent = '-';
-        $('axAllowance').textContent = '-';
       }
       if(state.pair){
         const [reserves, lpBalance, totalLpSupply] = await Promise.all([
@@ -1012,21 +1017,49 @@
           });
         }
         sellWrap.innerHTML = sellRows.map(r=>`
-          <div class="ob-row sell">
+          <div class="ob-row sell" data-side="sell" data-price="${r.price}" data-amount="${r.amount}" data-total="${r.total}">
             <span class="price sell">${r.price.toFixed(8)}</span>
             <span>${r.amount.toLocaleString('en-US',{maximumFractionDigits:2})}</span>
             <span>${r.total.toFixed(4)} BNB</span>
           </div>`).join('');
         buyWrap.innerHTML = buyRows.map(r=>`
-          <div class="ob-row buy">
+          <div class="ob-row buy" data-side="buy" data-price="${r.price}" data-amount="${r.amount}" data-total="${r.total}">
             <span class="price buy">${r.price.toFixed(8)}</span>
             <span>${r.amount.toLocaleString('en-US',{maximumFractionDigits:4})}</span>
             <span>${r.total.toFixed(4)} BNB</span>
           </div>`).join('');
+        bindOrderBookClicks();
       } catch(err){
         console.error(err);
         renderEmptyBooks();
       }
+    }
+
+
+    function bindOrderBookClicks(){
+      document.querySelectorAll('.ob-row[data-side]').forEach(row=>{
+        row.addEventListener('click', async ()=>{
+          const side = row.dataset.side;
+          const amount = Number(row.dataset.amount || 0);
+          const total = Number(row.dataset.total || 0);
+          if(!state.selectedTokenAddress || !amount || !total) return;
+          if(side === 'buy'){
+            $('tokenInSelect').value = 'BNB';
+            $('tokenOutSelect').value = state.selectedTokenAddress;
+            $('amountIn').value = total.toFixed(4);
+            $('amountOut').value = amount.toFixed(4);
+          } else {
+            $('tokenInSelect').value = state.selectedTokenAddress;
+            $('tokenOutSelect').value = 'BNB';
+            $('amountIn').value = amount.toFixed(2);
+            $('amountOut').value = total.toFixed(4);
+          }
+          updateRouteText();
+          updatePriceImpact();
+          try{ await getQuote(); }catch{}
+          document.querySelector('.trade-panel')?.scrollIntoView({behavior:'smooth', block:'nearest'});
+        });
+      });
     }
 
     function renderEmptyBooks(){
@@ -1234,6 +1267,21 @@ $('amountOut').value='';
         $('tokenInSelect').value = 'BNB';
         $('tokenOutSelect').value = item.address;
         updateRouteText();
+        if(window.ethereum){
+          try{
+            await window.ethereum.request({
+              method:'wallet_watchAsset',
+              params:{
+                type:'ERC20',
+                options:{
+                  address:item.address,
+                  symbol:String(item.symbol || 'TOKEN').slice(0,5),
+                  decimals:Number(item.decimals || 18)
+                }
+              }
+            });
+          }catch(_){}
+        }
       }catch(err){
         setStatus('tokenLibraryStatus', err.message || 'Token import failed.', 'error');
       }
@@ -1243,20 +1291,17 @@ $('amountOut').value='';
       state.importedTokens = getImportedTokens();
       state.favorites = getFavorites();
       state.viewed = getViewed();
-      $('routerAddressText').textContent = CONFIG.routerAddress;
-      $('factoryAddressText').textContent = CONFIG.factoryAddress;
-      $('wbnbAddressText').textContent = CONFIG.wbnbAddress;
       bindTimeframes();
       updateTokenSelects();
       renderEmptyBooks();
       renderRecentTrades();
       updateChartFrame();
+      setWalletButtonState();
 
       $('walletBtn').addEventListener('click', connectWallet);
       $('refreshBtn').addEventListener('click', refreshAll);
       $('quoteBtn').addEventListener('click', getQuote);
       $('swapBtn').addEventListener('click', swap);
-      $('approveBtn').addEventListener('click', ()=>approveSelectedToken('walletStatus'));
       $('approveLiqBtn').addEventListener('click', ()=>approveSelectedToken('liqStatus'));
       $('addLiquidityBtn').addEventListener('click', addLiquidity);
       $('approveLPBtn').addEventListener('click', approveLP);
@@ -1274,9 +1319,7 @@ $('amountOut').value='';
       updateTokenSelects();
       renderWatchlist();
       loadPairMeta();
-      loadTopMovers();
       setInterval(loadPairMeta, 15000);
-      setInterval(loadTopMovers, 30000);
       setInterval(()=>{ if(state.selectedTokenAddress) renderOrderBook(); }, 15000);
       if(window.ethereum){
         window.ethereum.on?.('accountsChanged', ()=>connectWallet());

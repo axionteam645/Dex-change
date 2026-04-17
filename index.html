@@ -141,13 +141,28 @@
     .info-tile strong{display:block;font-size:14px;line-height:1.4;word-break:break-word;overflow-wrap:anywhere}
     .action-row{display:flex;gap:10px;flex-wrap:wrap}
     .action-row .btn{flex:1}
-    .status{margin-top:12px;padding:12px 13px;border-radius:12px;border:1px solid var(--line);background:#0f151f;color:#d7e0ed;font-size:13px;line-height:1.6;min-height:46px}
+    .status{margin-top:12px;padding:12px 13px;border-radius:12px;border:1px solid var(--line);background:#0f151f;color:#d7e0ed;font-size:13px;line-height:1.6;min-height:46px;min-width:0;word-break:break-word;overflow-wrap:anywhere;white-space:normal}
     .status.success{border-color:rgba(14,203,129,.32);background:rgba(14,203,129,.08);color:#dcfff2}
     .status.error{border-color:rgba(246,70,93,.32);background:rgba(246,70,93,.08);color:#ffe5ea}
     .section-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:16px}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
 
+    
+    .form-grid,.field,.action-row,.status{min-width:0}
+    .remove-box .inner,.liq-box .inner{min-width:0;overflow:hidden}
+    .remove-box .form-grid,.liq-box .form-grid{min-width:0}
+    .remove-box .btn,.liq-box .btn{min-width:0;padding-inline:12px}
+    .remove-box .status,.liq-box .status{max-width:100%}
+
     .footer{padding:18px 0 34px;color:#707887;font-size:13px}
+
+    .mini-head{flex-wrap:wrap}
+    .mini-head strong{font-size:14px;line-height:1.35;min-width:0;word-break:break-word;overflow-wrap:anywhere;text-align:right}
+    .liq-box,.remove-box,.contracts-box,.watchlist-box,.wallet-box,.trade-panel,.portfolio-box{min-width:0}
+    .liq-box .inner,.remove-box .inner,.contracts-box .inner,.watchlist-list,.portfolio-grid{min-width:0}
+    .liq-box .action-row,.remove-box .action-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .liq-box .action-row .btn,.remove-box .action-row .btn{width:100%;min-width:0;padding-inline:12px}
+    #lpBalanceRead,#lpAmount{min-width:0;width:100%}
 
     .watchlist-box,.movers-box,.risk-box,.signal-box,.portfolio-box{background:var(--panel);border:1px solid var(--line);border-radius:16px}
     .watchlist-list,.movers-list,.risk-list,.signal-grid,.portfolio-grid{padding:12px;display:grid;gap:10px}
@@ -199,11 +214,29 @@
 
       .nav{min-height:auto;padding:14px 0;flex-wrap:wrap}
       .nav-links,.nav-actions{width:100%;justify-content:flex-start}
+      .nav-links{flex-wrap:wrap;gap:12px}
       .ticker-row{grid-template-columns:repeat(2,minmax(0,1fr))}
       .market-header{grid-template-columns:1fr}
-      .split,.section-grid{grid-template-columns:1fr}
+      .split,.section-grid,.liq-box .action-row,.remove-box .action-row{grid-template-columns:1fr}
       .action-row .btn{width:100%;flex:auto}
+      .chart-column{grid-template-rows:auto minmax(300px,1fr) 190px}
+      .ob-rows{max-height:220px}
+      .timeframes{gap:6px}
+      .tf-btn{padding:8px 9px;font-size:11px}
+      .mini-head{align-items:flex-start}
+      .mini-head strong{text-align:left;width:100%}
       .container{width:min(calc(100% - 20px), var(--max))}
+    }
+    @media (max-width:520px){
+      .ticker-row{grid-template-columns:1fr}
+      .brand-text strong{font-size:15px}
+      .brand-text small{font-size:9px}
+      .nav-actions .btn{width:100%}
+      .panel-head{align-items:flex-start}
+      .pair-title strong{font-size:24px}
+      .ob-columns,.ob-row,.trade-row{font-size:11px}
+      .field input,.field select{padding:12px}
+      .info-tile strong{font-size:13px}
     }
   </style>
 </head>

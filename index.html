@@ -1376,9 +1376,20 @@ $('amountOut').value='';
     }
 
     function init(){
-      state.importedTokens = getImportedTokens();
-      state.favorites = getFavorites();
-      state.viewed = getViewed();
+      const legacyTokenAddress = '0x9e266c2C148df3456e170B759d77c91AbC67eEAB'.toLowerCase();
+      const currentDefaultToken = ethers.utils.getAddress(CONFIG.defaultTokenAddress);
+      state.importedTokens = getImportedTokens()
+        .filter(token => token?.address && String(token.address).toLowerCase() !== legacyTokenAddress)
+        .filter((token, index, arr) => arr.findIndex(item => String(item.address).toLowerCase() === String(token.address).toLowerCase()) === index);
+      state.importedTokens = [
+        { address: currentDefaultToken, symbol: 'AX', name: 'AXION Token', decimals: 18 },
+        ...state.importedTokens.filter(token => String(token.address).toLowerCase() !== String(currentDefaultToken).toLowerCase())
+      ];
+      saveImportedTokens();
+      state.favorites = getFavorites().filter(pair => String(pair).toLowerCase() !== '0xb7d69e285583f8b444a85a0ab68d24d63ce537de');
+      saveFavorites();
+      state.viewed = getViewed().filter(item => String(item?.tokenAddress || '').toLowerCase() !== legacyTokenAddress && String(item?.pairAddress || '').toLowerCase() !== '0xb7d69e285583f8b444a85a0ab68d24d63ce537de');
+      saveViewed();
       bindTimeframes();
       updateTokenSelects();
       renderEmptyBooks();

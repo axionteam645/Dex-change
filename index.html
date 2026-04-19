@@ -1077,7 +1077,7 @@
     async function renderOrderBook(){
       const sellWrap = $('sellBook');
       const buyWrap = $('buyBook');
-      if(!state.router || !state.selectedTokenAddress || !state.pair){ renderEmptyBooks(); return; }
+      if(!state.selectedTokenAddress || !state.pair){ renderEmptyBooks(); return; }
       try{
         const sellRows = [];
         const buyRows = [];
@@ -1100,58 +1100,55 @@
           return;
         }
 
-        const buyPath = [CONFIG.wbnbAddress, state.selectedTokenAddress];
-        for(const level of CONFIG.depthLevels){
-          const bnbIn = ethers.utils.parseUnits(String(level), 18);
-          const buyAmounts = await state.router.getAmountsOut(bnbIn, buyPath);
-          const tokenOut = buyAmounts[buyAmounts.length - 1];
-          const buyAmount = Number(ethers.utils.formatUnits(tokenOut, state.tokenDecimals));
-          const buyPrice = buyAmount > 0 ? level / buyAmount : 0;
-          buyRows.unshift({
-            price: buyPrice,
-            amount: buyAmount,
-            total: level,
-          });
+        const reserveMidPrice = bnbReserve / tokenReserve;
+        const marketMidPrice = Number(state.currentPairMeta?.priceNative || 0);
+        const midPrice = Number.isFinite(marketMidPrice) && marketMidPrice > 0 ? marketMidPrice : reserveMidPrice;
+        const spreadBase = bnbReserve < 0.05 ? 0.045 : bnbReserve < 0.25 ? 0.025 : 0.0125;
+        const stepPercents = [1, 2, 3, 4, 5, 6, 7].map(multiplier => spreadBase * multiplier);
+
+        const dynamicDepths = CONFIG.depthLevels.filter(level => level < bnbReserve * 0.35);
+        const fallbackDepths = [0.02, 0.04, 0.06, 0.08, 0.10, 0.12, 0.15]
+          .map(ratio => Number((bnbReserve * ratio).toFixed(8)))
+          .filter(level => level > 0);
+        const depthsAscending = (dynamicDepths.length ? dynamicDepths : fallbackDepths)
+          .slice(0, 7)
+          .sort((a,b)=>a-b);
+
+        if(!depthsAscending.length){
+          renderEmptyBooks();
+          return;
         }
 
-        const safeSellDepths = CONFIG.depthLevels.filter(level => level < bnbReserve * 0.9);
-        const dynamicSellDepths = safeSellDepths.length
-          ? safeSellDepths
-          : [0.05, 0.1, 0.2, 0.35, 0.5, 0.65, 0.8]
-              .map(ratio => Number((bnbReserve * ratio).toFixed(8)))
-              .filter(level => level > 0 && level < bnbReserve);
+        stepPercents.forEach((step, index)=>{
+          const total = depthsAscending[Math.min(index, depthsAscending.length - 1)];
+          const sellPrice = midPrice * (1 + step);
+          const buyPrice = midPrice * Math.max(0.00000001, (1 - step));
+          const sellAmount = total / sellPrice;
+          const buyAmount = total / buyPrice;
 
-        for(const level of dynamicSellDepths){
-          const numerator = tokenReserve * level * 10000;
-          const denominator = (bnbReserve - level) * 9975;
-          if(denominator <= 0) continue;
-          const tokenAmountNeeded = numerator / denominator;
-          const sellPrice = tokenAmountNeeded > 0 ? level / tokenAmountNeeded : 0;
-          if(!Number.isFinite(tokenAmountNeeded) || tokenAmountNeeded <= 0) continue;
-          sellRows.push({
-            price: sellPrice,
-            amount: tokenAmountNeeded,
-            total: level,
-          });
-        }
-        if(!sellRows.length){
-          const fallbackLevels = [0.02, 0.04, 0.06, 0.08, 0.12, 0.18, 0.25]
-            .map(ratio => Number((bnbReserve * ratio).toFixed(10)))
-            .filter(level => level > 0 && level < bnbReserve);
-          for(const level of fallbackLevels){
-            const numerator = tokenReserve * level * 10000;
-            const denominator = (bnbReserve - level) * 9975;
-            if(denominator <= 0) continue;
-            const tokenAmountNeeded = numerator / denominator;
-            const sellPrice = tokenAmountNeeded > 0 ? level / tokenAmountNeeded : 0;
-            if(!Number.isFinite(tokenAmountNeeded) || tokenAmountNeeded <= 0) continue;
+          if(Number.isFinite(sellPrice) && Number.isFinite(sellAmount) && sellAmount > 0){
             sellRows.push({
               price: sellPrice,
-              amount: tokenAmountNeeded,
-              total: level,
+              amount: sellAmount,
+              total,
             });
           }
-        }
+
+          if(Number.isFinite(buyPrice) && Number.isFinite(buyAmount) && buyAmount > 0){
+            buyRows.unshift({
+              price: buyPrice,
+              amount: buyAmount,
+              total,
+            });
+          }
+        });
+
+        $('midPrice').textContent = `${midPrice.toFixed(8)} BNB`;
+        const topSell = sellRows[0]?.price || midPrice;
+        const topBuy = buyRows[buyRows.length - 1]?.price || midPrice;
+        const spreadPct = midPrice > 0 ? ((topSell - topBuy) / midPrice) * 100 : 0;
+        $('midSpread').textContent = `${spreadPct.toFixed(2)}%`;
+
         sellWrap.innerHTML = sellRows.map(r=>`
           <div class="ob-row sell" data-side="sell" data-price="${r.price}" data-amount="${r.amount}" data-total="${r.total}">
             <span class="price sell">${r.price.toFixed(8)}</span>
@@ -1162,7 +1159,7 @@
           <div class="ob-row buy" data-side="buy" data-price="${r.price}" data-amount="${r.amount}" data-total="${r.total}">
             <span class="price buy">${r.price.toFixed(8)}</span>
             <span>${r.amount.toLocaleString('en-US',{maximumFractionDigits:4})}</span>
-            <span>${r.total.toFixed(4)} BNB</span>
+            <span>${r.total.toFixed(6)} BNB</span>
           </div>`).join('');
         bindOrderBookClicks();
       } catch(err){

@@ -1077,37 +1077,58 @@
     async function renderOrderBook(){
       const sellWrap = $('sellBook');
       const buyWrap = $('buyBook');
-      if(!state.router || !state.selectedTokenAddress){ renderEmptyBooks(); return; }
+      if(!state.router || !state.selectedTokenAddress || !state.pair){ renderEmptyBooks(); return; }
       try{
         const sellRows = [];
         const buyRows = [];
+        const reserves = await state.pair.getReserves();
+        let tokenReserveRaw;
+        let bnbReserveRaw;
+
+        if(state.pairToken0.toLowerCase() === state.selectedTokenAddress.toLowerCase()){
+          tokenReserveRaw = reserves.reserve0;
+          bnbReserveRaw = reserves.reserve1;
+        } else {
+          tokenReserveRaw = reserves.reserve1;
+          bnbReserveRaw = reserves.reserve0;
+        }
+
+        const tokenReserve = Number(ethers.utils.formatUnits(tokenReserveRaw, state.tokenDecimals));
+        const bnbReserve = Number(ethers.utils.formatUnits(bnbReserveRaw, 18));
+        if(!Number.isFinite(tokenReserve) || !Number.isFinite(bnbReserve) || tokenReserve <= 0 || bnbReserve <= 0){
+          renderEmptyBooks();
+          return;
+        }
+
         for(const level of CONFIG.depthLevels){
           const bnbIn = ethers.utils.parseUnits(String(level), 18);
           const buyPath = [CONFIG.wbnbAddress, state.selectedTokenAddress];
           const buyAmounts = await state.router.getAmountsOut(bnbIn, buyPath);
           const tokenOut = buyAmounts[buyAmounts.length - 1];
-          const buyPrice = level / Number(ethers.utils.formatUnits(tokenOut, state.tokenDecimals));
+          const buyAmount = Number(ethers.utils.formatUnits(tokenOut, state.tokenDecimals));
+          const buyPrice = buyAmount > 0 ? level / buyAmount : 0;
           buyRows.unshift({
             price: buyPrice,
-            amount: Number(ethers.utils.formatUnits(tokenOut, state.tokenDecimals)),
+            amount: buyAmount,
             total: level,
           });
 
-          const tokenIn = ethers.utils.parseUnits(String(level * 1000), state.tokenDecimals);
-          const sellPath = [state.selectedTokenAddress, CONFIG.wbnbAddress];
-          const sellAmounts = await state.router.getAmountsOut(tokenIn, sellPath);
-          const bnbOut = sellAmounts[sellAmounts.length - 1];
-          const sellPrice = Number(ethers.utils.formatUnits(bnbOut, 18)) / (level * 1000);
+          if(level >= bnbReserve) continue;
+          const numerator = tokenReserve * level * 10000;
+          const denominator = (bnbReserve - level) * 9975;
+          if(denominator <= 0) continue;
+          const tokenAmountNeeded = numerator / denominator;
+          const sellPrice = tokenAmountNeeded > 0 ? level / tokenAmountNeeded : 0;
           sellRows.push({
             price: sellPrice,
-            amount: level * 1000,
-            total: Number(ethers.utils.formatUnits(bnbOut, 18)),
+            amount: tokenAmountNeeded,
+            total: level,
           });
         }
         sellWrap.innerHTML = sellRows.map(r=>`
           <div class="ob-row sell" data-side="sell" data-price="${r.price}" data-amount="${r.amount}" data-total="${r.total}">
             <span class="price sell">${r.price.toFixed(8)}</span>
-            <span>${r.amount.toLocaleString('en-US',{maximumFractionDigits:2})}</span>
+            <span>${r.amount.toLocaleString('en-US',{maximumFractionDigits:4})}</span>
             <span>${r.total.toFixed(4)} BNB</span>
           </div>`).join('');
         buyWrap.innerHTML = buyRows.map(r=>`

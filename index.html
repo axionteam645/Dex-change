@@ -322,7 +322,7 @@
             <div class="ob-box">
               <div class="ob-head">
                 <div class="ob-title">Buy Pressure</div>
-                <span class="pill">BNB Quotes</span>
+                <span class="pill">USDT Quotes</span>
               </div>
               <div class="ob-table">
                 <div class="ob-columns"><span>Price</span><span>Amount</span><span>Total</span></div>
@@ -1100,17 +1100,29 @@
           return;
         }
 
-        const reserveMidPrice = bnbReserve / tokenReserve;
-        const marketMidPrice = Number(state.currentPairMeta?.priceNative || 0);
-        const midPrice = Number.isFinite(marketMidPrice) && marketMidPrice > 0 ? marketMidPrice : reserveMidPrice;
-        const spreadBase = bnbReserve < 0.05 ? 0.045 : bnbReserve < 0.25 ? 0.025 : 0.0125;
+        const reserveMidPriceBnb = bnbReserve / tokenReserve;
+        const marketMidPriceUsd = Number(state.currentPairMeta?.priceUsd || 0);
+        const marketMidPriceBnb = Number(state.currentPairMeta?.priceNative || 0);
+        const impliedBnbUsd = (Number.isFinite(marketMidPriceUsd) && marketMidPriceUsd > 0 && Number.isFinite(marketMidPriceBnb) && marketMidPriceBnb > 0)
+          ? (marketMidPriceUsd / marketMidPriceBnb)
+          : 0;
+        const reserveMidPriceUsd = impliedBnbUsd > 0 ? reserveMidPriceBnb * impliedBnbUsd : 0;
+        const midPriceUsd = Number.isFinite(marketMidPriceUsd) && marketMidPriceUsd > 0 ? marketMidPriceUsd : reserveMidPriceUsd;
+        const midPriceBnb = Number.isFinite(marketMidPriceBnb) && marketMidPriceBnb > 0 ? marketMidPriceBnb : reserveMidPriceBnb;
+
+        if(!Number.isFinite(midPriceUsd) || midPriceUsd <= 0 || !Number.isFinite(midPriceBnb) || midPriceBnb <= 0){
+          renderEmptyBooks();
+          return;
+        }
+
+        const liquidityUsd = Number(state.currentPairMeta?.liquidity?.usd || 0);
+        const spreadBase = liquidityUsd < 1000 ? 0.035 : liquidityUsd < 10000 ? 0.02 : 0.01;
         const stepPercents = [1, 2, 3, 4, 5, 6, 7].map(multiplier => spreadBase * multiplier);
 
-        const dynamicDepths = CONFIG.depthLevels.filter(level => level < bnbReserve * 0.35);
-        const fallbackDepths = [0.02, 0.04, 0.06, 0.08, 0.10, 0.12, 0.15]
-          .map(ratio => Number((bnbReserve * ratio).toFixed(8)))
-          .filter(level => level > 0);
-        const depthsAscending = (dynamicDepths.length ? dynamicDepths : fallbackDepths)
+        const notionalUsdLevels = [25, 50, 100, 150, 250, 400, 600]
+          .filter(level => level < Math.max(liquidityUsd * 0.12, 30));
+        const fallbackUsdLevels = [15, 30, 45, 60, 90, 120, 180];
+        const depthsAscending = (notionalUsdLevels.length ? notionalUsdLevels : fallbackUsdLevels)
           .slice(0, 7)
           .sort((a,b)=>a-b);
 
@@ -1120,46 +1132,50 @@
         }
 
         stepPercents.forEach((step, index)=>{
-          const total = depthsAscending[Math.min(index, depthsAscending.length - 1)];
-          const sellPrice = midPrice * (1 + step);
-          const buyPrice = midPrice * Math.max(0.00000001, (1 - step));
-          const sellAmount = total / sellPrice;
-          const buyAmount = total / buyPrice;
+          const totalUsd = depthsAscending[Math.min(index, depthsAscending.length - 1)];
+          const sellPriceUsd = midPriceUsd * (1 + step);
+          const buyPriceUsd = midPriceUsd * Math.max(0.00000001, (1 - step));
+          const sellAmount = totalUsd / sellPriceUsd;
+          const buyAmount = totalUsd / buyPriceUsd;
+          const sellTotalBnb = totalUsd / impliedBnbUsd;
+          const buyTotalBnb = totalUsd / impliedBnbUsd;
 
-          if(Number.isFinite(sellPrice) && Number.isFinite(sellAmount) && sellAmount > 0){
+          if(Number.isFinite(sellPriceUsd) && Number.isFinite(sellAmount) && sellAmount > 0){
             sellRows.push({
-              price: sellPrice,
+              priceUsd: sellPriceUsd,
               amount: sellAmount,
-              total,
+              totalUsd,
+              totalBnb: Number.isFinite(sellTotalBnb) && sellTotalBnb > 0 ? sellTotalBnb : (sellAmount * midPriceBnb),
             });
           }
 
-          if(Number.isFinite(buyPrice) && Number.isFinite(buyAmount) && buyAmount > 0){
+          if(Number.isFinite(buyPriceUsd) && Number.isFinite(buyAmount) && buyAmount > 0){
             buyRows.unshift({
-              price: buyPrice,
+              priceUsd: buyPriceUsd,
               amount: buyAmount,
-              total,
+              totalUsd,
+              totalBnb: Number.isFinite(buyTotalBnb) && buyTotalBnb > 0 ? buyTotalBnb : (buyAmount * midPriceBnb),
             });
           }
         });
 
-        $('midPrice').textContent = `${midPrice.toFixed(8)} BNB`;
-        const topSell = sellRows[0]?.price || midPrice;
-        const topBuy = buyRows[buyRows.length - 1]?.price || midPrice;
-        const spreadPct = midPrice > 0 ? ((topSell - topBuy) / midPrice) * 100 : 0;
+        $('midPrice').textContent = `${formatUsd(midPriceUsd, 8)}`;
+        const topSell = sellRows[0]?.priceUsd || midPriceUsd;
+        const topBuy = buyRows[buyRows.length - 1]?.priceUsd || midPriceUsd;
+        const spreadPct = midPriceUsd > 0 ? ((topSell - topBuy) / midPriceUsd) * 100 : 0;
         $('midSpread').textContent = `${spreadPct.toFixed(2)}%`;
 
         sellWrap.innerHTML = sellRows.map(r=>`
-          <div class="ob-row sell" data-side="sell" data-price="${r.price}" data-amount="${r.amount}" data-total="${r.total}">
-            <span class="price sell">${r.price.toFixed(8)}</span>
+          <div class="ob-row sell" data-side="sell" data-price-usd="${r.priceUsd}" data-amount="${r.amount}" data-total-usd="${r.totalUsd}" data-total-bnb="${r.totalBnb}">
+            <span class="price sell">${formatUsd(r.priceUsd, 8)}</span>
             <span>${r.amount.toLocaleString('en-US',{maximumFractionDigits:4})}</span>
-            <span>${r.total.toFixed(6)} BNB</span>
+            <span>${formatUsd(r.totalUsd, 2)}</span>
           </div>`).join('');
         buyWrap.innerHTML = buyRows.map(r=>`
-          <div class="ob-row buy" data-side="buy" data-price="${r.price}" data-amount="${r.amount}" data-total="${r.total}">
-            <span class="price buy">${r.price.toFixed(8)}</span>
+          <div class="ob-row buy" data-side="buy" data-price-usd="${r.priceUsd}" data-amount="${r.amount}" data-total-usd="${r.totalUsd}" data-total-bnb="${r.totalBnb}">
+            <span class="price buy">${formatUsd(r.priceUsd, 8)}</span>
             <span>${r.amount.toLocaleString('en-US',{maximumFractionDigits:4})}</span>
-            <span>${r.total.toFixed(6)} BNB</span>
+            <span>${formatUsd(r.totalUsd, 2)}</span>
           </div>`).join('');
         bindOrderBookClicks();
       } catch(err){
@@ -1174,18 +1190,18 @@
         row.addEventListener('click', async ()=>{
           const side = row.dataset.side;
           const amount = Number(row.dataset.amount || 0);
-          const total = Number(row.dataset.total || 0);
-          if(!state.selectedTokenAddress || !amount || !total) return;
+          const totalBnb = Number(row.dataset.totalBnb || 0);
+          if(!state.selectedTokenAddress || !amount || !totalBnb) return;
           if(side === 'buy'){
             $('tokenInSelect').value = 'BNB';
             $('tokenOutSelect').value = state.selectedTokenAddress;
-            $('amountIn').value = total.toFixed(4);
+            $('amountIn').value = totalBnb.toFixed(4);
             $('amountOut').value = amount.toFixed(4);
           } else {
             $('tokenInSelect').value = state.selectedTokenAddress;
             $('tokenOutSelect').value = 'BNB';
             $('amountIn').value = amount.toFixed(2);
-            $('amountOut').value = total.toFixed(4);
+            $('amountOut').value = totalBnb.toFixed(4);
           }
           updateRouteText();
           updatePriceImpact();
